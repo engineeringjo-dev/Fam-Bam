@@ -168,6 +168,9 @@
   .dayswitch .ds{display:inline-flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;padding:6px 13px}
   .dayswitch .ds b{font-size:1.05rem}
   .dayswitch .ds span{font-size:.64rem;opacity:.82}
+  .instbtn{margin:14px auto 4px;background:#e0a23a;color:#06303a;border:none;border-radius:14px;padding:12px 20px;font-family:Tajawal,sans-serif;font-weight:900;font-size:1rem;box-shadow:0 4px 14px rgba(224,162,58,.4);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .instbtn:active{transform:scale(.96)}
+  #instFab{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:120;background:#e0a23a;color:#06303a;border:none;border-radius:999px;padding:10px 16px;font-family:Tajawal,sans-serif;font-weight:900;font-size:.9rem;box-shadow:0 4px 16px rgba(0,0,0,.4);cursor:pointer;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -175,11 +178,13 @@
 <div id="login">
   <div class="big">WELCOME <span class="y">FAM BAM</span><br>IN <span class="y">TRABZAM</span> 🎉</div>
   <div class="lsub" id="lsub">منو أنت من الشلّة؟ اضغط اسمك للدخول (بدون باسوورد)</div>
+  <button class="instbtn" onclick="installApp()">📲 <span id="instbtnt">ثبّت التطبيق على الشاشة</span></button>
   <div class="roster" id="roster"></div>
 </div>
 
 <div id="flash"><div class="em" id="fem">👑</div><h2 id="fname"></h2><p id="ftitle"></p><p id="fwelcome"></p></div>
 <canvas id="conf"></canvas>
+<button id="instFab" onclick="installApp()" style="display:none">📲 <span>ثبّت</span></button>
 
 <div class="modal" id="adModal"><div class="modalbox adbox">
   <div class="adtag" id="adTag">إعلان · سيدنا برودكشن 🎬</div>
@@ -468,7 +473,7 @@ function login(id,quiet){USER=ROSTER.find(p=>p.id===id);if(!USER)return;if(USER.
   document.getElementById('fwelcome').textContent=(LANG==='ar'?USER.wAr:USER.wTr);
   document.getElementById('login').classList.add('hide');
   if(!quiet){const f=document.getElementById('flash');f.classList.add('show');confetti();setTimeout(()=>f.classList.remove('show'),2400);}
-  setUchip();renderAll();startPresence();go('home');askNotify();initNotifBaseline();
+  setUchip();renderAll();startPresence();go('home');initNotifBaseline();firstRunPerms();
   if(!quiet)setTimeout(showAd,2700);}
 function logout(){stopShare();stopPresence();if(USER){sset('fambam:pres:'+USER.id,null);}try{localStorage.removeItem('fambam_uid');}catch(e){}USER=null;document.getElementById('login').classList.remove('hide');document.getElementById('presbar').innerHTML='';buildRoster();}
 /* ===== Presence: مين أونلاين الآن ===== */
@@ -604,12 +609,16 @@ function showAd(){if(adShown)return;adShown=true;const m=document.getElementById
   const iv=setInterval(()=>{t--;if(t>0){cnt.textContent=LANG==='ar'?('بيخلص خلال '+t+' ثواني… 😏'):(t+' sn');}else{clearInterval(iv);locked=false;x.classList.add('ready');x.style.top='8px';x.style.insetInlineStart='8px';cnt.textContent=LANG==='ar'?'تمام، فيك تسكّر 🤍':'Kapatabilirsin 🤍';}},1000);}
 
 /* ===== install / PWA ===== */
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;const fab=document.getElementById('instFab');if(fab&&!isStandalone())fab.style.display='inline-flex';});
+function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;}
+window.addEventListener('appinstalled',()=>{const fab=document.getElementById('instFab');if(fab)fab.style.display='none';const ib=document.querySelector('.instbtn');if(ib)ib.style.display='none';});
 function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;});return;}
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);const box=document.getElementById('instBox');
   box.innerHTML=`<h3 style="margin-top:0">📲 ${LANG==='ar'?'نزّل التطبيق ع شاشة الموبايل':'Uygulamayı yükle'}</h3>`+(ios?(LANG==='ar'?'<p>على آيفون (Safari):<br>١) اضغط زر المشاركة ⬆️ تحت.<br>٢) «إضافة إلى الشاشة الرئيسية».<br>٣) «إضافة».</p>':'<p>iPhone (Safari): Paylaş ⬆️ → "Ana Ekrana Ekle".</p>'):(LANG==='ar'?'<p>على أندرويد/سامسونج (Chrome):<br>١) اضغط ⋮ فوق.<br>٢) «تثبيت التطبيق» / «إضافة إلى الشاشة الرئيسية».</p>':'<p>Android (Chrome): ⋮ → "Uygulamayı yükle".</p>'))+`<div class="goodline">${LANG==='ar'?'ملاحظة: التثبيت الكامل بيزبط أكتر لما يكون التطبيق مرفوع على رابط إنترنت.':'Tam yükleme için hosting.'}</div><div class="btnrow"><button class="lnk gold" onclick="document.getElementById('instModal').classList.remove('show')">${LANG==='ar'?'تمام':'Tamam'}</button></div>`;
   document.getElementById('instModal').classList.add('show');}
-function injectPWA(){try{const cv=document.createElement('canvas');cv.width=cv.height=512;const x=cv.getContext('2d');x.fillStyle='#0c4a57';x.fillRect(0,0,512,512);x.fillStyle='#e0a23a';x.textAlign='center';x.textBaseline='middle';x.font='bold 150px sans-serif';x.fillText('FB',256,210);x.font='120px serif';x.fillText('🐟',256,370);const icon=cv.toDataURL('image/png');const ap=document.createElement('link');ap.rel='apple-touch-icon';ap.href=icon;document.head.appendChild(ap);const man={name:'FAM BAM in TRABZAM',short_name:'FAM BAM',start_url:'.',display:'standalone',background_color:'#0c4a57',theme_color:'#0c4a57',icons:[{src:icon,sizes:'512x512',type:'image/png'}]};const url=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/json'}));const ml=document.createElement('link');ml.rel='manifest';ml.href=url;document.head.appendChild(ml);}catch(e){}}
+function rr(x,px,py,w,h,rad){x.beginPath();x.moveTo(px+rad,py);x.arcTo(px+w,py,px+w,py+h,rad);x.arcTo(px+w,py+h,px,py+h,rad);x.arcTo(px,py+h,px,py,rad);x.arcTo(px,py,px+w,py,rad);x.closePath();}
+function spongeIcon(){const cv=document.createElement('canvas');cv.width=cv.height=512;const x=cv.getContext('2d');x.fillStyle='#0c4a57';x.fillRect(0,0,512,512);const bx=128,by=98,bw=256,bh=300;rr(x,bx,by,bw,bh,46);x.fillStyle='#f5da3c';x.fill();x.fillStyle='#e7c324';const holes=[[175,150,13],[225,205,9],[300,160,12],[330,250,12],[185,300,10],[260,330,8],[205,250,7],[315,315,10]];for(var i=0;i<holes.length;i++){x.beginPath();x.arc(holes[i][0],holes[i][1],holes[i][2],0,7);x.fill();}function eye(cx){x.fillStyle='#fff';x.beginPath();x.arc(cx,205,50,0,7);x.fill();x.strokeStyle='#1b6fb3';x.lineWidth=6;x.stroke();x.fillStyle='#2a8fd6';x.beginPath();x.arc(cx,210,21,0,7);x.fill();x.fillStyle='#141414';x.beginPath();x.arc(cx,210,10,0,7);x.fill();x.fillStyle='#fff';x.beginPath();x.arc(cx-4,206,4,0,7);x.fill();}eye(210);eye(302);x.strokeStyle='#141414';x.lineWidth=5;x.beginPath();x.moveTo(168,176);x.lineTo(158,164);x.moveTo(256,170);x.lineTo(256,156);x.moveTo(344,176);x.lineTo(354,164);x.stroke();x.fillStyle='#e7c324';x.beginPath();x.ellipse(256,248,11,20,0,0,7);x.fill();x.strokeStyle='#7a4a16';x.lineWidth=8;x.beginPath();x.arc(256,265,72,0.15*Math.PI,0.85*Math.PI);x.stroke();x.fillStyle='#fff';rr(x,234,315,20,22,4);x.fill();rr(x,262,315,20,22,4);x.fill();x.fillStyle='#d9a91f';const fr=[[202,298],[216,310],[230,298],[286,298],[300,310],[314,298]];for(var j=0;j<fr.length;j++){x.beginPath();x.arc(fr[j][0],fr[j][1],4,0,7);x.fill();}x.fillStyle='#e23b2e';x.fillRect(248,386,16,14);x.beginPath();x.moveTo(256,398);x.lineTo(232,420);x.lineTo(256,442);x.lineTo(280,420);x.closePath();x.fill();x.fillStyle='#fff';x.font='bold 30px sans-serif';x.textAlign='center';x.fillText('FAM BAM',256,470);return cv.toDataURL('image/png');}
+function injectPWA(){try{const icon=spongeIcon();const ap=document.createElement('link');ap.rel='apple-touch-icon';ap.href=icon;document.head.appendChild(ap);const man={name:'FAM BAM in TRABZAM',short_name:'FAM BAM',start_url:'.',display:'standalone',background_color:'#0c4a57',theme_color:'#0c4a57',icons:[{src:icon,sizes:'512x512',type:'image/png'}]};const url=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/json'}));const ml=document.createElement('link');ml.rel='manifest';ml.href=url;document.head.appendChild(ml);}catch(e){}}
 
 /* ===== map ===== */
 let map,markers=[],youMarker=null,youCircle=null,watchId=null,curFilter='all',memberMarkers={},shareUntil=0,hotelMarker=null,INDIRIM={},EDITIND=false;
@@ -624,7 +633,7 @@ function distKm(lat,lng){if(!window._myloc)return null;const R=6371,toR=x=>x*Mat
 function distTxt(p){const d=distKm(p.lat,p.lng);if(d==null)return '';return d<1?(LANG==='ar'?`≈ ${Math.round(d*1000)} م`:`≈ ${Math.round(d*1000)} m`):(LANG==='ar'?`≈ ${d.toFixed(1)} كم`:`≈ ${d.toFixed(1)} km`);}
 function passFilter(p,filter){return filter==='all'||(filter==='food'&&(p.c==='food'||p.c==='gf'))||(filter==='gf'&&(p.gf==='yes'||p.gf==='ok'))||(filter==='kids'&&p.c==='kids')||(filter==='coffee'&&p.c==='coffee')||(filter==='mall'&&p.c==='mall')||(filter==='mosque'&&p.c==='mosque')||(filter==='brands'&&(p.c==='brand'||p.c==='makeup'||p.c==='shoe'))||(filter==='nature'&&['view','walk','vibe','nat'].includes(p.c))||(['dah','mid','kadih'].includes(filter)&&p.pr===filter);}
 const FILTERLBL={all:{ar:'الكل',tr:'Hepsi'},food:{ar:'مطاعم',tr:'Restoran'},coffee:{ar:'قهوة',tr:'Kahve'},gf:{ar:'جلوتين-فري',tr:'Glutensiz'},kids:{ar:'أطفال',tr:'Çocuk'},mall:{ar:'مولات',tr:'AVM'},mosque:{ar:'جوامع',tr:'Cami'},brands:{ar:'تسوّق',tr:'Alışveriş'},dah:{ar:'الفخمة',tr:'Lüks'},mid:{ar:'المتوسطة',tr:'Orta'},kadih:{ar:'الاقتصادية',tr:'Ekonomik'},nature:{ar:'طبيعة ورحلات',tr:'Doğa'}};
-function mapBar(fk){const lbl=(FILTERLBL[fk]||{})[LANG]||'';return `<div class="mapbar"><button class="lnk gold" onclick="go('home');filterMap('"+fk+"')"><span class="fico">${svgIco('map',15,'#fff')}</span> ${LANG==='ar'?'شوف الكل على الخريطة':'Haritada gör'}${lbl?' · '+lbl:''}</button></div>`;}
+function mapBar(fk){const lbl=(FILTERLBL[fk]||{})[LANG]||'';return `<div class="mapbar"><button class="lnk gold" onclick="go('home');filterMap('${fk}')"><span class="fico">${svgIco('map',15,'#fff')}</span> ${LANG==='ar'?'شوف الكل على الخريطة':'Haritada gör'}${lbl?' · '+lbl:''}</button></div>`;}
 function jumpMap(lat,lng){go('home');setTimeout(()=>{if(map){map.invalidateSize();map.setView([lat,lng],17);}},170);}
 function flyTo(lat,lng){if(!map)return;map.setView([lat,lng],17);const mp=document.getElementById('map');if(mp)mp.scrollIntoView({behavior:'smooth',block:'center'});}
 function miniCard(p){const cat=CATS[p.c];const stars=p.r?`★ ${p.r}`:'';const dt=distTxt(p);const gf=(p.gf==='yes')?(LANG==='ar'?'• آمن جلوتين':'• Glutensiz'):(p.gf==='ok'?(LANG==='ar'?'• اسأل':'• Sor'):'');return `<div class="mini"><span class="mico" style="background:${cat.col}">${svgIco(p.c,15,'#fff')}</span><div class="mibody"><div class="mitop"><b>${p[LANG].n}</b>${stars?`<span class="mistar">${stars}</span>`:''}</div><div class="misub">${cat[LANG]} ${gf}${dt?`<span class="midist">${dt}</span>`:''}</div></div><button class="mibtn" onclick="flyTo(${p.lat},${p.lng})" title="${LANG==='ar'?'على الخريطة':'Haritada'}">${svgIco('pin',16,'#15808f')}</button></div>`;}
@@ -634,10 +643,20 @@ function whoVotedHTML(){if(!POLL)return '';const rows=Object.entries(VOTES).map(
 function renderHomeVote(){const el=document.getElementById('homevote');if(!el)return;el.innerHTML=`<div class="hvhead">${svgIco('vote',18,'#0c4a57')} <b>${LANG==='ar'?'تصويت الشلّة':'Oylama'}</b><button class="lnk" onclick="go('vote')">${LANG==='ar'?'كل التصويتات ←':'Tümü ←'}</button></div>`+pollHTML();}
 function notify(msg){let t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}t.textContent=msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),3200);try{if('Notification'in window&&Notification.permission==='granted'&&document.hidden){new Notification('FAM BAM',{body:msg});}}catch(e){}}
 function askNotify(){try{if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}}
+function firstRunPerms(){let done=false;try{done=localStorage.getItem('fambam_perms')==='1';}catch(e){}
+  // show iOS install hint / FAB regardless if not standalone
+  try{const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);const fab=document.getElementById('instFab');if(fab&&!isStandalone()&&(deferredPrompt||ios))fab.style.display='inline-flex';}catch(e){}
+  if(done)return;
+  // 1) notifications (sound) — request permission
+  try{if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}
+  // 2) location — trigger the browser prompt once; if granted, store position
+  try{if(navigator.geolocation)navigator.geolocation.getCurrentPosition(pos=>{window._myloc={lat:pos.coords.latitude,lng:pos.coords.longitude};renderHomeList(curFilter);},()=>{},{enableHighAccuracy:true,timeout:10000,maximumAge:60000});}catch(e){}
+  try{localStorage.setItem('fambam_perms','1');}catch(e){}
+}
 let seenPollId=null,seenClosed={},seenVReqN=0,notifReady=false;
 function initNotifBaseline(){seenPollId=POLL?POLL.id:null;if(POLL)seenClosed[POLL.id]=!!POLL.closed;seenVReqN=(VREQS||[]).length;notifReady=true;}
 function checkNotifs(){if(!notifReady||!USER)return;if(POLL){if(POLL.id!==seenPollId){seenPollId=POLL.id;seenClosed[POLL.id]=!!POLL.closed;notify((LANG==='ar'?'🗳️ تصويت جديد: ':'Yeni oylama: ')+POLL.q);}else if(POLL.closed&&!seenClosed[POLL.id]){seenClosed[POLL.id]=true;notify(LANG==='ar'?'🏆 انتهى التصويت — شوفوا النتيجة':'Sonuçlar açıklandı 🏆');}}if(USER.admin&&(VREQS||[]).length>seenVReqN){const r=VREQS[VREQS.length-1];seenVReqN=VREQS.length;notify((LANG==='ar'?'📨 طلب تصويت من ':'Oylama isteği: ')+(r?r.nm:''));}else{seenVReqN=(VREQS||[]).length;}}
-function filterMap(f){drawMarkers(f);renderHomeList(f);}
+function filterMap(f){if(!map){initMap();}drawMarkers(f);renderHomeList(f);const mp=document.getElementById('map');if(mp)setTimeout(()=>{map&&map.invalidateSize();mp.scrollIntoView({behavior:'smooth',block:'start'});},180);}
 function showOnMap(lat,lng){go('home');setTimeout(()=>{if(map){map.invalidateSize();drawMarkers('brands');map.setView([lat,lng],17);}},170);}
 function toggleEditIndirim(){EDITIND=!EDITIND;if(!EDITIND)sset('fambam:indirim',INDIRIM);renderDiscount();}
 async function toggleIndirim(id){INDIRIM[id]=!INDIRIM[id];await sset('fambam:indirim',INDIRIM);renderDiscount();}
