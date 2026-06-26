@@ -173,6 +173,32 @@
   #instFab{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:120;background:#e0a23a;color:#06303a;border:none;border-radius:999px;padding:10px 16px;font-family:Tajawal,sans-serif;font-weight:900;font-size:.9rem;box-shadow:0 4px 16px rgba(0,0,0,.4);cursor:pointer;align-items:center;gap:6px}
   .halalcard h3{margin-top:0}
   .halalcard .btnrow{flex-wrap:wrap;gap:6px}
+  .moneyform .fld{display:flex;flex-direction:column;gap:3px;margin:7px 0;font-weight:700;font-size:.9rem;color:#0c4a57}
+  .moneyform .fld input,.moneyform .fld select{padding:9px;border:1px solid #cfdcd0;border-radius:10px;font-family:Tajawal,sans-serif;font-size:.95rem}
+  .splitrow{display:flex;gap:8px;margin:8px 0}
+  .sublbl{font-weight:800;color:#0c4a57;margin:8px 0 4px;font-size:.85rem}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .shl{display:flex;flex-direction:column;gap:2px;font-size:.78rem;font-weight:700;color:#333;background:#f7f3ea;padding:5px 7px;border-radius:9px}
+  .shl input{padding:6px;border:1px solid #d7cdbb;border-radius:7px;font-family:Tajawal,sans-serif;font-size:.9rem}
+  .remain{margin:9px 0;padding:8px;background:#eef6f0;border-radius:9px;text-align:center;font-size:.9rem}
+  .lnk.wide{display:block;width:100%;text-align:center;margin-top:6px}
+  .msec{margin:16px 2px 6px;color:#0c4a57}
+  .billrow{padding:11px 13px}
+  .bilhead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.95rem}
+  .bnote{color:#777;font-weight:600;font-size:.85rem}
+  .delx{margin-inline-start:auto;background:#f3dada;color:#b3402f;border:none;border-radius:7px;width:26px;height:26px;font-weight:900;cursor:pointer}
+  .bilbreak{margin-top:5px;font-size:.74rem;color:#666;line-height:1.6}
+  .settle{padding:6px}
+  .txrow{display:flex;align-items:center;gap:7px;padding:9px 6px;border-bottom:1px dashed #e3ddd0}
+  .txrow:last-child{border-bottom:none}
+  .txf{color:#b3402f;font-weight:800;font-size:.9rem}
+  .txar{color:#888;font-weight:900}
+  .txt2{color:#1f7a5a;font-weight:800;font-size:.9rem}
+  .txamt{margin-inline-start:auto;background:#0c4a57;color:#fff;padding:3px 10px;border-radius:999px;font-size:.86rem}
+  .ptable{padding:4px 8px}
+  .ptr{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:4px;padding:7px 2px;border-bottom:1px solid #f0ece2;font-size:.78rem;align-items:center}
+  .pthead{font-weight:900;color:#0c4a57;border-bottom:2px solid #e3ddd0}
+  .ptr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -223,6 +249,7 @@
   <button class="tab" data-t="honey" data-i="nav_honey"></button>
   <button class="tab" data-t="vibes" data-i="nav_vibes"></button>
   <button class="tab" data-t="halal" data-i="nav_halal"></button>
+  <button class="tab" data-t="money" data-i="nav_money"></button>
   <button class="tab" data-t="xlate" data-i="nav_xlate"></button>
   <button class="tab" data-t="vote" data-i="nav_vote"></button>
 </nav>
@@ -241,6 +268,7 @@
   <section id="s-honey"></section>
   <section id="s-vibes"></section>
   <section id="s-halal"></section>
+  <section id="s-money"></section>
   <section id="s-xlate"></section>
   <section id="s-vote"></section>
 </main>
@@ -250,7 +278,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-let LANG='ar',USER=null,VISITED={},POLL=null,VOTES={},WNR=null,WANS={},VREQS=[],SHARING=false,shareTimer=null,deferredPrompt=null,adShown=false;
+let LANG='ar',USER=null,VISITED={},POLL=null,VOTES={},WNR=null,WANS={},VREQS=[],EXPENSES=[],SHARING=false,shareTimer=null,deferredPrompt=null,adShown=false;
 const WX={now:null,daily:{},fail:false};
 const ZORLU=[41.0055884,39.7287177];
 const TRIP=[{y:2026,m:7,d:18},{y:2026,m:7,d:19},{y:2026,m:7,d:20},{y:2026,m:7,d:21},{y:2026,m:7,d:22}];
@@ -427,7 +455,7 @@ const PHRASES=[
 const KIDMISSIONS=[{ar:'شوف بطّة بحديقة زاغنوس 🦆',tr:'Zağnos ördek 🦆'},{ar:'اركب قارب بطّ ببحيرة سيرا 🚣',tr:'Sera pedal bot 🚣'},{ar:'امشِ عالجسر الزجاجي ببوزتبه 🌉',tr:'Boztepe cam köprü 🌉'},{ar:'جرّب تجربة بمركز العلوم 🔬',tr:'Bilim deney 🔬'},{ar:'كول آيس كريم تركي (دوندورما) 🍦',tr:'Dondurma 🍦'},{ar:'شوف غروب الشمس عالبحر 🌅',tr:'Gün batımı 🌅'},{ar:'العب بولينغ بـ Forum 🎳',tr:'Bowling 🎳'}];
 let kidDone={};
 
-const T={nav_home:{ar:'الرئيسية',tr:'Ana'},nav_map:{ar:'الخريطة',tr:'Harita'},nav_days:{ar:'الأيام',tr:'Günler'},nav_fine:{ar:'الفايع',tr:'Lüks'},nav_pray:{ar:'الصلاة',tr:'Namaz'},nav_gf:{ar:'جلوتين-فري',tr:'Glutensiz'},nav_coffee:{ar:'قهوة',tr:'Kahve'},nav_kids:{ar:'الأطفال',tr:'Çocuk'},nav_shop:{ar:'تسوّق',tr:'AVM'},nav_discount:{ar:'İndirim',tr:'İndirim'},nav_honey:{ar:'عسل',tr:'Bal'},nav_halal:{ar:'ما منعمله',tr:'Yapmadıklarımız'},nav_vibes:{ar:'نشاطات ورحلات',tr:'Aktivite'},nav_xlate:{ar:'ترجمة',tr:'Çeviri'},nav_vote:{ar:'تصويت',tr:'Oylama'}};
+const T={nav_home:{ar:'الرئيسية',tr:'Ana'},nav_map:{ar:'الخريطة',tr:'Harita'},nav_days:{ar:'الأيام',tr:'Günler'},nav_fine:{ar:'الفايع',tr:'Lüks'},nav_pray:{ar:'الصلاة',tr:'Namaz'},nav_gf:{ar:'جلوتين-فري',tr:'Glutensiz'},nav_coffee:{ar:'قهوة',tr:'Kahve'},nav_kids:{ar:'الأطفال',tr:'Çocuk'},nav_shop:{ar:'تسوّق',tr:'AVM'},nav_discount:{ar:'İndirim',tr:'İndirim'},nav_honey:{ar:'عسل',tr:'Bal'},nav_halal:{ar:'ما منعمله',tr:'Yapmadıklarımız'},nav_money:{ar:'المصاريف',tr:'Hesap'},nav_vibes:{ar:'نشاطات ورحلات',tr:'Aktivite'},nav_xlate:{ar:'ترجمة',tr:'Çeviri'},nav_vote:{ar:'تصويت',tr:'Oylama'}};
 
 /* ===== Supabase config — غيّر هالسطرين بعد ما تعمل المشروع ===== */
 const SUPA_URL = "https://buuhgmremyeabjaouxee.supabase.co";
@@ -459,7 +487,7 @@ async function slist(p){
   }catch(e){return [];}}
   if(HAS_STORE){try{const r=await window.storage.list(p,true);return (r&&r.keys)?r.keys:[];}catch(e){return [];}}
   return Object.keys(mem).filter(k=>k.startsWith(p));}
-async function refreshState(){const v=await sget('fambam:visited');if(v)VISITED=v;const pl=await sget('fambam:poll');POLL=pl||POLL;const vt=await sget('fambam:votes');if(vt)VOTES=vt;const wn=await sget('fambam:wnr');WNR=wn||WNR;const wa=await sget('fambam:wans');if(wa)WANS=wa;const vr=await sget('fambam:votereqs');if(vr)VREQS=vr;}
+async function refreshState(){const v=await sget('fambam:visited');if(v)VISITED=v;const pl=await sget('fambam:poll');POLL=pl||POLL;const vt=await sget('fambam:votes');if(vt)VOTES=vt;const wn=await sget('fambam:wnr');WNR=wn||WNR;const wa=await sget('fambam:wans');if(wa)WANS=wa;const vr=await sget('fambam:votereqs');if(vr)VREQS=vr;const ex=await sget('fambam:expenses');if(ex)EXPENSES=ex;}
 
 
 /* prayer times */
@@ -512,7 +540,7 @@ function applyLang(){document.documentElement.lang=LANG;document.documentElement
   document.getElementById('credit').textContent=(LANG==='ar')?'صُنع كرفيق رحلة لـ FAM BAM · أوقات الصلاة حساب فلكي تقريبي':'FAM BAM · namaz yaklaşık';
   updateDateWx();if(USER)setUchip();}
 
-const secOf={home:'s-map',map:'s-map',days:'s-days',fine:'s-fine',pray:'s-pray',gf:'s-gf',coffee:'s-coffee',kids:'s-kids',shop:'s-shop',discount:'s-discount',honey:'s-honey',vibes:'s-vibes',halal:'s-halal',xlate:'s-xlate',vote:'s-vote'};
+const secOf={home:'s-map',map:'s-map',days:'s-days',fine:'s-fine',pray:'s-pray',gf:'s-gf',coffee:'s-coffee',kids:'s-kids',shop:'s-shop',discount:'s-discount',honey:'s-honey',vibes:'s-vibes',halal:'s-halal',money:'s-money',xlate:'s-xlate',vote:'s-vote'};
 function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));document.querySelectorAll('main>section').forEach(s=>s.classList.remove('show'));document.getElementById(secOf[t]).classList.add('show');window.scrollTo({top:0,behavior:'smooth'});if(secOf[t]==='s-map'){if(!map)initMap();setTimeout(()=>{if(map){map.invalidateSize();renderHomeList(curFilter);renderHomeVote();}},140);}}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.t)));
 
@@ -589,6 +617,109 @@ function loadVoices(){try{const vs=speechSynthesis.getVoices();trVoice=vs.find(v
 if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
 function speak(txt){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='tr-TR';if(trVoice)u.voice=trVoice;u.rate=.9;speechSynthesis.speak(u);}
 function gtrans(sl,tl){const box=document.getElementById('trinput');const txt=encodeURIComponent((box.value||'').trim());window.open(`https://translate.google.com/?sl=${sl}&tl=${tl}&text=${txt}&op=translate`,'_blank');}
+
+/* ===== expenses / settle-up (TL). Only Raya edits. ===== */
+function pName(id){const r=ROSTER.find(x=>x.id===id);return r?r[LANG]:id;}
+function pEm(id){const r=ROSTER.find(x=>x.id===id);return r?r.em:'';}
+function fmtTL(n){n=Math.round((Number(n)||0)*100)/100;const v=n.toLocaleString('en-US',{maximumFractionDigits:2});return v+' ₺';}
+function moneyPeople(){return ROSTER.slice();}
+async function addBill(){
+  if(!USER||USER.id!=='raya'){notify(LANG==='ar'?'راية بس بتسجّل المصاريف':'Sadece Raya');return;}
+  const payer=document.getElementById('mPayer').value;
+  const total=parseFloat(document.getElementById('mTotal').value||'0');
+  const note=(document.getElementById('mNote').value||'').trim();
+  if(!payer||!total||total<=0){notify(LANG==='ar'?'حطّي مين دفع والمجموع':'Ödeyen ve tutar lazım');return;}
+  const shares={};let sum=0;
+  moneyPeople().forEach(p=>{const el=document.getElementById('sh_'+p.id);const v=el?parseFloat(el.value||'0'):0;if(v&&v>0){shares[p.id]=Math.round(v*100)/100;sum+=v;}});
+  if(sum<=0){notify(LANG==='ar'?'وزّعي المبلغ على الناس':'Kişilere dağıtın');return;}
+  if(Math.abs(sum-total)>0.5){const ok=confirm((LANG==='ar'?'الموزّع ('+fmtTL(sum)+') مش مساوي للمجموع ('+fmtTL(total)+'). تأكيد الحفظ؟':'Toplam uyuşmuyor. Kaydet?'));if(!ok)return;}
+  EXPENSES.push({id:Date.now(),payer,total:Math.round(total*100)/100,note,shares});
+  await sset('fambam:expenses',EXPENSES);
+  notify(LANG==='ar'?'✅ تمت إضافة الفاتورة':'Eklendi');
+  renderMoney();
+}
+async function delBill(id){
+  if(!USER||USER.id!=='raya')return;
+  if(!confirm(LANG==='ar'?'حذف الفاتورة؟':'Sil?'))return;
+  EXPENSES=EXPENSES.filter(b=>b.id!==id);
+  await sset('fambam:expenses',EXPENSES);renderMoney();
+}
+function splitEqualAll(){
+  const total=parseFloat(document.getElementById('mTotal').value||'0');const ppl=moneyPeople();
+  if(!total||total<=0){notify(LANG==='ar'?'حطّي المجموع أول':'Önce tutar');return;}
+  const each=Math.floor((total/ppl.length)*100)/100;let used=each*ppl.length;let rem=Math.round((total-used)*100)/100;
+  ppl.forEach((p,i)=>{const el=document.getElementById('sh_'+p.id);if(el){el.value=(i===0?(each+rem):each).toFixed(2);}});
+  updateRemain();
+}
+function clearShares(){moneyPeople().forEach(p=>{const el=document.getElementById('sh_'+p.id);if(el)el.value='';});updateRemain();}
+function updateRemain(){
+  const total=parseFloat(document.getElementById('mTotal').value||'0');let sum=0;
+  moneyPeople().forEach(p=>{const el=document.getElementById('sh_'+p.id);if(el){const v=parseFloat(el.value||'0');if(v)sum+=v;}});
+  const rem=Math.round((total-sum)*100)/100;const el=document.getElementById('mRemain');
+  if(el){el.innerHTML=(LANG==='ar'?'موزّع: ':'Dağıtılan: ')+'<b>'+fmtTL(sum)+'</b> · '+(LANG==='ar'?'باقي: ':'Kalan: ')+'<b style="color:'+(Math.abs(rem)<0.5?'#1f7a5a':(rem<0?'#b3402f':'#c97a16'))+'">'+fmtTL(rem)+'</b>';}
+}
+function computeSettle(){
+  const paid={},owed={};moneyPeople().forEach(p=>{paid[p.id]=0;owed[p.id]=0;});
+  EXPENSES.forEach(b=>{paid[b.payer]=(paid[b.payer]||0)+b.total;for(const k in b.shares){owed[k]=(owed[k]||0)+b.shares[k];}});
+  const bal={};moneyPeople().forEach(p=>{bal[p.id]=Math.round((paid[p.id]-owed[p.id])*100)/100;});
+  // min transactions greedy
+  const cred=[],deb=[];for(const id in bal){const v=bal[id];if(v>0.009)cred.push({id,v});else if(v<-0.009)deb.push({id,v:-v});}
+  cred.sort((a,b)=>b.v-a.v);deb.sort((a,b)=>b.v-a.v);
+  const tx=[];let i=0,j=0;let g=0;
+  while(i<deb.length&&j<cred.length&&g<200){g++;const m=Math.round(Math.min(deb[i].v,cred[j].v)*100)/100;if(m>0)tx.push({from:deb[i].id,to:cred[j].id,amt:m});deb[i].v=Math.round((deb[i].v-m)*100)/100;cred[j].v=Math.round((cred[j].v-m)*100)/100;if(deb[i].v<=0.009)i++;if(cred[j].v<=0.009)j++;}
+  return {paid,owed,bal,tx};
+}
+function renderMoney(){
+  const ar=LANG==='ar';const canEdit=USER&&USER.id==='raya';
+  let html=`<h2>${svgIco('coins',20,'#0c4a57')} ${ar?'تقسيم المصاريف':'Hesap Bölüşme'}</h2>`;
+  html+=`<p class="lead">${ar?'راية المديرة بتسجّل كل فاتورة (مين دفع + المجموع + كم على كل واحد بالليرة)، والتطبيق بيحسب المقاصة — مين عليه لمين بأقل عدد تحويلات. 💵':'Raya faturaları girer, uygulama hesaplaşmayı hesaplar.'}</p>`;
+  // form (raya only)
+  if(canEdit){
+    const opts=moneyPeople().map(p=>`<option value="${p.id}">${p.em} ${p[LANG]}</option>`).join('');
+    const inputs=moneyPeople().map(p=>`<label class="shl">${p.em} ${p[LANG]}<input type="number" inputmode="decimal" min="0" step="0.01" id="sh_${p.id}" oninput="updateRemain()" placeholder="0"></label>`).join('');
+    html+=`<div class="card moneyform">
+      <h3>${ar?'➕ فاتورة جديدة':'Yeni fatura'}</h3>
+      <label class="fld">${ar?'مين دفع؟':'Ödeyen'}<select id="mPayer">${opts}</select></label>
+      <label class="fld">${ar?'اسم المحل (اختياري)':'Yer (ops.)'}<input type="text" id="mNote" placeholder="${ar?'مثلاً: عشاء بوردو مافي':'...'}"></label>
+      <label class="fld">${ar?'مجموع الفاتورة (₺)':'Toplam ₺'}<input type="number" inputmode="decimal" min="0" step="0.01" id="mTotal" oninput="updateRemain()" placeholder="0"></label>
+      <div class="splitrow"><button class="lnk" onclick="splitEqualAll()">${ar?'⚖️ بالتساوي على الكل':'Eşit böl'}</button><button class="lnk" onclick="clearShares()">${ar?'🧹 تصفير':'Temizle'}</button></div>
+      <div class="sublbl">${ar?'كم على كل واحد (₺):':'Kişi başı (₺):'}</div>
+      <div class="pgrid">${inputs}</div>
+      <div id="mRemain" class="remain"></div>
+      <button class="lnk gold wide" onclick="addBill()">${ar?'💾 احفظ الفاتورة':'Kaydet'}</button>
+    </div>`;
+  } else {
+    html+=`<div class="goodline">${ar?'👀 العرض فقط — راية المديرة بس بتسجّل وبتعدّل المصاريف.':'Sadece görüntüleme.'}</div>`;
+  }
+  // bills list
+  if(EXPENSES.length){
+    html+=`<h3 class="msec">${ar?'🧾 الفواتير ('+EXPENSES.length+')':'Faturalar'}</h3>`;
+    EXPENSES.slice().reverse().forEach(b=>{
+      const br=Object.keys(b.shares).map(k=>`${pEm(k)}${pName(k)}: ${fmtTL(b.shares[k])}`).join(' · ');
+      html+=`<div class="card billrow"><div class="bilhead"><b>${pEm(b.payer)} ${pName(b.payer)}</b> ${ar?'دفع':'ödedi'} <b style="color:#1f7a5a">${fmtTL(b.total)}</b>${b.note?` <span class="bnote">— ${b.note}</span>`:''}${canEdit?`<button class="delx" onclick="delBill(${b.id})">✕</button>`:''}</div><div class="bilbreak">${br}</div></div>`;
+    });
+    // settlement
+    const {paid,owed,bal,tx}=computeSettle();
+    html+=`<h3 class="msec">${ar?'⚖️ المقاصة — مين عليه لمين':'Hesaplaşma'}</h3>`;
+    if(tx.length){
+      html+=`<div class="card settle">`+tx.map(t=>`<div class="txrow"><span class="txf">${pEm(t.from)} ${pName(t.from)}</span><span class="txar">→</span><span class="txt2">${pEm(t.to)} ${pName(t.to)}</span><b class="txamt">${fmtTL(t.amt)}</b></div>`).join('')+`</div>`;
+      html+=`<div class="goodline" style="text-align:center">${ar?'✅ هيك بتخلص المقاصة بأقل تحويلات':'En az transfer'}</div>`;
+    } else {
+      html+=`<div class="goodline" style="text-align:center">${ar?'✅ كل الحسابات متساوية — ما في مستحقّات':'Herkes ödeşti'}</div>`;
+    }
+    // per-person table
+    html+=`<h3 class="msec">${ar?'📊 تفصيل كل واحد':'Kişi detay'}</h3><div class="card ptable"><div class="ptr pthead"><span>${ar?'الشخص':'Kişi'}</span><span>${ar?'دفع':'Ödedi'}</span><span>${ar?'عليه':'Payı'}</span><span>${ar?'الصافي':'Net'}</span></div>`;
+    moneyPeople().forEach(p=>{const nb=bal[p.id]||0;if((paid[p.id]||0)===0&&(owed[p.id]||0)===0)return;const col=Math.abs(nb)<0.5?'#555':(nb>0?'#1f7a5a':'#b3402f');const sign=nb>0?'+':'';html+=`<div class="ptr"><span>${p.em} ${p[LANG]}</span><span>${fmtTL(paid[p.id]||0)}</span><span>${fmtTL(owed[p.id]||0)}</span><b style="color:${col}">${sign}${fmtTL(nb)}</b></div>`;});
+    html+=`</div><div class="sublbl" style="text-align:center">${ar?'الصافي الموجب = إله، السالب = عليه':'+ alacak, − borç'}</div>`;
+    if(canEdit)html+=`<div class="btnrow" style="justify-content:center;margin-top:8px"><button class="lnk" onclick="resetExpenses()">${ar?'🗑️ مسح كل المصاريف':'Tümünü sıfırla'}</button></div>`;
+  } else {
+    html+=`<div class="goodline" style="text-align:center;margin-top:10px">${ar?'لسا ما في فواتير — راية بتبلّش تسجّل 💵':'Henüz fatura yok'}</div>`;
+  }
+  document.getElementById('s-money').innerHTML=html;
+  if(canEdit)setTimeout(updateRemain,30);
+}
+async function resetExpenses(){if(!USER||USER.id!=='raya')return;if(!confirm(LANG==='ar'?'مسح كل المصاريف نهائياً؟':'Hepsini sil?'))return;EXPENSES=[];await sset('fambam:expenses',EXPENSES);renderMoney();}
+
 function renderHalal(){
   const ar=LANG==='ar';
   const head=`<h2>${svgIco('halal',20,'#1f7a5a')} ${ar?'نشاطات ما منعملها':'Yapmadıklarımız'}</h2><p class="lead">${ar?'أنشطة اخترنا نتجنّبها التزاماً بقيمنا — ومعها بدائل حلال وممتعة بنفس المنطقة، ووين ناكل لو رُحنا هناك.':'Değerlerimiz gereği yapmadığımız aktiviteler + helal alternatifler.'}</p>`;
@@ -640,7 +771,7 @@ function renderFine(){const list=PLACES.filter(p=>p.pr==='dah');const order={hot
   document.getElementById('s-fine').innerHTML=`<h2>${svgIco('fine',20,'#9c27b0')} ${LANG==='ar'?'الفايع — أرقى أماكن طرابزون':'Lüks — Trabzon\'un en iyileri'}</h2>
    <p class="lead">${LANG==='ar'?'ملاحظة صريحة: «الفايع» بطرابزون يعني سمك فاخر وبيوت تاريخية ومطاعم فنادق وإطلالات — مش مطاعم غربية فخمة. هدول الأرقى:':'Trabzon\'da lüks = premium balık, tarihi konak, otel restoranı, manzara.'}</p>
    ${mapBar('dah')}${list.map(p=>placeCard(p)).join('')}`;}
-function renderAll(){applyLang();renderHome();renderDays();renderFine();renderPray();renderGF();renderList('s-coffee',()=>catSection(['coffee']));renderKids(curKid);renderDiscount();renderHoney();renderList('s-vibes',()=>catSection(['view','walk','vibe','nat']));renderHalal();renderXlate();renderVote();if(map){drawMarkers(curFilter);renderHomeList(curFilter);renderHomeVote();}updateMeter();}
+function renderAll(){applyLang();renderHome();renderDays();renderFine();renderPray();renderGF();renderList('s-coffee',()=>catSection(['coffee']));renderKids(curKid);renderDiscount();renderHoney();renderList('s-vibes',()=>catSection(['view','walk','vibe','nat']));renderHalal();renderMoney();renderXlate();renderVote();if(map){drawMarkers(curFilter);renderHomeList(curFilter);renderHomeVote();}updateMeter();}
 
 /* ===== ad (syed) ===== */
 function showAd(){if(adShown)return;adShown=true;const m=document.getElementById('adModal'),sen=document.getElementById('adSen'),cnt=document.getElementById('adCount'),x=document.getElementById('adX');
