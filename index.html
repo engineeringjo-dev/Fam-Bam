@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c4a57">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FAM BAM">
+<title>FAM BAM in TRABZAM 🎉</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--sea:#0c4a57;--sea2:#0a3a44;--teal:#15808f;--gold:#e0a23a;--gold-d:#b9821c;--cream:#f6f1e7;--paper:#fffdf8;--ink:#1d2b2e;--muted:#5c6f72;--line:#e6ddcb;--good:#23a455;--warn:#c2862a;--red:#b5402f;--dah:#9c27b0;--mid:#2f80c4;--kadih:#3a8f4a;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;padding:0}
+  body{font-family:'Tajawal',-apple-system,'Segoe UI','Noto Sans Arabic',Tahoma,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;font-size:16px}
+  #login{position:fixed;inset:0;z-index:200;background:linear-gradient(150deg,#0c4a57,#072b33 70%,#04181d);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;overflow:auto}
+  #login.hide{display:none}
+  .big{font-size:2rem;font-weight:900;line-height:1.15;margin:0 0 4px}.big .y{color:var(--gold)}
+  .lsub{color:#bfe0e5;font-size:.95rem;margin-bottom:18px}
+  .roster{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:560px}
+  .who{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.16);color:#fff;font-family:inherit;font-weight:800;font-size:.92rem;padding:11px 13px;border-radius:14px;cursor:pointer;transition:.15s;width:152px}
+  .who:active{background:var(--gold);color:#3a2700}
+  .who .em{font-size:1.3rem;display:block}.who .rl{display:block;font-weight:700;font-size:.66rem;opacity:.92;margin-top:2px}.who .jk{display:block;font-weight:500;font-size:.6rem;opacity:.7;margin-top:1px}
+  #flash{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;background:rgba(7,30,36,.94);color:#fff;text-align:center;padding:24px;flex-direction:column}
+  #flash.show{display:flex}
+  #flash .em{font-size:3.6rem;animation:pop .6s ease}#flash h2{font-size:1.7rem;margin:6px 0 2px;font-weight:900}#flash .y{color:var(--gold)}#flash p{color:#cfe9ec;margin:2px 0;font-size:1rem;max-width:340px}
+  @keyframes pop{0%{transform:scale(0) rotate(-20deg)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+  canvas#conf{position:fixed;inset:0;z-index:240;pointer-events:none;display:none}
+  header{background:linear-gradient(135deg,var(--sea),var(--sea2) 55%,#072b33);color:#fff;padding:14px 14px 8px;position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;left:-40px;bottom:-30px;width:150px;height:150px;background:radial-gradient(circle,rgba(224,162,58,.25),transparent 70%)}
+  .htop{display:flex;align-items:center;gap:8px;justify-content:space-between}.brand{display:flex;align-items:center;gap:9px}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(224,162,58,.25)}
+  h1{font-size:1.18rem;margin:0;font-weight:900}
+  .hbtns{display:flex;gap:6px;align-items:center}
+  .uchip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:4px 9px;border-radius:999px;font-size:.74rem;cursor:pointer}
+  .langbtn,.instbtn{border:none;font-family:inherit;font-weight:800;font-size:.72rem;padding:6px 10px;border-radius:999px;cursor:pointer}
+  .langbtn{background:var(--gold);color:#3a2700}.instbtn{background:#fff;color:var(--sea)}
+  .datew{margin-top:8px;display:flex;align-items:center;gap:8px;font-size:.82rem;color:#dfeff1;font-weight:700}
+  .datew .wx{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:3px 10px;border-radius:999px}
+  .meter{margin-top:9px;background:rgba(255,255,255,.12);border-radius:999px;height:22px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+  .meter .fill{height:100%;background:linear-gradient(90deg,var(--gold),#f3c46b);width:0;transition:width .5s;border-radius:999px}
+  .meter .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+  .presbar{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:8px;min-height:0}
+  .presbar:empty{display:none}
+  .presbar .pb-lbl{font-size:.7rem;font-weight:800;color:#7bdca0;display:flex;align-items:center;gap:4px}
+  .presbar .pb-lbl::before{content:'';width:7px;height:7px;border-radius:50%;background:#34d27b;box-shadow:0 0 0 3px rgba(52,210,123,.25);animation:pbpulse 2s infinite}
+  @keyframes pbpulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .presbar .pb-who{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.13);border:1px solid rgba(123,220,160,.4);padding:2px 8px;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff}
+  nav{display:flex;gap:6px;overflow-x:auto;padding:9px 12px;background:var(--sea2);position:sticky;top:0;z-index:30;scrollbar-width:none}nav::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;border:none;background:rgba(255,255,255,.08);color:#dff1f3;padding:7px 12px;border-radius:999px;font-family:inherit;font-size:.8rem;font-weight:800;cursor:pointer;white-space:nowrap}
+  .tab.active{background:var(--gold);color:#3a2700}
+  main{max-width:760px;margin:0 auto;padding:14px 14px 90px}
+  section{display:none;animation:fade .25s}section.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2{font-size:1.16rem;margin:6px 0 4px;color:var(--sea)}h2 .em{color:var(--gold-d)}
+  .lead{color:var(--muted);font-size:.9rem;margin:0 0 12px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:11px}
+  .card.isv{border-color:#bfe3cb;background:#f4fbf6}
+  .card h3{margin:0 0 6px;font-size:1rem;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+  .pill{font-size:.66rem;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .vdone{background:#d8f1e0;color:#1d6b3e}
+  .rate{margin-inline-start:auto;font-size:.78rem;color:var(--gold-d);font-weight:800;white-space:nowrap}
+  .card p{margin:5px 0 0;font-size:.88rem;color:#384a4d}
+  .mallx{margin-top:8px;font-size:.82rem;background:#fff7ec;border:1px dashed var(--gold);border-radius:10px;padding:8px 10px}.mallx div{margin:3px 0}
+  .mens{background:linear-gradient(120deg,#13313a,#0c4a57);color:#fff;border-radius:12px;padding:11px 13px;margin-bottom:12px;font-size:.88rem;font-weight:700}
+  .mens a{color:#ffe0a3;font-weight:800;text-decoration:none}
+  .btnrow{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+  .lnk{font-size:.76rem;font-weight:800;text-decoration:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);color:var(--sea);background:#fff;cursor:pointer;font-family:inherit}
+  .lnk.gold{background:var(--gold);border-color:var(--gold);color:#3a2700}.lnk.gmap{background:#1a73e8;border-color:#1a73e8;color:#fff}
+  .goodline{background:#eaf6ee;border-inline-start:4px solid var(--good);padding:8px 10px;border-radius:8px;font-size:.8rem;color:#1f5c38;margin-top:8px}
+  .joke{background:linear-gradient(120deg,#fff6e2,#fdeede);border:1px dashed var(--gold);border-radius:14px;padding:12px;margin-bottom:12px;font-weight:700;color:#6a4a13}
+  .joke .top{display:flex;gap:10px;align-items:center}.joke .fish{font-size:1.7rem;animation:swim 2s ease-in-out infinite}.joke .tr{font-size:.74rem;color:#9a7a3a;font-weight:600;margin-top:6px;opacity:.85}
+  @keyframes swim{0%,100%{transform:translateX(0) rotate(-4deg)}50%{transform:translateX(6px) rotate(4deg)}}
+  .count{background:linear-gradient(120deg,var(--sea),var(--teal));color:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px;text-align:center}.count b{font-size:1.4rem;display:block}
+  .syed{background:linear-gradient(120deg,#7a4a2b,#9c6a3a);color:#fff;border-radius:12px;padding:11px 13px;margin-bottom:12px;text-align:center;font-weight:800}
+  .dayhead{background:linear-gradient(120deg,var(--teal),var(--sea));color:#fff;border-radius:16px;padding:13px 15px;margin-bottom:12px}
+  .dayhead .d{font-size:.78rem;color:#bfe9ee;font-weight:800}.dayhead h3{margin:2px 0 0;font-size:1.1rem}.dayhead .tip{font-size:.8rem;color:#dff6f8;margin-top:6px}.dayhead .wx{font-size:.8rem;color:#fff;background:rgba(255,255,255,.15);display:inline-block;padding:2px 9px;border-radius:999px;margin-top:7px}
+  .dayswitch,.picker{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .ds{flex:1;min-width:60px;border:1.5px solid var(--line);background:#fff;color:var(--sea);font-family:inherit;font-weight:800;font-size:.8rem;padding:8px;border-radius:11px;cursor:pointer}.ds.on{background:var(--sea);color:#fff;border-color:var(--sea)}
+  .slot{font-size:.7rem;font-weight:900;letter-spacing:.4px;color:var(--gold-d);margin:13px 2px 6px;text-transform:uppercase}
+  .opt{border:1.5px solid var(--line);background:#fff;color:var(--sea);font-family:inherit;font-weight:800;font-size:.82rem;padding:8px 12px;border-radius:11px;cursor:pointer}.opt.on{background:var(--sea);color:#fff;border-color:var(--sea)}
+  #map{height:56vh;min-height:330px;border-radius:16px;border:1px solid var(--line);z-index:1}
+  .maptools{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+  .mt{border:1px solid var(--line);font-family:inherit;font-weight:800;font-size:.75rem;padding:7px 11px;border-radius:999px;cursor:pointer;background:#fff;color:var(--sea)}
+  .mt.live{background:var(--sea);color:#fff;border-color:var(--sea)}.mt.share{background:var(--gold);color:#3a2700;border-color:var(--gold)}
+  .mt.dah{border-color:var(--dah);color:var(--dah)}.mt.mid{border-color:var(--mid);color:var(--mid)}.mt.kadih{border-color:var(--kadih);color:var(--kadih)}
+  .statusbar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px;font-size:.8rem;color:var(--muted);margin-bottom:10px}
+  .dot-live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#bbb;margin-inline-end:6px}.dot-live.on{background:#22b14c;animation:pulse 1.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,177,76,.5)}70%{box-shadow:0 0 0 7px rgba(34,177,76,0)}100%{box-shadow:0 0 0 0}}
+  ul.clean{margin:8px 0 0;padding-inline-start:18px;font-size:.88rem;color:#384a4d}ul.clean li{margin-bottom:5px}
+  .checklist{list-style:none;padding:0;margin:10px 0 0}.checklist li{display:flex;gap:8px;font-size:.86rem;margin-bottom:7px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px}.checklist .ck{color:var(--good);font-weight:900}
+  .phrase{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin-bottom:6px;font-size:.86rem}.phrase b{color:var(--sea)}.phrase .tr{color:#7a4a2b;font-weight:700}
+  .spk{border:none;background:#eef6f7;color:var(--sea);border-radius:8px;padding:6px 9px;cursor:pointer;font-size:.9rem}
+  .input{width:100%;font-family:inherit;font-size:.9rem;padding:10px;border:1.5px solid var(--line);border-radius:11px;background:#fff;margin-bottom:8px}
+  .bar{background:#eee;border-radius:999px;height:30px;position:relative;overflow:hidden;margin-bottom:8px;border:1px solid var(--line)}.bar .bf{height:100%;background:linear-gradient(90deg,var(--teal),#3bb6c5);width:0;transition:width .5s}.bar .bt{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-weight:800;font-size:.82rem;color:#1d3a40}.bar.win .bf{background:linear-gradient(90deg,var(--gold),#f3c46b)}
+  .votebtn{width:100%;text-align:start;border:1.5px solid var(--line);background:#fff;font-family:inherit;font-weight:800;font-size:.9rem;padding:11px 13px;border-radius:12px;cursor:pointer;margin-bottom:8px}.votebtn.mine{border-color:var(--teal);background:#e9f7f9}
+  .answ{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:7px;font-size:.88rem}.answ b{color:var(--sea)}
+  .ptime{display:flex;justify-content:space-between;padding:7px 10px;border-bottom:1px solid var(--line);font-size:.9rem}.ptime:last-child{border-bottom:none}.ptime b{color:var(--sea)}
+  .modal{position:fixed;inset:0;z-index:300;background:rgba(7,30,36,.78);display:none;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}
+  .modalbox{background:var(--paper);border-radius:16px;padding:18px;max-width:420px;width:100%;max-height:85vh;overflow:auto}
+  .adbox{text-align:center;position:relative;min-height:170px;overflow:hidden}
+  .adtag{font-size:.66rem;font-weight:800;color:#9a7a3a;letter-spacing:1px}
+  .adsen{font-size:1.2rem;font-weight:900;color:var(--sea);margin:26px 10px 14px;line-height:1.5}
+  .adcount{font-size:.8rem;color:var(--muted);font-weight:700}
+  .adx{position:absolute;top:8px;inset-inline-start:8px;border:none;background:#eee;border-radius:50%;width:34px;height:34px;font-weight:900;font-size:1rem;cursor:pointer;color:#777}
+  .adx.ready{background:var(--gold);color:#3a2700}
+  .credit{background:var(--sea2);color:#cfe9ec;text-align:center;font-size:.7rem;padding:9px}
+  body.tr{direction:ltr}body.tr nav,body.tr .picker,body.tr .dayswitch,body.tr .maptools{direction:ltr}
+  .leaflet-popup-content{margin:10px 12px}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="big">WELCOME <span class="y">FAM BAM</span><br>IN <span class="y">TRABZAM</span> 🎉</div>
+  <div class="lsub" id="lsub">منو أنت من الشلّة؟ اضغط اسمك للدخول (بدون باسوورد)</div>
+  <div class="roster" id="roster"></div>
+</div>
+
+<div id="flash"><div class="em" id="fem">👑</div><h2 id="fname"></h2><p id="ftitle"></p><p id="fwelcome"></p></div>
+<canvas id="conf"></canvas>
+
+<div class="modal" id="adModal"><div class="modalbox adbox">
+  <div class="adtag" id="adTag">إعلان · سيدنا برودكشن 🎬</div>
+  <div class="adsen" id="adSen"></div>
+  <div class="adcount" id="adCount"></div>
+  <button class="adx" id="adX">✕</button>
+</div></div>
+
+<div class="modal" id="instModal"><div class="modalbox" id="instBox"></div></div>
+
+<header>
+  <div class="htop">
+    <div class="brand"><span class="dot"></span><h1>FAM BAM <span style="color:var(--gold)">in</span> TRABZAM</h1></div>
+    <div class="hbtns">
+      <button class="instbtn" id="instbtn" onclick="installApp()">📲</button>
+      <button class="langbtn" id="langbtn" onclick="toggleLang()">TR</button>
+      <span class="uchip" id="uchip" onclick="logout()"></span>
+    </div>
+  </div>
+  <div class="datew"><span id="dateTxt"></span><span class="wx" id="wxTxt">⛅ …</span></div>
+  <div class="meter"><div class="fill" id="mfill"></div><div class="lbl" id="mlbl"></div></div>
+  <div id="presbar" class="presbar"></div>
+</header>
+
+<nav id="tabs">
+  <button class="tab active" data-t="home" data-i="nav_home"></button>
+  <button class="tab" data-t="map" data-i="nav_map"></button>
+  <button class="tab" data-t="days" data-i="nav_days"></button>
+  <button class="tab" data-t="fine" data-i="nav_fine"></button>
+  <button class="tab" data-t="pray" data-i="nav_pray"></button>
+  <button class="tab" data-t="gf" data-i="nav_gf"></button>
+  <button class="tab" data-t="coffee" data-i="nav_coffee"></button>
+  <button class="tab" data-t="kids" data-i="nav_kids"></button>
+  <button class="tab" data-t="shop" data-i="nav_shop"></button>
+  <button class="tab" data-t="honey" data-i="nav_honey"></button>
+  <button class="tab" data-t="vibes" data-i="nav_vibes"></button>
+  <button class="tab" data-t="xlate" data-i="nav_xlate"></button>
+  <button class="tab" data-t="vote" data-i="nav_vote"></button>
+</nav>
+
+<main>
+  <section id="s-home" class="show"></section>
+  <section id="s-map"></section>
+  <section id="s-days"></section>
+  <section id="s-fine"></section>
+  <section id="s-pray"></section>
+  <section id="s-gf"></section>
+  <section id="s-coffee"></section>
+  <section id="s-kids"></section>
+  <section id="s-shop"></section>
+  <section id="s-honey"></section>
+  <section id="s-vibes"></section>
+  <section id="s-xlate"></section>
+  <section id="s-vote"></section>
+</main>
+
+<div class="credit" id="credit"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+let LANG='ar',USER=null,VISITED={},POLL=null,VOTES={},WNR=null,WANS={},SHARING=false,shareTimer=null,deferredPrompt=null,adShown=false;
+const WX={now:null,daily:{},fail:false};
+const ZORLU=[41.0055884,39.7287177];
+const TRIP=[{y:2026,m:7,d:18},{y:2026,m:7,d:19},{y:2026,m:7,d:20},{y:2026,m:7,d:21},{y:2026,m:7,d:22}];
+
+const ROSTER=[
+ {id:'hamza',ar:'حمزة',tr:'Hamza',admin:true,em:'👑',tAr:'أدمن البرنامج',tTr:'Admin',jAr:'الكلمة الأخيرة إله 😎',jTr:'Son söz onda',wAr:'الريّس حاضر — وين القرار؟ 😎',wTr:'Reis hazır 😎'},
+ {id:'raya',ar:'راية',tr:'Raya',em:'💼',tAr:'المَديرة',tTr:'Müdire',jAr:'المَديرة… وقوف! 💼',jTr:'Müdire geldi',wAr:'المَديرة وصلت — اشتغلوا! 💼',wTr:'Müdire geldi! 💼'},
+ {id:'zaid',ar:'زيد',tr:'Zeyd',em:'🔬',tAr:'دكتور علم أمراض',tTr:'Patoloji dr.',jAr:'دايماً عالميكروسكوب 🔬',jTr:'Hep mikroskopta',wAr:'لحظة… بس أشوفها عالميكروسكوب 🔬',wTr:'Mikroskopta bakayım 🔬'},
+ {id:'ruya',ar:'رؤيا',tr:'Rüya',em:'☢️',tAr:'دكتورة علاج كيماوي وإشعاعي',tTr:'Onkoloji dr.',jAr:'الجرعة جاهزة ☢️',jTr:'Doz hazır',wAr:'الدكتورة دخلت — الجرعة بوقتها ☢️',wTr:'Doktor geldi ☢️'},
+ {id:'ramz',ar:'رمز',tr:'Ramz',em:'📐',tAr:'مهندسة معمارية',tTr:'Mimar',jAr:'كل شي لازم متناسق 📐',jTr:'Simetri şart',wAr:'وين الزاوية القائمة؟ 📐',wTr:'Dik açı nerede? 📐'},
+ {id:'mansour',ar:'منصور',tr:'Mansur',em:'🕌',tAr:'مفتي الجمع والقصر للمسافر',tTr:'Yolcu namazı müftüsü',jAr:'مسافرين؟ جمع وقصر! 🕌',jTr:'Cem & kasr 🕌',wAr:'مسافرين… فجمع وقصر! وبكرة سهرة 😅',wTr:'Yolcuyuz, kısaltırız! 🕌'},
+ {id:'hasan',ar:'حسن',tr:'Hasan',em:'🎚️',tAr:'مسؤول الإضاءة والصوتيات',tTr:'Işık & ses',jAr:'سمّاعات + ميكساج 🎧',jTr:'Mix',wAr:'الصوت والإضاءة جاهزين 🎚️',wTr:'Ses & ışık hazır 🎚️'},
+ {id:'rawan',ar:'روان',tr:'Revan',em:'🗣️',tAr:'صوتها مبحوح (بس مش هيك 😏)',tTr:'Sesi "kısık" 😏',jAr:'AAAH… عفواً صوتي مبحوح 🗣️',jTr:'Sesim kısık güya',wAr:'AAAH وصلت روان! 🗣️',wTr:'AAAH Revan! 🗣️'},
+ {id:'ahmad',ar:'أحمد',tr:'Ahmed',em:'☕',tAr:'خبير القهوة (وزوج سيبال)',tTr:'Kahve uzmanı',jAr:'هاي مش قهوة مختصة 😤',jTr:'Bu özel kahve değil',wAr:'خبير القهوة وصل ☕ (وين الإسبريسو؟)',wTr:'Kahve uzmanı geldi ☕'},
+ {id:'sibel',ar:'Sibel',tr:'Sibel',tronly:true,em:'🧭',tAr:'الدليلة السياحية (زوجة أحمد)',tTr:'Rehber',jAr:'اتبعوني! 🧭',jTr:'Beni takip edin',wAr:'Hoş geldin! دليلتنا حاضرة 🤍',wTr:'Hoş geldin! 🤍'},
+ {id:'kanda',ar:'كندا',tr:'Kanda',em:'🤖',tAr:'بتدرس الذكاء الاصطناعي (بنت رمز ومنصور)',tTr:'AI öğrencisi',jAr:'اسألوا الـAI 🤖',jTr:'AI\'ya sor',wAr:'خبيرة الـAI وصلت 🤖',wTr:'AI uzmanı geldi 🤖'},
+ {id:'tema',ar:'تيما',tr:'Tima',em:'🎓',tAr:'خلّصت ثاني ثانوي (بنت رمز ومنصور)',tTr:'Lise 2 bitirdi',jAr:'مبروك النجاح 🎓',jTr:'Tebrikler 🎓',wAr:'الناجحة وصلت 🎓',wTr:'Geldi 🎓'},
+ {id:'hala',ar:'هالة',tr:'Hala',em:'⚡',tAr:'هندسة كهرباء (بنت حسن وروان)',tTr:'Elektrik müh.',jAr:'في تيار؟ أنا جاهزة ⚡',jTr:'Akım var mı? ⚡',wAr:'مهندسة الكهربا وصلت ⚡',wTr:'Geldi ⚡'},
+ {id:'rami',ar:'رامي',tr:'Rami',em:'💪',tAr:'أبو كوع (ابن حسن وروان)',tTr:'"Dirsek" lakaplı',jAr:'انتبهوا للكوع! 💪',jTr:'Dirseğe dikkat! 💪',wAr:'أبو كوع وصل — وسّعوا الطريق 💪',wTr:'Geldi 💪'},
+ {id:'leith',ar:'ليث',tr:'Leys',em:'➗',tAr:'محب الرياضيات (ابن حمزة وراية)',tTr:'Matematik sever',jAr:'خلّيها معادلة ➗',jTr:'Denkleme çevir ➗',wAr:'عبقري الرياضيات وصل ➗',wTr:'Geldi ➗'},
+ {id:'tara',ar:'تارا',tr:'Tara',em:'🎉',tAr:'قنبلة السعادة (بنت حمزة وراية)',tTr:'Mutluluk bombası',jAr:'الفرح وصل 🎉',jTr:'Neşe geldi 🎉',wAr:'قنبلة السعادة انفجرت 🎉',wTr:'Geldi 🎉'},
+ {id:'alma',ar:'ألمى',tr:'Alma',em:'🇦🇺',tAr:'أسترالية (بنت رؤيا وزيد)',tTr:'Avustralyalı',jAr:'G\'day! 🦘',jTr:'G\'day! 🦘',wAr:'وصلت من أستراليا 🇦🇺🦘',wTr:'Geldi 🇦🇺'},
+ {id:'taj',ar:'تاج',tr:'Taj',em:'🇦🇺',tAr:'أسترالي (ابن رؤيا وزيد)',tTr:'Avustralyalı',jAr:'G\'day mate! 🦘',jTr:'G\'day! 🦘',wAr:'وصل من أستراليا 🇦🇺🦘',wTr:'Geldi 🇦🇺'},
+ {id:'saif',ar:'سيف',tr:'Sayf',em:'🇦🇺',tAr:'أسترالي (ابن رؤيا وزيد)',tTr:'Avustralyalı',jAr:'G\'day! 🦘',jTr:'G\'day! 🦘',wAr:'وصل من أستراليا 🇦🇺🦘',wTr:'Geldi 🇦🇺'},
+];
+
+const CATS={gf:{ar:'جلوتين-فري',tr:'Glutensiz',col:'#2e8b57',em:'🌾'},food:{ar:'أكل محلي',tr:'Yöresel',col:'#15808f',em:'🍽️'},coffee:{ar:'قهوة مختصة',tr:'Özel kahve',col:'#7a4a2b',em:'☕'},kids:{ar:'أطفال وألعاب',tr:'Çocuk',col:'#3a7bd5',em:'👧'},view:{ar:'إطلالة',tr:'Manzara',col:'#7b4fc0',em:'🌅'},shop:{ar:'تسوّق',tr:'Alışveriş',col:'#c43a72',em:'🛍️'},gift:{ar:'هدايا',tr:'Hediyelik',col:'#d4709a',em:'🎁'},nat:{ar:'طبيعة',tr:'Doğa',col:'#1d6b5e',em:'🌿'},walk:{ar:'تمشّي',tr:'Yürüyüş',col:'#2f9e8f',em:'🚶'},mall:{ar:'مول',tr:'AVM',col:'#e0a23a',em:'🛒'},hotel:{ar:'الفندق',tr:'Otel',col:'#b5402f',em:'🏨'},vibe:{ar:'نشاط تركي',tr:'Türk vibe',col:'#0c8aa6',em:'🎈'},mosque:{ar:'جامع',tr:'Cami',col:'#1f7a5a',em:'🕌'}};
+const GF={yes:{ar:'🌾 آمن / مخصّص',tr:'🌾 Güvenli',col:'#1f8a4c'},ok:{ar:'🌾 يناسب — اسأل',tr:'🌾 Uygun — sor',col:'#3a8f6a'},careful:{ar:'⚠️ محدود — احذر',tr:'⚠️ Sınırlı',col:'#c2862a'},no:{ar:'✕ غير مناسب',tr:'✕ Uygun değil',col:'#b5402f'},na:{ar:'',tr:'',col:'#9aa'}};
+const PR={dah:{ar:'💎 الفايع DAH',tr:'💎 DAH',col:'#9c27b0'},mid:{ar:'🙂 الطبقة المتوسطة',tr:'🙂 Orta',col:'#2f80c4'},kadih:{ar:'💪 الطبقة الكادحة',tr:'💪 Halk',col:'#3a8f4a'}};
+
+const PLACES=[
+ {id:'zorlu',c:'hotel',pr:'dah',lat:41.0055884,lng:39.7287177,r:'4.3',gf:'ok',ar:{n:'فندق زورلو جراند ⭐⭐⭐⭐⭐',d:'إقامتكم — أول ٥ نجوم بالبحر الأسود، قلب الميدان. مطاعمه: Façuna (سمك) وLa Couronne D\'or (عشاء راقٍ) وCafe\'Z (حلويات). 🌾 ضيفة سيلياك لقت خبز جلوتين-فري بالفطور + محطة أومليت — بس البوفيه فيه احتمال تلوّث، أكّدوا مع الشيف. حمّام تركي وسبا ومسبح 7ص–10م.'},tr:{n:'Zorlu Grand Otel ⭐⭐⭐⭐⭐',d:'Karadeniz ilk 5 yıldız. Façuna, La Couronne D\'or. 🌾 Kahvaltıda glutensiz ekmek (büfe—şefe sor).'}},
+ {id:'xakademi',c:'gf',pr:'mid',lat:40.9914006,lng:39.794813,r:'4.8',gf:'yes',k:'indoor',ar:{n:'X Akademi Gluten Free Cafe',d:'🌾 المقهى الوحيد المخصّص ١٠٠٪ جلوتين-فري بطرابزون (4.8★) — الأأمن لراية بلا قلق تلوّث. خبز وبيتزا وبرغر وكيك كله آمن. بيليتلي/أورتاحيسار (~١٥–٢٠د شرقاً بتكسي). يومياً 9ص–11م. ☎️ 0546 828 07 61.'},tr:{n:'X Akademi Gluten Free Cafe',d:'Tek %100 glutensiz kafe (4.8★). Pelitli, ~15-20 dk. 09–23.'}},
+ {id:'berweuli',c:'food',pr:'dah',lat:41.0053202,lng:39.7209566,r:'4.6',gf:'yes',ar:{n:'Berweuli Ala Carte',d:'⭐ الوحيد بطرابزون المدرج بدليل السيلياك التركي. الشيف إشرف كَسكين عامل ~٦٠ صنف جلوتين-فري (كفتة، إتلي إكمك جلوتين-فري). بيت تاريخي مرمّم بإطلالة على أكبر جامع والبحر، سعر معقول. ⚠️ المطبخ مشترك (مش مخصّص) — أكّدوا بروتوكول التلوّث، واطلبوا طاولة داخلية بدون تدخين. ☎️ 0542 379 38 54.'},tr:{n:'Berweuli Ala Carte',d:'⭐ Çölyak listesinde. Şef Eşref Keskin ~60 glutensiz yemek. Karışık mutfak—çapraz bulaşmayı sor.'}},
+ {id:'kalkanoglu',c:'food',pr:'kadih',lat:41.008171,lng:39.721108,r:'4.3',gf:'ok',ar:{n:'Tarihi Kalkanoğlu Pilavı',d:'أيقونة من 1856. رز/فاصوليا/لحمة (اسأل عن المرق). مغلق الأحد.'},tr:{n:'Tarihi Kalkanoğlu Pilavı',d:'1856. Pazar kapalı.'}},
+ {id:'bordomavi',c:'food',pr:'dah',lat:40.9918112,lng:39.7282604,r:'4.2',gf:'ok',ar:{n:'Bordo Mavi Balık 💎',d:'أشهر مطعم سمك بطرابزون — الشيف إرشان يلماز (فرع بدبي كمان)، بيقولوا أول مطعم سمك كاراديز يدخل دليل ميشلان. شوربة بحرية، لافراك مشوي، روبيان. إطلالة بحر ومدينة. ⚠️ بعض المحليين بيشكوا إنه غالي/سياحي — قارنوا. مشوي آمن للجلوتين (تجنّبوا المقلي بدقيق). احجزوا بعطلة الأسبوع.'},tr:{n:'Bordo Mavi Balık 💎',d:'En ünlü balıkçı (Şef Erşan Yılmaz, Dubai şubesi). ⚠️ Bazıları "pahalı/turistik" der. Izgara glutensiz.'}},
+ {id:'kalender',c:'food',pr:'kadih',lat:41.0047442,lng:39.7268414,r:'4.5',gf:'careful',ar:{n:'Kalender Lokanta',d:'أكل بيتي. ⚠️ المنتي قمح — مشاوي/خضار. مغلق الأحد.'},tr:{n:'Kalender Lokanta',d:'Pazar kapalı.'}},
+ {id:'pekunlu',c:'food',pr:'kadih',lat:41.0021326,lng:39.692714,r:'4.2',gf:'no',ar:{n:'Pekünlü Merkez Pide',d:'بيدة 1957، رخيص. ✕ مش للجلوتين.'},tr:{n:'Pekünlü Merkez Pide',d:'✕ Çölyak değil.'}},
+ {id:'beton',c:'food',pr:'kadih',lat:41.0049295,lng:39.7292726,r:'4.3',gf:'careful',ar:{n:'Beton Helva',d:'حلاوة طحينية وآيس كريم. ⚠️ اطلب وزن وفاتورة.'},tr:{n:'Beton Helva',d:'Tartı iste.'}},
+ {id:'okkam',c:'food',pr:'dah',lat:40.984687,lng:39.7296615,r:'4.1',gf:'ok',ar:{n:'Okkam Restoran',d:'أرقى أجواء. مشاوي آمنة. ⚠️ غالي وسياحي.'},tr:{n:'Okkam',d:'Şık. ⚠️ Pahalı.'}},
+ {id:'espressolab',c:'coffee',pr:'mid',lat:41.0062718,lng:39.7273227,r:'4.4',gf:'ok',ar:{n:'Espressolab (Bordo Mavi)',d:'قهوة مختصة، قلب البلد. (تأييد أحمد ☕)'},tr:{n:'Espressolab',d:'Özel kahve.'}},
+ {id:'nevada',c:'coffee',pr:'mid',lat:40.9970629,lng:39.6770967,r:'4.8',gf:'ok',ar:{n:'Nevada Coffee',d:'قهوة مختصة + تشيز كيك سان سيباستيان مذهل.'},tr:{n:'Nevada Coffee',d:'Özel kahve + cheesecake.'}},
+ {id:'boztepe',c:'view',pr:'kadih',lat:40.9981425,lng:39.7318837,r:'4.4',gf:'na',k:'play',ar:{n:'شرفة بوزتبه',d:'بانوراما + جسر زجاجي يحبّه الأطفال + شاي بسماور وغروب البحر. مكان الأهالي. ⚠️ بعض الكافيهات غالية (شاي ~٧٠₺) — اسألوا السعر قبل. 9ص–9م.'},tr:{n:'Boztepe Seyir Terası',d:'Panorama + cam köprü. ⚠️ Çay pahalı olabilir.'}},
+ {id:'kosk',c:'kids',pr:'kadih',lat:40.9797269,lng:39.6975109,r:'4.6',gf:'na',k:'nature',ar:{n:'قصر أتاتورك + حديقة',d:'بيكنيك عائلي، إطلالة بحر. 9ص–7م.'},tr:{n:'Atatürk Köşkü',d:'Aile pikniği.'}},
+ {id:'bilim',c:'kids',pr:'kadih',lat:41.0114834,lng:39.7197408,r:'4.5',gf:'na',k:'learn',ar:{n:'مركز طرابزون للعلوم',d:'مجاني، تجارب. ⚠️ مغلق الاثنين.'},tr:{n:'Bilim Merkezi',d:'Ücretsiz. Pzt kapalı.'}},
+ {id:'zagnos',c:'kids',pr:'kadih',lat:41.0039718,lng:39.7182715,r:'4.3',gf:'na',k:'nature',ar:{n:'حديقة وادي زاغنوس',d:'بطّ وأرانب. مجانية، مشي من الفندق.'},tr:{n:'Zağnos Parkı',d:'Ücretsiz.'}},
+ {id:'sera',c:'kids',pr:'mid',lat:40.9818309,lng:39.6097543,r:'4.2',gf:'ok',k:'play',ar:{n:'بحيرة سيرا (قوارب بطّ)',d:'قوارب البطّ يعشقها الأطفال. ~20د.'},tr:{n:'Sera Gölü',d:'Pedal bot.'}},
+ {id:'ganita',c:'walk',pr:'kadih',lat:41.0089713,lng:39.7319544,r:'4.5',gf:'na',ar:{n:'كورنيش غانيتا',d:'أجمل ساحل للمشي عالغروب.'},tr:{n:'Ganita Sahil',d:'En güzel yürüyüş.'}},
+ {id:'kunduracilar',c:'shop',pr:'mid',lat:41.0061943,lng:39.7291678,r:'4.3',gf:'na',ar:{n:'شارع كوندوراجيلار (ذهب الزوجات 💍)',d:'قلب تسوّق الأهالي وأشهر شارع صاغة — أساور «الحصير» الذهبية الطرابزونية الشهيرة (Trabzon hasır)، وفضّيات. أزقّة مشي ممتعة وسط البلد.'},tr:{n:'Kunduracılar Cd.',d:'Kuyumcular + Trabzon hasırı.'}},
+ {id:'bedesten',c:'gift',pr:'mid',lat:41.0078276,lng:39.7236656,r:'4.0',gf:'na',ar:{n:'بيدستان (هدايا)',d:'سوق مقبّى تاريخي للهدايا.'},tr:{n:'Bedesten',d:'Hediyelik.'}},
+ {id:'forum',c:'mall',pr:'mid',lat:40.9994717,lng:39.7599236,r:'4.2',rc:'23 ألف',gf:'ok',k:'indoor',ar:{n:'Forum Trabzon AVM',d:'أكبر وأنظف مول بالمنطقة (4.2★ · ٢٣ ألف تقييم) — ماركات تركية وعالمية، فود كورت بإطلالة بحر، سينما، وMigros برفّ جلوتين-فري. ⚠️ مش رخيص حتى بالتخفيضات، والباركنغ زحمة.'},tr:{n:'Forum Trabzon AVM',d:'En büyük AVM (4.2★, 23B). Deniz manzaralı food court + Migros.'},mall:{kids:{ar:'الأطفال يلعبوا؟ ✅ ألعاب + سينما + بولينغ.',tr:'Çocuk? ✅'},couples:{ar:'الأزواج يلعبوا؟ 😏 بولينغ وسينما سوا.',tr:'Çiftler? 😏'},coffee:{ar:'قهوة الأزواج: ☕ Espressolab داخل المول.',tr:'☕ Espressolab.'}}},
+ {id:'rubenis',c:'mall',pr:'mid',lat:41.0051738,lng:39.7160236,r:'3.5',rc:'4.8 ألف',gf:'na',ar:{n:'Rubenis (Varlıbaş سابقاً) AVM',d:'ثالث مولات طرابزون بأتاپارك (3.5★ · ٤٬٨٠٠ تقييم) — أصغر وأهدأ، ماركات تركية. ⚠️ بعض المحلات سكّرت. ميزته: قرب المواقع التاريخية (جامع غُلبهار، وادي زاغنوس، فاتح).'},tr:{n:'Rubenis AVM',d:'3. AVM, Atapark (3.5★, 4.8B). Küçük & sakin; bazı mağazalar kapalı. Tarihi yerlere yakın.'},mall:{kids:{ar:'الأطفال يلعبوا؟ ✅ + زاغنوس (بطّ) ٥د.',tr:'Çocuk? ✅ Zağnos 5dk.'},couples:{ar:'الأزواج: 🌿 تمشية وادي زاغنوس جنبه.',tr:'🌿 Zağnos.'},coffee:{ar:'قهوة: ☕ كافيهات المول.',tr:'☕ AVM kafe.'}}},
+ {id:'cevahir',c:'mall',pr:'mid',lat:40.9670499,lng:39.8386866,r:'3.8',rc:'9.5 ألف',gf:'na',ar:{n:'Trabzon Cevahir Outlet (يومرا)',d:'أوتلت أرخص شرق المدينة (3.8★ · ٩٬٥٠٠ تقييم) — أسعار أوتلت (مثلاً Mavi)، شرفة فود كورت بإطلالة بحر، ولونا بارك للأطفال. يقصده كتير سيّاح خليجيين. ⚠️ بعض المراجعات تقول صغير/عادي.'},tr:{n:'Cevahir Outlet (Yomra)',d:'Outlet (3.8★, 9.5B). Deniz balkonu + lunapark. Mavi outlet.'},mall:{kids:{ar:'الأطفال؟ ✅✅ لونا بارك جوّا! 🎡',tr:'✅ Lunapark! 🎡'},couples:{ar:'الأزواج؟ 🌊 شرفة بحر للصور 😍',tr:'🌊 Deniz balkon 😍'},coffee:{ar:'قهوة: ☕ فود كورت إطلالة بحر.',tr:'☕ Deniz manzaralı.'}}},
+ {id:'migros',c:'mall',pr:'kadih',lat:41.0002182,lng:39.7604522,r:'4.0',rc:'داخل Forum',gf:'ok',ar:{n:'Migros (داخل Forum)',d:'🌾 سوبرماركت كبير (4.0★) جوّا Forum — رفّ «Glutensiz» لراية (Dr. Schär). دوّروا على «Glutensiz»/«Gluten içermez».'},tr:{n:'Migros (Forum)',d:'🌾 Glutensiz reyon (Dr. Schär).'}},
+ {id:'uzungol',c:'nat',pr:'mid',lat:40.6194407,lng:40.2960778,r:'4.4',gf:'careful',k:'nature',ar:{n:'أوزنجول (رحلة يوم)',d:'بحيرة جبلية جميلة، ~٩٥–٩٩كم/١.٥س. ⚠️⚠️ تحذير: صارت تجارية وفخّ سياحي — محلات ومطاعم غالية جداً وأسعار مبالغة. لو رحتوا: بعد الظهر للباركنغ، وكُلوا قبل/بعد مش بمطاعم البحيرة.'},tr:{n:'Uzungöl',d:'⚠️ Turistik & pahalı tuzak. Göl restoranlarında yeme.'}},
+ {id:'sumela',c:'view',pr:'mid',lat:40.6901226,lng:39.6583949,r:'4.2',gf:'na',ar:{n:'دير سوميلا (رحلة يوم)',d:'دير بيزنطي معلّق بالجبل، ~٤٥كم/١س جنوباً. دخول ~€٢٠، يفتح 8ص–5م لكن آخر تذكرة 4:30م. شاتل + صعود ودرج. ⚠️ درج شاقّ لكن ممكن لابن الـ٦ و١١. لبس محتشم. روحوا الصبح.'},tr:{n:'Sümela Manastırı',d:'€20, son bilet 16:30. ⚠️ Dik merdiven. Sabah git.'}},
+ {id:'carsi',c:'mosque',pr:'kadih',lat:41.007853,lng:39.72338,r:'4.7',gf:'na',ar:{n:'جامع الچارشي (Çarşı)',d:'وسط السوق، قرب الفندق — مناسب للجمعة.'},tr:{n:'Çarşı Camii',d:'Merkez.'}},
+ {id:'fatih',c:'mosque',pr:'kadih',lat:41.004711,lng:39.7197029,r:'4.8',gf:'na',ar:{n:'جامع أورتاحيسار فاتح',d:'تاريخي مهيب (كان كنيسة).'},tr:{n:'Ortahisar Fatih Camii',d:'Tarihi.'}},
+ {id:'ayasofya',c:'mosque',pr:'kadih',lat:41.0030349,lng:39.6961001,r:'4.7',gf:'na',ar:{n:'جامع آيا صوفيا',d:'تاريخي بإطلالة بحر. الدخول مجاني.'},tr:{n:'Ayasofya Camii',d:'Deniz manzaralı.'}},
+ {id:'v-tea',c:'vibe',pr:'kadih',lat:40.9981425,lng:39.7318837,r:'',gf:'na',ar:{n:'شاي الغروب على بوزتبه',d:'شاي ومنظر غروب البحر الأسود.'},tr:{n:'Boztepe çayı',d:'Çay + manzara.'}},
+ {id:'v-tavla',c:'vibe',pr:'kadih',lat:41.0089713,lng:39.7319544,r:'',gf:'na',ar:{n:'طاولة (tavla) وشاي عالساحل',d:'طاولة زهر مع الشاي. جرّبوها مع Sibel.'},tr:{n:'Sahilde tavla',d:'Sibel ile.'}},
+ {id:'v-swing',c:'vibe',pr:'mid',lat:40.9818309,lng:39.6097543,r:'',gf:'na',ar:{n:'مرجوحة الغيوم + فطور هضبة',d:'مراجيح كاراديز + فطور جبلي.'},tr:{n:'Bulut salıncağı',d:'Yayla.'}},
+ {id:'muzeyyen',c:'food',pr:'dah',lat:41.0044,lng:39.7268,r:'4.3',gf:'careful',ar:{n:'Müzeyyen Restoran 💎',d:'راقي — سمك + ستيك وريش غنم ومازات. للجلوتين: مشاوي بدون صلصة وأكّدوا التلوّث. احجزوا مسا.'},tr:{n:'Müzeyyen 💎',d:'Lüks deniz+et. Rezervasyon.'}},
+ {id:'tirvana',c:'food',pr:'dah',lat:41.0008,lng:39.7262,r:'4.3',gf:'careful',ar:{n:'Tirvana Restoran 💎',d:'أطباق محلية وسمك طازج (مزرعة-لطاولة). أجواء راقية، احجزوا.'},tr:{n:'Tirvana 💎',d:'Yöresel + balık.'}},
+ {id:'cephanelik',c:'view',pr:'dah',lat:40.9985,lng:39.7325,r:'4.2',gf:'careful',ar:{n:'Cephanelik Cafe & Restaurant 💎',d:'بانوراما راقية من بوزتبه قرب الفندق (~١.٥كم). حلو للغروب.'},tr:{n:'Cephanelik 💎',d:'Boztepe panorama.'}},
+ {id:'seralake',c:'view',pr:'dah',lat:40.9818,lng:39.6098,r:'4.1',gf:'careful',ar:{n:'Sera Lake Resort — مطعم الشرفة 💎',d:'فطور/عشاء بإطلالة بحيرة سيرا والوادي (~١٢كم). راقي وهادي وعائلي.'},tr:{n:'Sera Lake Resort Teras 💎',d:'Göl manzaralı.'}},
+ {id:'leefor',c:'coffee',pr:'dah',lat:41.0049,lng:39.7245,r:'4.4',gf:'careful',ar:{n:'Leefor Cafe & Patisserie 💎',d:'فطور وحلويات راقية ومدح كبير. للجلوتين: اسألوا عن خيارات آمنة.'},tr:{n:'Leefor 💎',d:'Kahvaltı & pasta.'}},
+ {id:'cemilusta',c:'food',pr:'mid',lat:41.0046,lng:39.7278,r:'4.2',gf:'careful',ar:{n:'Cemil Usta',d:'إرث +٧٠ سنة: مشاوي وبقلاوة، ~٥د من الفندق. (البقلاوة قمح — للجلوتين مشاوي بس).'},tr:{n:'Cemil Usta',d:'Izgara + baklava.'}},
+ {id:'faroz',c:'food',pr:'kadih',lat:41.0012,lng:39.7065,r:'4.2',gf:'careful',ar:{n:'فاروز (Faroz) — سمك الصيّادين',d:'منطقة صيّادين محلية، سمك طازج أرخص. للجلوتين: مشوي بس.'},tr:{n:'Faroz balıkçılar',d:'Yerel taze balık.'}},
+ {id:'akcaabat',c:'food',pr:'mid',lat:41.0206,lng:39.5697,r:'4.4',gf:'careful',k:'nature',ar:{n:'كفتة أكاتشأباط (Akçaabat)',d:'وين الأهالي بياكلوا الكفتة الشهيرة (~٢٠د غرباً). ⚠️ الكفتة عادةً فيها خبز — للجلوتين اسألوا أو بديل مشوي.'},tr:{n:'Akçaabat köftesi',d:'Yerel köfte. ⚠️ Ekmekli.'}},
+ {id:'hidirnebi',c:'nat',pr:'mid',lat:40.7869,lng:39.6043,r:'4.5',gf:'na',k:'nature',ar:{n:'يايلا هيدرنبي (Hıdırnebi)',d:'هضبة ١٦٠٠م يقصدها الأهالي صيفاً — هوا بارد وضباب وبحر غيوم. ~١س (أكاتشأباط-دوزكوي). مهرجان ~١٣–٢٠ تموز. خذوا جاكيت.'},tr:{n:'Hıdırnebi Yaylası',d:'1600m. ~1 sa. Ceket al.'}},
+ {id:'sisdagi',c:'nat',pr:'mid',lat:40.6519,lng:40.0431,r:'4.4',gf:'na',k:'nature',ar:{n:'يايلا سيس داغي (Sis Dağı)',d:'هضبة الضباب — مراعي وغيوم، مهرجان ثالث سبت من تموز. أبعد شوي بس ساحرة.'},tr:{n:'Sis Dağı Yaylası',d:'Sis festivali.'}},
+ {id:'calcave',c:'nat',pr:'mid',lat:40.8833,lng:39.4167,r:'4.3',gf:'na',k:'play',ar:{n:'كهف چال (Çal Mağarası)',d:'من أطول كهوف العالم — ممشى وشلال داخلي وبرودة لطيفة. ~٤٥د–١س (دوزكوي). مغامرة يحبّها الأطفال.'},tr:{n:'Çal Mağarası',d:'Mağara + şelale.'}},
+ {id:'teleferik',c:'kids',pr:'mid',lat:41.0489,lng:39.2356,r:'4.3',gf:'na',k:'play',ar:{n:'تلفريك بشيك داغ (Beşikdüzü)',d:'أطول تلفريك بالبحر الأسود (٣٦٠٠م، ~١٠د للقمة، كبائن ٥٥ شخص). ~٤٥د غرباً. يومياً 10:30–17:00.'},tr:{n:'Beşikdağ Teleferik',d:'3600m. 10:30–17:00.'}},
+ {id:'akvaryum',c:'kids',pr:'mid',lat:41.0042,lng:39.7172,r:'4.0',gf:'na',k:'play',ar:{n:'أكواريوم طرابزون',d:'حوض أسماك ممتع للأطفال (~٣٠٠₺). داخلي — مثالي لو الجو حر.'},tr:{n:'Trabzon Akvaryum',d:'Çocuk için, kapalı.'}},
+ {id:'fevzihoca',c:'food',pr:'mid',lat:41.0671981,lng:39.5173228,r:'4.3',rc:'1.3 ألف',gf:'careful',ar:{n:'Fevzi Hoca Balık Köfte',d:'سمك وكفتة بإطلالة بحر خلابة + فطور بوفيه (أكاتشأباط ~٢٥د غرباً). خدمة ودودة ومدح كبير للمنظر. ⚠️ مراجعات متفاوتة (أحياناً كميات صغيرة). للجلوتين: سمك مشوي بس.'},tr:{n:'Fevzi Hoca Balık Köfte',d:'Deniz manzaralı (4.3★). Akçaabat.'}},
+ {id:'komaroglu',c:'food',pr:'mid',lat:41.0217829,lng:39.5689593,r:'4.5',rc:'3.1 ألف',gf:'careful',k:'nature',ar:{n:'Komaroğlu Köfte Salonu',d:'⭐ من ألذ كفتة بتركيا بمسقط رأسها أكاتشأباط (4.5★ · ٣٬١٠٠ تقييم) — بسيط وأصيل ورخيص (~٣٠٠₺/شخص) وسط السوق. ⚠️ الكفتة فيها خبز — للجلوتين اسألوا أو بديل مشوي.'},tr:{n:'Komaroğlu Köfte',d:'En iyi Akçaabat köfte (4.5★, 3.1B). Ucuz.'}},
+ {id:'cambo',c:'food',pr:'mid',lat:40.997438,lng:39.6783387,r:'4.4',rc:'731',gf:'no',ar:{n:'Cambo Künefe (حلويات)',d:'⭐ أحلى كنافة بطرابزون (4.4★ · ٧٣١) — كنافة بالآيس كريم والفستق، نظيف وفيه قسم بدون تدخين، مفتوح للساعة ٢ بالليل (~١٠د غرباً). ✕ كنافة = قمح، مش للسيلياك.'},tr:{n:'Cambo Künefe',d:'En iyi künefe (4.4★). Sigarasız bölüm var. ✕ glutensiz değil.'}},
+];
+
+const DAYS=[
+ {dt:TRIP[0],d:{ar:'السبت ١٨ تموز · الوصول',tr:'18 Tem Cmt · Varış'},t:{ar:'هدوء، حديقة وأطفال، وتسوّق',tr:'Park, çocuk'},tip:{ar:'الاستلام 7:30ص — يوم خفيف، كله مشي.',tr:'07:30 alış.'},mens:{ar:'🌙 سهرة الشباب ٤٠+ (زي سهرة دبي اللي فرضها منصور 😅): شاي وطاولة عالكورنيش غانيتا',tr:'40+ erkek gecesi: Ganita çay & tavla',lat:41.0089713,lng:39.7319544},slots:[{l:{ar:'الظهر',tr:'Öğle'},items:['xakademi']},{l:{ar:'العصر — أطفال',tr:'İkindi'},items:['zagnos']},{l:{ar:'تسوّق',tr:'Alışveriş'},items:['kunduracilar']},{l:{ar:'قهوة',tr:'Kahve'},items:['espressolab']},{l:{ar:'المساء',tr:'Akşam'},items:['kalender']}]},
+ {dt:TRIP[1],d:{ar:'الأحد ١٩ تموز · البحر والإطلالة',tr:'19 Tem Paz'},t:{ar:'بوزتبه، قصر أتاتورك، قوارب البطّ',tr:'Boztepe, Köşk'},tip:{ar:'⚠️ كالكانأوغلو وكَلندر مغلقين الأحد.',tr:'⚠️ Pazar kapalı.'},mens:{ar:'🌙 سهرة الشباب ٤٠+: شاي الغروب وأركيلة على شرفة بوزتبه (منصور مصرّ 😅)',tr:'Boztepe çay & nargile',lat:40.9981425,lng:39.7318837},slots:[{l:{ar:'الصباح',tr:'Sabah'},items:['kosk']},{l:{ar:'الظهر — إطلالة',tr:'Manzara'},items:['boztepe']},{l:{ar:'العصر — أطفال',tr:'Çocuk'},items:['sera']},{l:{ar:'المساء — سمك',tr:'Balık'},items:['bordomavi']}]},
+ {dt:TRIP[2],d:{ar:'الاثنين ٢٠ تموز · الجبال',tr:'20 Tem Pzt'},t:{ar:'سوميلا أو أوزنجول',tr:'Sümela / Uzungöl'},tip:{ar:'⚠️ مركز العلوم مغلق الاثنين.',tr:'⚠️ Bilim kapalı.'},mens:{ar:'🌙 سهرة الشباب ٤٠+: قهوة وكنافة بالميدان + لفّة مسا (شكراً منصور 😅)',tr:'Meydan kahve & künefe',lat:41.0046,lng:39.7270},slots:[{l:{ar:'الأنسب للأطفال',tr:'Çocuk'},items:['uzungol']},{l:{ar:'الخيار التاريخي',tr:'Tarihi'},items:['sumela']},{l:{ar:'بالرجوع',tr:'Dönüşte'},items:['pekunlu']}]},
+ {dt:TRIP[3],d:{ar:'الثلاثاء ٢١ تموز · علم وتسوّق',tr:'21 Tem Salı'},t:{ar:'مركز العلوم + Forum + عسل + عشاء راقٍ',tr:'Bilim + Forum'},tip:{ar:'آخر يوم كامل (الرجوع الأربعاء 10ص).',tr:'Son tam gün.'},mens:{ar:'🌙 سهرة الوداع للشباب ٤٠+: أركيلة وشاي وحلو — وداع طرابزون 💙 (آخر فرض لمنصور 😅)',tr:'Veda gecesi: nargile & çay',lat:41.0046,lng:39.7270},slots:[{l:{ar:'الصباح — علمي',tr:'Bilim'},items:['bilim']},{l:{ar:'بعد الظهر — ترفيه + تسوّق',tr:'Forum'},items:['forum']},{l:{ar:'العصر — قهوة',tr:'Kahve'},items:['nevada']},{l:{ar:'المساء — عشاء ختامي',tr:'Veda'},items:['berweuli']}]},
+];
+
+const JOKES=[
+ {ar:'تيمل ودرسون بالغابة. تيمل: «شوف قدّيش الغابة حلوة!» درسون: «ما عم بشوفها… الأشجار حاجبينها!» 🌲',tr:'Temel: Ormanın güzelliğine bak! Dursun: Ağaçlardan göremiyorum ki! 🌲'},
+ {ar:'وقع تيمل عن السطح. درسون: «شو صار فيك؟!» تيمل: «ما بعرف، أنا كمان لسّا واصل متلك!» 😄',tr:'Temel çatıdan düştü. Dursun: Ne oldu? Temel: Ben de yeni geldum! 😄'},
+ {ar:'تيمل بيدهن خطوط الشارع: أول يوم ٧٠٠م، تاني ٥٠٠… المدير: «عم تكسل!» تيمل: «لأ، كل يوم ببعد أكتر عن علبة الدهان!» 🪣',tr:'Temel: Her gün boya kutusundan uzaklaşeyrum! 🪣'},
+ {ar:'وقع تيمل عن مبنى ٦٠ طابق… ولمّا وصل الطابق الأول قال: «الحمدلله، طالما وصلت لهون عايش، أكيد ما رح موت من الطابق الأول!» 🏢',tr:'Temel: 1. kattan ölmem! 🏢'},
+ {ar:'درسون: «كم سمكة حمسي بتاكل وأنت صايم؟» تيمل: «١٠٠.» درسون: «لو قلت وحدة كان عندي نكتة حلوة!» 🐟',tr:'Dursun: Oruçlu kaç hamsi yersin? Temel: 100! 🐟'},
+ {ar:'سألوا طرابزوني: «بتحكي مع حالك لمّا تكون لحالك؟» قال: «لأ، بتخيّل الشخص قدّامي وبحكي معه!» 😎',tr:'Karadenizli: Adamı gözümün önüne getirir öyle konuşurum! 😎'},
+ {ar:'أئمة طرابزون دايماً بينخسروا قدّام أئمة ريزه. لبّسوا لاعب طرابزون سبور جبّة وقالوا «إمامنا الجديد»… ومع هيك خسروا ٢–١! ⚽',tr:'Trabzonlu imamlar Rizelilere yine 2-1 kaybeder! ⚽'},
+ {ar:'تيمل بيقود صيّادين: «انبطحوا، جحر أرنب» — طلع أرنب. بعدين جحر ضخم؛ قال: «هاد ما بعرف شو بيطلع… انبطحوا أنتو، الي بيطلع نصيبنا!» 🐰',tr:'Avcı Temel: Ne çıkacağını bilmeyrum, siz yatın! 🐰'},
+];
+
+const SYED=['سيدنا مبسوط منكم اليوم 💛','سيدنا بنحبك… ومين اللي ما بحبك! 😄','اللهم خلّيها أحلى رحلة ع الشلّة 🤲','منصور بيسلّم ومصرّ ع سهرة الليلة 😅','عيشوا اللحظة — سيدنا فخور فيكم 🌟'];
+
+const PHRASES=[
+ {ar:'مرحبا',tr:'Merhaba'},{ar:'شكراً',tr:'Teşekkürler'},{ar:'كم السعر؟',tr:'Ne kadar?'},{ar:'الحساب لو سمحت',tr:'Hesap lütfen'},
+ {ar:'أنا مريض سيلياك، بدون جلوتين',tr:'Çölyak hastasıyım, glutensiz lütfen'},{ar:'بدون قمح أو خبز',tr:'Buğdaysız, ekmeksiz'},
+ {ar:'انتبهوا للتلوّث',tr:'Çapraz bulaşmaya dikkat'},{ar:'وين الحمّام؟',tr:'Tuvalet nerede?'},{ar:'وين أقرب جامع؟',tr:'En yakın cami nerede?'},
+ {ar:'لذيذ جداً!',tr:'Çok lezzetli!'},{ar:'ما بدّي حار',tr:'Acı istemiyorum'},{ar:'ساعدني لو سمحت',tr:'Yardım eder misiniz?'},{ar:'طاولة لأربعة',tr:'Dört kişilik masa'}];
+
+const KIDMISSIONS=[{ar:'شوف بطّة بحديقة زاغنوس 🦆',tr:'Zağnos ördek 🦆'},{ar:'اركب قارب بطّ ببحيرة سيرا 🚣',tr:'Sera pedal bot 🚣'},{ar:'امشِ عالجسر الزجاجي ببوزتبه 🌉',tr:'Boztepe cam köprü 🌉'},{ar:'جرّب تجربة بمركز العلوم 🔬',tr:'Bilim deney 🔬'},{ar:'كول آيس كريم تركي (دوندورما) 🍦',tr:'Dondurma 🍦'},{ar:'شوف غروب الشمس عالبحر 🌅',tr:'Gün batımı 🌅'},{ar:'العب بولينغ بـ Forum 🎳',tr:'Bowling 🎳'}];
+let kidDone={};
+
+const T={nav_home:{ar:'🏠 الرئيسية',tr:'🏠 Ana'},nav_map:{ar:'🗺️ الخريطة',tr:'🗺️ Harita'},nav_days:{ar:'📅 الأيام',tr:'📅 Günler'},nav_fine:{ar:'💎 الفايع',tr:'💎 Lüks'},nav_pray:{ar:'🕌 الصلاة',tr:'🕌 Namaz'},nav_gf:{ar:'🌾 جلوتين-فري',tr:'🌾 Glutensiz'},nav_coffee:{ar:'☕ قهوة',tr:'☕ Kahve'},nav_kids:{ar:'👧 الأطفال',tr:'👧 Çocuk'},nav_shop:{ar:'🛍️ تسوّق',tr:'🛍️ AVM'},nav_honey:{ar:'🍯 عسل',tr:'🍯 Bal'},nav_vibes:{ar:'🏔️ نشاطات ورحلات',tr:'🏔️ Aktivite & gezi'},nav_xlate:{ar:'🔤 ترجمة',tr:'🔤 Çeviri'},nav_vote:{ar:'🗳️ تصويت + وين نروح',tr:'🗳️ Oylama'}};
+
+/* ===== Supabase config — غيّر هالسطرين بعد ما تعمل المشروع ===== */
+const SUPA_URL = "https://buuhgmremyeabjaouxee.supabase.co";
+const SUPA_KEY = "sb_publishable_s4j-t0oTqDWMrNqEh74nLw_9lW5fR5x";
+const ROOM = "fambam";                                // كود الشلّة (خلّيه سرّي لو بدك)
+const SB = (window.supabase && SUPA_URL.startsWith('https') && !SUPA_URL.includes('YOUR') && !SUPA_KEY.includes('YOUR')) ? window.supabase.createClient(SUPA_URL, SUPA_KEY) : null;
+
+/* storage (Supabase → window.storage → in-memory) */
+const HAS_STORE=(typeof window!=='undefined'&&window.storage&&typeof window.storage.get==='function');
+const LOCPFX='fambam:loc:';
+const mem={};
+async function sget(k){
+  if(SB){try{
+    if(k.startsWith(LOCPFX)){const id=k.slice(LOCPFX.length);const{data}=await SB.from('fb_locations').select('*').eq('room',ROOM).eq('id',id).maybeSingle();return data?{id:data.id,nm:data.nm,em:data.em,lat:data.lat,lng:data.lng,ts:data.ts}:null;}
+    const{data}=await SB.from('fb_state').select('val').eq('room',ROOM).eq('k',k).maybeSingle();return data?data.val:null;
+  }catch(e){return null;}}
+  if(HAS_STORE){try{const r=await window.storage.get(k,true);return r?JSON.parse(r.value):null;}catch(e){return null;}}
+  return mem[k]??null;}
+async function sset(k,v){mem[k]=v;
+  if(SB){try{
+    if(k.startsWith(LOCPFX)){const id=k.slice(LOCPFX.length);if(v===null){await SB.from('fb_locations').delete().eq('room',ROOM).eq('id',id);}else{await SB.from('fb_locations').upsert({room:ROOM,id,nm:v.nm,em:v.em,lat:v.lat,lng:v.lng,ts:v.ts});}return;}
+    await SB.from('fb_state').upsert({room:ROOM,k,val:v});return;
+  }catch(e){}}
+  if(HAS_STORE){try{await window.storage.set(k,JSON.stringify(v),true);}catch(e){}}}
+async function slist(p){
+  if(SB){try{
+    if(p===LOCPFX){const{data}=await SB.from('fb_locations').select('id').eq('room',ROOM);return (data||[]).map(r=>LOCPFX+r.id);}
+    const{data}=await SB.from('fb_state').select('k').eq('room',ROOM).like('k',p+'%');return (data||[]).map(r=>r.k);
+  }catch(e){return [];}}
+  if(HAS_STORE){try{const r=await window.storage.list(p,true);return (r&&r.keys)?r.keys:[];}catch(e){return [];}}
+  return Object.keys(mem).filter(k=>k.startsWith(p));}
+async function refreshState(){const v=await sget('fambam:visited');if(v)VISITED=v;const pl=await sget('fambam:poll');POLL=pl||POLL;const vt=await sget('fambam:votes');if(vt)VOTES=vt;const wn=await sget('fambam:wnr');WNR=wn||WNR;const wa=await sget('fambam:wans');if(wa)WANS=wa;}
+
+
+/* prayer times */
+const DEG=Math.PI/180;
+function sinD(x){return Math.sin(x*DEG)}function cosD(x){return Math.cos(x*DEG)}function tanD(x){return Math.tan(x*DEG)}
+function asinD(x){return Math.asin(x)/DEG}function acosD(x){return Math.acos(x)/DEG}function atan2D(y,x){return Math.atan2(y,x)/DEG}
+function fixA(a){a=a%360;return a<0?a+360:a}function fixH(h){h=h%24;return h<0?h+24:h}
+function jdate(y,m,d){if(m<=2){y--;m+=12;}const A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;}
+function sunPos(jd){const D=jd-2451545.0;const g=fixA(357.529+0.98560028*D),q=fixA(280.459+0.98564736*D);const L=fixA(q+1.915*sinD(g)+0.020*sinD(2*g)),e=23.439-0.00000036*D;const RA=fixH(atan2D(cosD(e)*sinD(L),cosD(L))/15);return {decl:asinD(sinD(e)*sinD(L)),eqt:q/15-RA};}
+function prayerTimes(y,m,d,lat,lng,tz){const jd=jdate(y,m,d)+(12-tz)/24;const sp=sunPos(jd);const decl=sp.decl;const noon=fixH(12+tz-lng/15-sp.eqt);function HA(alt){let c=(sinD(alt)-sinD(lat)*sinD(decl))/(cosD(lat)*cosD(decl));c=Math.max(-1,Math.min(1,c));return acosD(c)/15;}const asrAlt=atan2D(1,1+tanD(Math.abs(lat-decl)));return {fajr:fixH(noon-HA(-18)),sunrise:fixH(noon-HA(-0.833)),dhuhr:fixH(noon+0.0167),asr:fixH(noon+HA(asrAlt)),maghrib:fixH(noon+HA(-0.833)),isha:fixH(noon+HA(-17))};}
+function hm(h){let H=Math.floor(h),M=Math.round((h-H)*60);if(M===60){M=0;H++;}H=fixH(H);return (H<10?'0':'')+H+':'+(M<10?'0':'')+M;}
+
+/* weather */
+function wxEmoji(c){if(c===0)return '☀️';if(c<=2)return '🌤️';if(c===3)return '☁️';if(c<=48)return '🌫️';if(c<=67)return '🌧️';if(c<=77)return '🌨️';if(c<=82)return '🌦️';if(c<=99)return '⛈️';return '⛅';}
+async function fetchWeather(){try{const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=41.0027&longitude=39.7168&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=16');const j=await r.json();if(j.current)WX.now={t:Math.round(j.current.temperature_2m),c:j.current.weather_code};if(j.daily)j.daily.time.forEach((d,i)=>{WX.daily[d]={mx:Math.round(j.daily.temperature_2m_max[i]),mn:Math.round(j.daily.temperature_2m_min[i]),c:j.daily.weather_code[i]};});}catch(e){WX.fail=true;}updateDateWx();if(USER){renderDays();}}
+function dayWx(dt){const key=`${dt.y}-${String(dt.m).padStart(2,'0')}-${String(dt.d).padStart(2,'0')}`;const w=WX.daily[key];if(w)return `${wxEmoji(w.c)} ${w.mn}°/${w.mx}°`;return LANG==='ar'?'🌤️ متوسط تموز ~٢٠°/٢٦° (رطب، زخّات محتملة)':'🌤️ Tem ort. ~20°/26°';}
+function updateDateWx(){const d=new Date();let ds;try{ds=d.toLocaleDateString(LANG==='ar'?'ar-EG':'tr-TR',{weekday:'long',day:'numeric',month:'long'});}catch(e){ds=d.toDateString();}
+  document.getElementById('dateTxt').textContent='📅 '+ds;
+  const wxEl=document.getElementById('wxTxt');
+  if(WX.now)wxEl.textContent=`${wxEmoji(WX.now.c)} ${WX.now.t}° ${LANG==='ar'?'طرابزون':'Trabzon'}`;
+  else if(WX.fail)wxEl.textContent=LANG==='ar'?'🌤️ طرابزون ~٢٤°':'🌤️ Trabzon ~24°';}
+
+/* ===== login / lang ===== */
+function buildRoster(){document.getElementById('roster').innerHTML=ROSTER.map(p=>{const nm=p.tronly?'Sibel':(LANG==='ar'?p.ar:p.tr);return `<button class="who" onclick="login('${p.id}')"><span class="em">${p.em}</span>${nm}<span class="rl">${LANG==='ar'?p.tAr:p.tTr}</span><span class="jk">${LANG==='ar'?p.jAr:p.jTr}</span></button>`;}).join('');}
+function login(id,quiet){USER=ROSTER.find(p=>p.id===id);if(!USER)return;if(USER.id==='sibel'){LANG='tr';applyLang();}
+  try{localStorage.setItem('fambam_uid',id);}catch(e){}
+  const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);
+  document.getElementById('fem').textContent=USER.em;
+  document.getElementById('fname').innerHTML=(LANG==='ar'?'يا هلا ':'Hoş geldin ')+'<span class="y">'+nm+'</span>!';
+  document.getElementById('ftitle').textContent=(LANG==='ar'?USER.tAr:USER.tTr);
+  document.getElementById('fwelcome').textContent=(LANG==='ar'?USER.wAr:USER.wTr);
+  document.getElementById('login').classList.add('hide');
+  if(!quiet){const f=document.getElementById('flash');f.classList.add('show');confetti();setTimeout(()=>f.classList.remove('show'),2400);}
+  setUchip();renderAll();startPresence();
+  if(!quiet)setTimeout(showAd,2700);}
+function logout(){stopShare();stopPresence();if(USER){sset('fambam:pres:'+USER.id,null);}try{localStorage.removeItem('fambam_uid');}catch(e){}USER=null;document.getElementById('login').classList.remove('hide');document.getElementById('presbar').innerHTML='';buildRoster();}
+/* ===== Presence: مين أونلاين الآن ===== */
+let presTimer=null;
+async function beat(){if(!USER)return;const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);await sset('fambam:pres:'+USER.id,{id:USER.id,nm,em:USER.em,ts:Date.now()});}
+function startPresence(){beat();if(presTimer)clearInterval(presTimer);presTimer=setInterval(beat,30000);renderPresence();window.addEventListener('beforeunload',()=>{try{navigator.sendBeacon&&0;}catch(e){}});}
+function stopPresence(){if(presTimer){clearInterval(presTimer);presTimer=null;}}
+async function getOnline(){const keys=await slist('fambam:pres:');const now=Date.now(),out=[];for(const k of keys){const v=await sget(k);if(v&&v.ts&&now-v.ts<95000)out.push(v);}return out;}
+async function renderPresence(){const bar=document.getElementById('presbar');if(!bar||!USER){if(bar)bar.innerHTML='';return;}const on=await getOnline();if(!on.length){bar.innerHTML='';return;}const others=on.filter(o=>o.id!==USER.id);const label=LANG==='ar'?`معنا الآن (${on.length})`:`Çevrimiçi (${on.length})`;bar.innerHTML=`<span class="pb-lbl">${label}</span>`+on.map(o=>`<span class="pb-who">${o.em} ${o.id===USER.id?(LANG==='ar'?'أنت':'sen'):o.nm}</span>`).join('');}
+function setUchip(){const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);document.getElementById('uchip').innerHTML=`${USER.em} ${nm} ${USER.admin?'👑':''} <span style="opacity:.6">↩</span>`;}
+function toggleLang(){LANG=(LANG==='ar')?'tr':'ar';applyLang();if(USER)renderAll();else buildRoster();}
+function applyLang(){document.documentElement.lang=LANG;document.documentElement.dir=(LANG==='ar')?'rtl':'ltr';document.body.classList.toggle('tr',LANG==='tr');
+  document.getElementById('langbtn').textContent=(LANG==='ar')?'TR':'AR';
+  document.querySelectorAll('[data-i]').forEach(e=>{const k=e.dataset.i;if(T[k])e.textContent=T[k][LANG];});
+  document.getElementById('lsub').textContent=(LANG==='ar')?'منو أنت من الشلّة؟ اضغط اسمك للدخول (بدون باسوورد)':"FAM BAM'dan kimsin? İsmine bas";
+  document.getElementById('credit').textContent=(LANG==='ar')?'صُنع كرفيق رحلة لـ FAM BAM · نكت تيمل حقيقية · أوقات الصلاة حساب فلكي تقريبي':'FAM BAM · gerçek Temel fıkraları · namaz yaklaşık';
+  updateDateWx();if(USER)setUchip();}
+
+const secOf={home:'s-home',map:'s-map',days:'s-days',fine:'s-fine',pray:'s-pray',gf:'s-gf',coffee:'s-coffee',kids:'s-kids',shop:'s-shop',honey:'s-honey',vibes:'s-vibes',xlate:'s-xlate',vote:'s-vote'};
+function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));document.querySelectorAll('main>section').forEach(s=>s.classList.remove('show'));document.getElementById(secOf[t]).classList.add('show');window.scrollTo({top:0,behavior:'smooth'});if(t==='map'){if(!map)initMap();setTimeout(()=>map&&map.invalidateSize(),120);}}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.t)));
+
+function pById(id){return PLACES.find(p=>p.id===id);}
+function gmapUrl(p){return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;}
+function placeCard(p){const cat=CATS[p.c],gf=GF[p.gf||'na'],pr=PR[p.pr];const stars=p.r?`<span class="rate">★ ${p.r}${p.rc?' ('+p.rc+')':''}</span>`:'';const visited=VISITED[p.id];
+  const vBadge=visited?`<span class="pill vdone">✓ ${LANG==='ar'?'زرناه':'Gittik'}</span>`:'';
+  const gfBadge=(p.gf&&p.gf!=='na')?`<span class="pill" style="background:${gf.col}22;color:${gf.col}">${gf[LANG]}</span>`:'';
+  const prBadge=pr?`<span class="pill" style="background:${pr.col}22;color:${pr.col}">${pr[LANG]}</span>`:'';
+  let vBtn='';if(USER&&USER.admin&&p.c!=='hotel')vBtn=`<button class="lnk ${visited?'':'gold'}" onclick="toggleVisited('${p.id}')">${visited?(LANG==='ar'?'↩ شطب':'↩ Geri'):(LANG==='ar'?'✓ زرناه':'✓ Gittik')}</button>`;
+  let mx='';if(p.mall)mx=`<div class="mallx"><div>${p.mall.kids[LANG]}</div><div>${p.mall.couples[LANG]}</div><div>${p.mall.coffee[LANG]}</div></div>`;
+  return `<div class="card ${visited?'isv':''}"><h3>${cat.em} ${p[LANG].n} ${stars}</h3><div class="badges"><span class="pill" style="background:${cat.col}22;color:${cat.col}">${cat[LANG]}</span>${prBadge}${gfBadge}${vBadge}</div><p>${p[LANG].d}</p>${mx}<div class="btnrow"><a class="lnk gmap" href="${gmapUrl(p)}" target="_blank">🧭 ${LANG==='ar'?'افتح بجوجل مابس':'Google Maps'}</a>${vBtn}</div></div>`;}
+async function toggleVisited(id){if(!USER||!USER.admin)return;VISITED=(await sget('fambam:visited'))||{};if(VISITED[id])delete VISITED[id];else VISITED[id]={by:USER.id,ts:Date.now()};await sset('fambam:visited',VISITED);renderAll();updateMeter();if(VISITED[id])confetti(true);}
+function updateMeter(){const all=PLACES.filter(p=>!['hotel','vibe','mosque'].includes(p.c));const v=all.filter(p=>VISITED[p.id]).length;const pct=all.length?Math.round(v/all.length*100):0;document.getElementById('mfill').style.width=pct+'%';document.getElementById('mlbl').textContent=(LANG==='ar'?`زرنا ${v} من ${all.length} · باقي ${all.length-v} 🐟`:`${v}/${all.length} · ${all.length-v} 🐟`);}
+
+let jokeIdx=Math.floor(Math.random()*JOKES.length);
+function newJoke(){jokeIdx=(jokeIdx+1)%JOKES.length;renderHome();}
+function tripCountdown(){const start=new Date(Date.UTC(2026,6,18,4,30));const now=new Date();const diff=start-now;if(diff>0){const days=Math.floor(diff/86400000),hrs=Math.floor(diff%86400000/3600000);return LANG==='ar'?`باقي <b>${days} يوم و ${hrs} ساعة</b> ع طرابزون! 🎒`:`<b>${days} gün ${hrs} saat</b> kaldı! 🎒`;}const end=new Date(Date.UTC(2026,6,22,7,0));if(now<end)return LANG==='ar'?'<b>الرحلة عمّ تصير الآن! 🎉</b>':'<b>Tatil başladı! 🎉</b>';return LANG==='ar'?'<b>أحلى ذكريات 💛</b>':'<b>Güzel anılar 💛</b>';}
+function renderHome(){const j=JOKES[jokeIdx];const syed=SYED[new Date().getDate()%SYED.length];
+  document.getElementById('s-home').innerHTML=`
+   <div class="count">${tripCountdown()}</div>
+   <div class="syed">💛 ${syed}</div>
+   <div class="joke"><div class="top"><span class="fish">🐟</span><span>${LANG==='ar'?'نكتة طرابزون اليوم':'Günün fıkrası'}: ${j[LANG]}</span></div><div class="tr">🇹🇷 ${j.tr}</div><div class="btnrow"><button class="lnk" onclick="newJoke()">🔀 ${LANG==='ar'?'نكتة ثانية':'Başka'}</button></div></div>
+   <h2>${LANG==='ar'?'هلا بالشلّة في':'Hoş geldin'} <span class="em">${LANG==='ar'?'طرابزون':'Trabzon'}</span> 🌿</h2>
+   <p class="lead">${LANG==='ar'?'خريطة شكل جوجل + موقع كل واحد، صلاة وشروق، مترجم تركي، تصويت و«وين نروح»، وسهرة شباب كل يوم 😎.':'Google harita, namaz, çeviri, oylama, erkek gecesi 😎.'}</p>
+   <div class="card"><h3>🗺️ ${LANG==='ar'?'وين الشلّة هلأ':'Konumlar'}</h3><p>${LANG==='ar'?'فعّلوا «شارك موقعي» وكل واحد بيشوف الباقين على الخريطة.':'"Konumumu paylaş".'}</p><div class="btnrow"><button class="lnk gold" onclick="go('map')">${LANG==='ar'?'افتح الخريطة':'Harita'}</button></div></div>
+   <div class="card"><h3>🤪 ${LANG==='ar'?'وييييين نرووووح؟':'Nereye?'}</h3><p>${LANG==='ar'?'محتارين؟ كل واحد بيكتب اقتراح، وحمزة بيكشف الكل دفعة وحدة 😄':'Herkes yazar, Hamza açıklar 😄'}</p><div class="btnrow"><button class="lnk gold" onclick="go('vote')">${LANG==='ar'?'يلا':'Hadi'}</button></div></div>
+   <div class="card"><h3>🌾 ${LANG==='ar'?'جلوتين-فري لراية':'Glutensiz'}</h3><p>${LANG==='ar'?'X Akademi (مخصّص) + Berweuli (جمعية السيلياك) + رفّ Migros.':'X Akademi + Berweuli + Migros.'}</p><div class="btnrow"><button class="lnk gold" onclick="go('gf')">${LANG==='ar'?'دليل السيلياك':'Çölyak'}</button></div></div>
+   <div class="card" style="border-color:#c2862a"><h3>⚠️ ${LANG==='ar'?'نصائح مهمة لتموز':'Temmuz ipuçları'}</h3><ul class="clean"><li>${LANG==='ar'?'<b>البحر الأسود خطر:</b> تيارات سحب قوية وغرق كل سنة — السباحة فقط على شواطئ فيها منقذ، واحترموا الراية الحمرا، وخلّوا الأطفال بمتناول اليد.':'<b>Karadeniz tehlikeli:</b> sadece cankurtaranlı plaj.'}</li><li>${LANG==='ar'?'<b>فخاخ سياحية:</b> أوزنجول وبعض كافيهات بوزتبه غالية/مبالغة — اسألوا السعر قبل الطلب.':'Uzungöl/Boztepe pahalı olabilir—fiyat sor.'}</li><li>${LANG==='ar'?'الجو حار ورطب نهاراً؛ اليايلات أبرد (خذوا جاكيت). احجزوا المطاعم المشهورة مسبقاً.':'Sıcak/nemli; yayla serin. Rezervasyon yap.'}</li></ul></div>`;}
+
+let curDay=0;function setDay(i){curDay=i;renderDays();}
+function renderDays(){const sw=DAYS.map((d,i)=>`<button class="ds ${i===curDay?'on':''}" onclick="setDay(${i})">${LANG==='ar'?('يوم '+(i+1)):('Gün '+(i+1))}</button>`).join('');const d=DAYS[curDay];const dt=d.dt;const isFri=new Date(dt.y,dt.m-1,dt.d).getDay()===5;
+  let fri='';if(isFri)fri=`<div class="card" style="border-color:#1f7a5a"><h3>🕌 ${LANG==='ar'?'اليوم جمعة':'Cuma'}</h3><p>${LANG==='ar'?'صلّوا الجمعة بجامع الچارشي قرب الفندق. للنساء: تسوّق كوندوراجيلار/بيدستان أو تمشّي كورنيش غانيتا أو سبا. <b>تذكير: البيع والشراء وقت نداء وصلاة الجمعة محرّم — أجّلوا التسوّق بعد الصلاة.</b>':'Cuma namazı. Hanımlara alışveriş/sahil. Ezanda alışveriş ertelensin.'}</p></div>`;
+  const mens=`<div class="mens">${d.mens[LANG]} <a href="https://www.google.com/maps/search/?api=1&query=${d.mens.lat},${d.mens.lng}" target="_blank">🧭</a></div>`;
+  const body=`<div class="dayhead"><div class="d">${d.d[LANG]}</div><h3>${d.t[LANG]}</h3><div class="tip">${d.tip[LANG]}</div><div class="wx">${dayWx(dt)}</div></div>`+mens+fri+d.slots.map(s=>`<div class="slot">${s.l[LANG]}</div>`+s.items.map(id=>placeCard(pById(id))).join('')).join('');
+  document.getElementById('s-days').innerHTML=`<h2>📅 ${LANG==='ar'?'برنامج الأيام':'Plan'}</h2><div class="dayswitch">${sw}</div>${body}`;}
+
+function renderPray(){const lat=41.0027,lng=39.7168,tz=3;const names=LANG==='ar'?['الفجر','الشروق','الظهر','العصر','المغرب','العشاء']:['İmsak','Güneş','Öğle','İkindi','Akşam','Yatsı'];
+  let rows=DAYS.map(d=>{const dt=d.dt;const p=prayerTimes(dt.y,dt.m,dt.d,lat,lng,tz);const isFri=new Date(dt.y,dt.m-1,dt.d).getDay()===5;return `<div class="card"><h3>${d.d[LANG]} ${isFri?'🕌':''}</h3><div class="ptime"><b>${names[0]}</b><span>${hm(p.fajr)}</span></div><div class="ptime"><b>☀️ ${names[1]}</b><span>${hm(p.sunrise)}</span></div><div class="ptime"><b>${names[2]}</b><span>${hm(p.dhuhr)}</span></div><div class="ptime"><b>${names[3]}</b><span>${hm(p.asr)}</span></div><div class="ptime"><b>${names[4]}</b><span>${hm(p.maghrib)}</span></div><div class="ptime"><b>${names[5]}</b><span>${hm(p.isha)}</span></div></div>`;}).join('');
+  const mosques=PLACES.filter(p=>p.c==='mosque').map(p=>placeCard(p)).join('');
+  document.getElementById('s-pray').innerHTML=`<h2>🕌 ${LANG==='ar'?'الصلاة والشروق (طرابزون)':'Namaz & güneş'}</h2><p class="lead">${LANG==='ar'?'أوقات تقريبية بحساب فلكي لتوقيت طرابزون (UTC+3). للدقّة تابعوا تطبيق ديانت.':'Yaklaşık (UTC+3). Kesin için Diyanet.'}</p><div class="card" style="border-color:#1f7a5a"><h3>🕌 ${LANG==='ar'?'صلاة الجمعة':'Cuma'}</h3><p>${LANG==='ar'?'رحلتكم سبت–أربعاء فما فيها جمعة. لو مدّدتوا صلّوا بأحد الجوامع تحت. <b>تذكير: البيع والشراء وقت نداء الجمعة محرّم — أجّلوا التسوّق.</b> للنساء وقتها: تسوّق، سبا، أو تمشّي كورنيش.':'Cmt–Çar, Cuma yok. Ezanda alışveriş ertelensin.'}</p></div>${rows}<h2 style="margin-top:16px">🕌 ${LANG==='ar'?'جوامع قريبة':'Camiler'}</h2>${mosques}`;}
+
+function renderGF(){const order={yes:0,ok:1,careful:2,no:3};const list=PLACES.filter(p=>p.gf&&p.gf!=='na').sort((a,b)=>order[a.gf]-order[b.gf]);
+  document.getElementById('s-gf').innerHTML=`<h2>🌾 ${LANG==='ar'?'دليل السيلياك في طرابزون':'Çölyak'}</h2><p class="lead">${LANG==='ar'?'مبني على جمعيات السيلياك التركية + تجارب مسافرين.':'Türk dernekleri + gezginler.'}</p><div class="goodline">${LANG==='ar'?'⭐ المضمون: <b>X Akademi</b> (مخصّص ١٠٠٪) و<b>Berweuli</b> (الوحيد بطرابزون بقائمة الجمعية). تموين: رفّ <b>Migros</b>. الباقي خيارات طبيعية بحذر.':'⭐ X Akademi + Berweuli + Migros.'}</div>
+   <div class="card"><h3>🏨 ${LANG==='ar'?'الفنادق والسيلياك':'Oteller & çölyak'}</h3><ul class="clean"><li>${LANG==='ar'?'<b>زورلو جراند (فندقكم):</b> ضيفة سيلياك أكّدت وجود خبز جلوتين-فري + محطة أومليت بالفطور. ⚠️ بوفيه = احتمال تلوّث؛ كلّموا الشيف واطلبوا تحضير منفصل.':'<b>Zorlu Grand:</b> kahvaltıda glutensiz ekmek var (büfe—şefe sor).'}</li><li>${LANG==='ar'?'Novotel / Ramada: «منيو خاص عند الطلب» (بدون تأكيد سيلياك صريح — اسألوا مسبقاً).':'Novotel/Ramada: özel menü (sor).'}</li><li>${LANG==='ar'?'نصيحة: احملوا خبزكم الجلوتين-فري من Migros للفطور احتياطاً.':'Migros\'tan glutensiz ekmek taşıyın.'}</li></ul></div>
+   <div class="card"><h3>🛒 ${LANG==='ar'?'تموين من Migros (داخل Forum)':'Migros (Forum)'}</h3><p>${LANG==='ar'?'رفّ «Glutensiz» فيه ماركة <b>Dr. Schär</b>: خبز (Pan Multigrano)، طحين معجنات (Mix C)، كورن فليكس، بسكويت، شوكولا. كمان A101/BİM فيها بعض المنتجات (Canbis).':'"Glutensiz" reyon: Dr. Schär ekmek, un, gevrek.'}</p><div class="goodline">${LANG==='ar'?'✅ دوّروا: «Glutensiz» / «Gluten içermez» / «Çölyak için uygundur» / السنبلة المشطوبة.<br>⛔ تجنّبوا: «az glutenli» / «düşük glutenli» (قليل الجلوتين = مش آمن للسيلياك!).':'✅ "Glutensiz" ⛔ "az glutenli" değil!'}</div></div>
+   <div class="card"><h3>🗣️ ${LANG==='ar'?'جمل تنقذ راية (🔊 للّفظ)':'Cümleler 🔊'}</h3>${[4,5,6].map(i=>`<div class="phrase"><b>${PHRASES[i].ar}</b><span class="tr">${PHRASES[i].tr}</span><button class="spk" onclick="speak('${PHRASES[i].tr.replace(/'/g,'')}')">🔊</button></div>`).join('')}<div class="goodline">${LANG==='ar'?'احملوا كرت سيلياك تركي ووروه للنادل — كتير نُدُل ما بيعرفوا التلوّث، كونوا واضحين.':'Çölyak kartı gösterin.'}</div></div>
+   <div class="card"><h3>🍢 ${LANG==='ar'?'آمن طبيعياً (بس اسألوا)':'Doğal (sorun)'}</h3><ul class="clean"><li>${LANG==='ar'?'<b>سمك/لحمة مشوية (ızgara)</b> — آمن. ⛔ المقلي (حمسي/سمك مقلي) فيه دقيق ذرة أو قمح — تجنّبوا.':'Izgara güvenli; kızartma değil.'}</li><li>${LANG==='ar'?'<b>محلمة/كويماك</b> (دقيق ذرة) — طبيعياً آمن بس أحياناً يضيفوا طحين قمح؛ أكّدوا مسير أونو نقي وطنجرة نظيفة.':'Kuymak: saf mısır unu sor.'}</li><li>${LANG==='ar'?'<b>رز بيلاف</b> غالباً آمن (المرق أحياناً جلوتين). ⛔ الكفتة فيها بقسماط — تجنّبوا إلا لو مؤكّد.':'Pilav genelde ok; köfte galeta unlu.'}</li><li>${LANG==='ar'?'⛔ بيدة، لحم عجين، بقلاوة، بورِك، خبز طرابزون = قمح.':'⛔ Pide, baklava, börek = buğday.'}</li></ul></div>${list.map(p=>placeCard(p)).join('')}`;}
+
+function catSection(cats){const isC=cats[0]==='coffee';const head=isC?(LANG==='ar'?'☕ القهوة المختصة':'☕ Kahve'):(LANG==='ar'?'🏔️ مناظر طبيعية ورحلات':'🏔️ Manzara & gezi');const intro=isC?(LANG==='ar'?'أفضل قهوة مختصة (تأييد أحمد ☕) — القهوة آمنة للجلوتين.':'En iyi kahveler.'):(LANG==='ar'?'أجمل المناظر والإطلالات + اليايلات (هضاب) ورحلات اليوم. اليايلات صيفاً = هوا بارد وبحر غيوم 🌫️ (خذوا جاكيت حتى بتموز).':'En güzel manzaralar, yaylalar ve geziler.');const list=PLACES.filter(p=>cats.includes(p.c));return `<h2>${head}</h2><p class="lead">${intro}</p>${list.map(p=>placeCard(p)).join('')}`;}
+function renderList(id,fn){document.getElementById(id).innerHTML=fn();}
+
+let curKid='all';
+function renderKids(filter){curKid=filter;const opts=[['all',LANG==='ar'?'الكل':'Hepsi'],['play',LANG==='ar'?'لعب':'Oyun'],['nature',LANG==='ar'?'طبيعة':'Doğa'],['learn',LANG==='ar'?'علم':'Bilim'],['indoor',LANG==='ar'?'داخلي':'Kapalı']];const picker=opts.map(o=>`<button class="opt ${o[0]===filter?'on':''}" onclick="renderKids('${o[0]}')">${o[1]}</button>`).join('');const kids=PLACES.filter(p=>['kids','nat','mall'].includes(p.c)&&p.k);const items=kids.filter(p=>filter==='all'||p.k===filter);const md=KIDMISSIONS.filter((_,i)=>kidDone[i]).length;const mpct=Math.round(md/KIDMISSIONS.length*100);
+  const missions=`<div class="card"><h3>🏆 ${LANG==='ar'?'مهمّات الأبطال الصغار':'Görevler'}</h3><div class="bar"><div class="bf" style="width:${mpct}%"></div><div class="bt"><span>${md}/${KIDMISSIONS.length}</span><span>${mpct}%</span></div></div>${KIDMISSIONS.map((m,i)=>`<div class="phrase"><b style="${kidDone[i]?'text-decoration:line-through;opacity:.6':''}">${m[LANG]}</b><button class="spk" onclick="toggleMission(${i})">${kidDone[i]?'✅':'⬜'}</button></div>`).join('')}</div>`;
+  document.getElementById('s-kids').innerHTML=`<h2>👧 ${LANG==='ar'?'ترفيه الأطفال':'Çocuk'}</h2><p class="lead">${LANG==='ar'?'وين الأتراك بيرفّهوا عيالهم + مهمّات ممتعة (٦ و١١).':'Türkler + görevler.'}</p>${missions}<div class="picker">${picker}</div>${items.map(p=>placeCard(p)).join('')||`<div class="card"><p>${LANG==='ar'?'جرّب فئة ثانية.':'Başka.'}</p></div>`}`;}
+function toggleMission(i){kidDone[i]=!kidDone[i];renderKids(curKid);if(KIDMISSIONS.every((_,j)=>kidDone[j]))confetti();else if(kidDone[i])confetti(true);}
+
+function renderShop(){const shop=PLACES.filter(p=>['shop','gift','mall'].includes(p.c));document.getElementById('s-shop').innerHTML=`<h2>🛍️ ${LANG==='ar'?'تسوّق الزوجات والمولات':'Alışveriş & AVM'}</h2><p class="lead">${LANG==='ar'?'كل المولات مع تقييمها + وين الأهالي بيتسوّقوا. (نكتة المول: مين يلعب ومين يشرب قهوة 😄)':'Tüm AVM\'ler puanıyla + yerel çarşılar.'}</p>
+  <div class="card" style="border-color:#c43a72"><h3>💍 ${LANG==='ar'?'دليل تسوّق الزوجات':'Hanımlar için'}</h3><ul class="clean"><li>${LANG==='ar'?'<b>ذهب وأساور:</b> شارع كوندوراجيلار وبيدستان — أساور «الحصير» الذهبية الطرابزونية الشهيرة.':'<b>Altın:</b> Kunduracılar + Bedesten (Trabzon hasırı).'}</li><li>${LANG==='ar'?'<b>ماركات عالمية وتركية:</b> Forum (الأكبر) — موضة وأحذية وتجميل وعطور.':'<b>Markalar:</b> Forum.'}</li><li>${LANG==='ar'?'<b>أوتلت أرخص:</b> Cevahir (Mavi outlet) + شرفة بحر للصور.':'<b>Outlet:</b> Cevahir (Mavi).'}</li><li>${LANG==='ar'?'<b>هدايا وتوابل وعسل ونحاس:</b> بيدستان وكَمَرألتي التاريخية.':'<b>Hediyelik:</b> Bedesten, Kemeraltı.'}</li><li>${LANG==='ar'?'⚠️ تذكير: وقت صلاة الجمعة البيع والشراء يتوقف — أجّلوا التسوّق بعد الصلاة.':'⚠️ Cuma ezanında alışveriş ertelensin.'}</li></ul></div>
+  ${shop.map(p=>placeCard(p)).join('')}`;}
+
+function renderHoney(){const checks=LANG==='ar'?['شعار المؤشّر الجغرافي','ختم التعاونية + شريط أمان','QR — «GEÇERLİ ÜRÜN»','رقم تسلسلي محفور','«Anzer Balı» + TSE','السعر مرتفع']:['Coğrafi İşaret','Kooperatif mührü','Karekod','Seri no','Anzer + TSE','Yüksek fiyat'];document.getElementById('s-honey').innerHTML=`<h2>🍯 ${LANG==='ar'?'العسل المفحوص':'Bal'}</h2><p class="lead">${LANG==='ar'?'عسل أنزر — مفحوص بجامعة حاجة تبه ومختوم.':'Anzer Balı.'}</p><div class="card"><h3>✅ ${LANG==='ar'?'تأكّد إنه حقيقي':'Gerçek mi'}</h3><ul class="checklist">${checks.map(c=>`<li><span class="ck">✓</span>${c}</li>`).join('')}</ul></div><div class="card"><h3>📍 ${LANG==='ar'?'وين تشتروه':'Nereden'}</h3><ul class="clean"><li>${LANG==='ar'?'<b>التعاونية:</b> Haunedy/Karadeniz Organik — سُورمَنه (~35د).':'Sürmene koop.'}</li><li>${LANG==='ar'?'<b>Ofsut:</b> Atatürk Bulvarı No 28، of.':'Ofsut, Of.'}</li><li>${LANG==='ar'?'بالبلد: Bedesten.':'Bedesten.'}</li></ul></div>`;}
+
+/* translator */
+let trVoice=null;
+function loadVoices(){try{const vs=speechSynthesis.getVoices();trVoice=vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith('tr'))||null;}catch(e){}}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function speak(txt){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='tr-TR';if(trVoice)u.voice=trVoice;u.rate=.9;speechSynthesis.speak(u);}
+function gtrans(sl,tl){const box=document.getElementById('trinput');const txt=encodeURIComponent((box.value||'').trim());window.open(`https://translate.google.com/?sl=${sl}&tl=${tl}&text=${txt}&op=translate`,'_blank');}
+function renderXlate(){document.getElementById('s-xlate').innerHTML=`<h2>🔤 ${LANG==='ar'?'مترجم عربي ↔ تركي':'Çevirmen'}</h2><p class="lead">${LANG==='ar'?'دفتر عبارات بنطق صوتي تركي (🔊) + ترجمة حرّة عبر Google Translate.':'Sesli + Google Translate.'}</p><div class="card"><h3>✍️ ${LANG==='ar'?'ترجمة حرّة':'Serbest'}</h3><input class="input" id="trinput" placeholder="${LANG==='ar'?'اكتب هنا…':'Yaz…'}"><div class="btnrow"><button class="lnk gmap" onclick="gtrans('ar','tr')">${LANG==='ar'?'عربي → تركي':'AR→TR'}</button><button class="lnk" onclick="gtrans('tr','ar')">${LANG==='ar'?'تركي → عربي':'TR→AR'}</button><a class="lnk gold" href="https://translate.google.com/?sl=ar&tl=tr&op=translate" target="_blank">${LANG==='ar'?'Google Translate (صوت/كاميرا)':'Google Translate'}</a></div><div class="goodline">${LANG==='ar'?'للترجمة الصوتية الحيّة والكاميرا حمّلوا تطبيق Google Translate من المتجر.':'Sesli/kamera için Google Translate uygulaması.'}</div></div><div class="card"><h3>💬 ${LANG==='ar'?'عبارات جاهزة (🔊 لفظ تركي)':'Hazır cümleler 🔊'}</h3>${PHRASES.map(p=>`<div class="phrase"><b>${p.ar}</b><span class="tr">${p.tr}</span><button class="spk" onclick="speak('${p.tr.replace(/'/g,'')}')">🔊</button></div>`).join('')}</div>`;}
+
+/* vote + ween nrooh */
+function renderVote(){const el=document.getElementById('s-vote');const ad=USER&&USER.admin;let html=`<h2>🗳️ ${LANG==='ar'?'تصويت الشلّة':'Oylama'}</h2>`;
+  if(ad)html+=`<div class="card"><h3>👑 ${LANG==='ar'?'اطرح تصويت':'Oylama aç'}</h3><input class="input" id="pq" placeholder="${LANG==='ar'?'السؤال…':'Soru…'}"><input class="input" id="po0" placeholder="${LANG==='ar'?'خيار ١':'1'}"><input class="input" id="po1" placeholder="${LANG==='ar'?'خيار ٢':'2'}"><input class="input" id="po2" placeholder="${LANG==='ar'?'خيار ٣':'3'}"><input class="input" id="po3" placeholder="${LANG==='ar'?'خيار ٤':'4'}"><div class="btnrow"><button class="lnk gold" onclick="createPoll()">${LANG==='ar'?'انشر 🚀':'Yayınla'}</button>${POLL?`<button class="lnk" onclick="closePoll()">${LANG==='ar'?'أعلن الفائز 🏆':'Kazanan 🏆'}</button>`:''}</div></div>`;
+  if(!POLL)html+=`<div class="card"><p>${LANG==='ar'?'لسّا ما في تصويت. حمزة 👑 بيطرح قريباً.':'Henüz yok.'}</p></div>`;
+  else{const counts=POLL.opts.map((_,i)=>Object.values(VOTES).filter(v=>v===i).length);const total=counts.reduce((a,b)=>a+b,0);const max=Math.max(...counts,0);const my=USER?VOTES[USER.id]:undefined;html+=`<div class="card"><h3>❓ ${POLL.q}</h3><p style="font-size:.78rem;color:var(--muted)">👑 ${total} ${LANG==='ar'?'صوت':'oy'}${POLL.closed?' 🏆':''}</p>`;POLL.opts.forEach((o,i)=>{const pct=total?Math.round(counts[i]/total*100):0;const win=POLL.closed&&counts[i]===max&&max>0;if(POLL.closed||my!==undefined)html+=`<div class="bar ${win?'win':''}"><div class="bf" style="width:${pct}%"></div><div class="bt"><span>${o} ${win?'🏆':''} ${my===i?'✓':''}</span><span>${counts[i]} (${pct}%)</span></div></div>`;else html+=`<button class="votebtn ${my===i?'mine':''}" onclick="vote(${i})">${o}</button>`;});html+=`</div>`;}
+  html+=`<h2 style="margin-top:18px">🤪 ${LANG==='ar'?'وييييين نرووووح؟':'Nereye?'}</h2><p class="lead">${LANG==='ar'?'كل واحد بيكتب اقتراحه، وبيتخبّى لين حمزة يكشف الكل — بطلع مضحك!':'Herkes yazar, Hamza açıklar.'}</p>`;
+  if(ad)html+=`<div class="card"><h3>👑 ${LANG==='ar'?'افتح جولة':'Tur aç'}</h3><input class="input" id="wq" placeholder="${LANG==='ar'?'وين نروح بكرة؟':'Soru…'}"><div class="btnrow"><button class="lnk gold" onclick="openWnr()">${LANG==='ar'?'ابدأ':'Başlat'}</button>${WNR&&!WNR.revealed?`<button class="lnk" onclick="revealWnr()">${LANG==='ar'?'🎭 اكشف الكل':'🎭 Aç'}</button>`:''}</div></div>`;
+  if(WNR){const ans=Object.values(WANS);const mine=USER?WANS[USER.id]:null;html+=`<div class="card"><h3>❓ ${WNR.q}</h3>`;if(!WNR.revealed){html+=`<p style="font-size:.82rem;color:var(--muted)">${LANG==='ar'?`عبّى ${ans.length} · مخبّى لين حمزة يكشف`:`${ans.length} yazdı`}</p><input class="input" id="wans" placeholder="${LANG==='ar'?'اكتب اقتراحك…':'Öneri…'}" value="${mine?mine.text.replace(/"/g,'&quot;'):''}"><button class="lnk gold" onclick="submitWnr()">${mine?(LANG==='ar'?'عدّل':'Güncelle'):(LANG==='ar'?'أرسل':'Gönder')}</button>`;}else{html+=ans.length?ans.map(a=>`<div class="answ"><b>${a.em} ${a.nm}:</b> ${a.text}</div>`).join(''):`<p>${LANG==='ar'?'ما حدا عبّى 🤷':'Boş'}</p>`;if(ans.length){const w=ans[Math.floor(Math.random()*ans.length)];html+=`<div class="goodline">🎲 ${LANG==='ar'?'القرعة اختارت':'Çark'}: <b>${w.em} ${w.nm}</b> — ${w.text}</div>`;}}html+=`</div>`;}
+  el.innerHTML=html;}
+async function createPoll(){if(!USER||!USER.admin)return;const q=document.getElementById('pq').value.trim();const opts=[0,1,2,3].map(i=>document.getElementById('po'+i).value.trim()).filter(Boolean);if(!q||opts.length<2){alert(LANG==='ar'?'سؤال + خيارين':'Soru+2');return;}POLL={id:Date.now(),q,opts,closed:false};VOTES={};await sset('fambam:poll',POLL);await sset('fambam:votes',VOTES);renderVote();confetti();}
+async function vote(i){if(!POLL||POLL.closed||!USER)return;VOTES=(await sget('fambam:votes'))||{};VOTES[USER.id]=i;await sset('fambam:votes',VOTES);renderVote();}
+async function closePoll(){if(!USER||!USER.admin||!POLL)return;POLL.closed=true;await sset('fambam:poll',POLL);renderVote();confetti(true);}
+async function openWnr(){if(!USER||!USER.admin)return;const q=document.getElementById('wq').value.trim();if(!q){alert(LANG==='ar'?'اكتب سؤال':'Soru');return;}WNR={id:Date.now(),q,revealed:false};WANS={};await sset('fambam:wnr',WNR);await sset('fambam:wans',WANS);renderVote();}
+async function submitWnr(){if(!WNR||WNR.revealed||!USER)return;const t=document.getElementById('wans').value.trim();if(!t)return;WANS=(await sget('fambam:wans'))||{};const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);WANS[USER.id]={nm,em:USER.em,text:t};await sset('fambam:wans',WANS);renderVote();confetti(true);}
+async function revealWnr(){if(!USER||!USER.admin||!WNR)return;WNR.revealed=true;await sset('fambam:wnr',WNR);renderVote();confetti();}
+
+function renderFine(){const list=PLACES.filter(p=>p.pr==='dah');const order={hotel:0,food:1,view:2,coffee:3};list.sort((a,b)=>(order[a.c]??9)-(order[b.c]??9));
+  document.getElementById('s-fine').innerHTML=`<h2>💎 ${LANG==='ar'?'الفايع DAAAAH — أرقى أماكن طرابزون':'Lüks — Trabzon\'un en iyileri'}</h2>
+   <p class="lead">${LANG==='ar'?'ملاحظة صريحة: «الفايع» بطرابزون يعني سمك فاخر وبيوت تاريخية ومطاعم فنادق وإطلالات — مش مطاعم غربية فخمة. هدول الأرقى:':'Trabzon\'da lüks = premium balık, tarihi konak, otel restoranı, manzara.'}</p>
+   ${list.map(p=>placeCard(p)).join('')}`;}
+function renderAll(){applyLang();renderHome();renderDays();renderFine();renderPray();renderGF();renderList('s-coffee',()=>catSection(['coffee']));renderKids(curKid);renderShop();renderHoney();renderList('s-vibes',()=>catSection(['view','walk','vibe','nat']));renderXlate();renderVote();if(map)drawMarkers(curFilter);updateMeter();}
+
+/* ===== ad (syed) ===== */
+function showAd(){if(adShown)return;adShown=true;const m=document.getElementById('adModal'),sen=document.getElementById('adSen'),cnt=document.getElementById('adCount'),x=document.getElementById('adX');
+  document.getElementById('adTag').textContent=LANG==='ar'?'إعلان · سيدنا برودكشن 🎬':'Reklam 🎬';
+  sen.textContent=SYED[Math.floor(Math.random()*SYED.length)];let t=5;x.classList.remove('ready');x.style.top='8px';x.style.insetInlineStart='8px';
+  cnt.textContent=LANG==='ar'?('بيخلص خلال '+t+' ثواني… 😏'):(t+' sn');m.classList.add('show');let locked=true;
+  function runaway(e){if(!locked)return;if(e&&e.preventDefault)e.preventDefault();const b=x.parentElement.getBoundingClientRect();const mx=Math.max(6,b.width-44),my=Math.max(6,b.height-44);x.style.top=(8+Math.random()*my)+'px';x.style.insetInlineStart=(6+Math.random()*mx)+'px';}
+  x.onpointerdown=runaway;x.onmouseenter=runaway;x.ontouchstart=runaway;
+  x.onclick=function(e){if(locked){runaway(e);return;}m.classList.remove('show');};
+  const iv=setInterval(()=>{t--;if(t>0){cnt.textContent=LANG==='ar'?('بيخلص خلال '+t+' ثواني… 😏'):(t+' sn');}else{clearInterval(iv);locked=false;x.classList.add('ready');x.style.top='8px';x.style.insetInlineStart='8px';cnt.textContent=LANG==='ar'?'تمام، فيك تسكّر 🤍':'Kapatabilirsin 🤍';}},1000);}
+
+/* ===== install / PWA ===== */
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
+function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;});return;}
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);const box=document.getElementById('instBox');
+  box.innerHTML=`<h3 style="margin-top:0">📲 ${LANG==='ar'?'نزّل التطبيق ع شاشة الموبايل':'Uygulamayı yükle'}</h3>`+(ios?(LANG==='ar'?'<p>على آيفون (Safari):<br>١) اضغط زر المشاركة ⬆️ تحت.<br>٢) «إضافة إلى الشاشة الرئيسية».<br>٣) «إضافة».</p>':'<p>iPhone (Safari): Paylaş ⬆️ → "Ana Ekrana Ekle".</p>'):(LANG==='ar'?'<p>على أندرويد/سامسونج (Chrome):<br>١) اضغط ⋮ فوق.<br>٢) «تثبيت التطبيق» / «إضافة إلى الشاشة الرئيسية».</p>':'<p>Android (Chrome): ⋮ → "Uygulamayı yükle".</p>'))+`<div class="goodline">${LANG==='ar'?'ملاحظة: التثبيت الكامل بيزبط أكتر لما يكون التطبيق مرفوع على رابط إنترنت.':'Tam yükleme için hosting.'}</div><div class="btnrow"><button class="lnk gold" onclick="document.getElementById('instModal').classList.remove('show')">${LANG==='ar'?'تمام':'Tamam'}</button></div>`;
+  document.getElementById('instModal').classList.add('show');}
+function injectPWA(){try{const cv=document.createElement('canvas');cv.width=cv.height=512;const x=cv.getContext('2d');x.fillStyle='#0c4a57';x.fillRect(0,0,512,512);x.fillStyle='#e0a23a';x.textAlign='center';x.textBaseline='middle';x.font='bold 150px sans-serif';x.fillText('FB',256,210);x.font='120px serif';x.fillText('🐟',256,370);const icon=cv.toDataURL('image/png');const ap=document.createElement('link');ap.rel='apple-touch-icon';ap.href=icon;document.head.appendChild(ap);const man={name:'FAM BAM in TRABZAM',short_name:'FAM BAM',start_url:'.',display:'standalone',background_color:'#0c4a57',theme_color:'#0c4a57',icons:[{src:icon,sizes:'512x512',type:'image/png'}]};const url=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/json'}));const ml=document.createElement('link');ml.rel='manifest';ml.href=url;document.head.appendChild(ml);}catch(e){}}
+
+/* ===== map ===== */
+let map,markers=[],youMarker=null,youCircle=null,watchId=null,curFilter='all',memberMarkers={},shareUntil=0;
+function initMap(){map=L.map('map',{zoomControl:true}).setView(ZORLU,14);const gRoad=L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{subdomains:['mt0','mt1','mt2','mt3'],maxZoom:20,attribution:'Google'});const gSat=L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{subdomains:['mt0','mt1','mt2','mt3'],maxZoom:20,attribution:'Google'});const voy=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:20,attribution:'© CARTO'});gRoad.addTo(map);const bl={};bl[LANG==='ar'?'خرائط جوجل':'Google']=gRoad;bl[LANG==='ar'?'قمر صناعي':'Uydu']=gSat;bl[LANG==='ar'?'عادي':'Sade']=voy;L.control.layers(bl,null,{position:'topright'}).addTo(map);gRoad.on('tileerror',()=>{if(map.hasLayer(gRoad)){map.removeLayer(gRoad);voy.addTo(map);}});drawMarkers('all');}
+function mkIcon(col,em){return L.divIcon({className:'',html:`<div style="background:${col};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);font-size:13px">${em}</span></div>`,iconSize:[26,26],iconAnchor:[13,24],popupAnchor:[0,-22]});}
+function mkMember(em){return L.divIcon({className:'',html:`<div style="background:#fff;width:30px;height:30px;border-radius:50%;border:3px solid #e0a23a;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:15px">${em}</div>`,iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-15]});}
+function drawMarkers(filter){curFilter=filter;if(!map)return;markers.forEach(m=>map.removeLayer(m));markers=[];PLACES.forEach(p=>{let pass=filter==='all'||(filter==='food'&&(p.c==='food'||p.c==='gf'))||(filter==='gf'&&(p.gf==='yes'||p.gf==='ok'))||(filter==='kids'&&p.c==='kids')||(filter==='coffee'&&p.c==='coffee')||(filter==='mall'&&p.c==='mall')||(filter==='mosque'&&p.c==='mosque')||(['dah','mid','kadih'].includes(filter)&&p.pr===filter);if(!pass)return;const cat=CATS[p.c];const m=L.marker([p.lat,p.lng],{icon:mkIcon(cat.col,cat.em)}).addTo(map);const stars=p.r?`<span style="color:#b9821c;font-weight:700">★ ${p.r}</span>`:'';const gf=GF[p.gf||'na'];const pr=PR[p.pr];const gfTxt=(p.gf&&p.gf!=='na')?`<br><span style="font-size:11px;color:${gf.col};font-weight:700">${gf[LANG]}</span>`:'';const prTxt=pr?` <span style="font-size:11px;color:${pr.col};font-weight:700">${pr[LANG]}</span>`:'';const vTxt=VISITED[p.id]?`<br><span style="font-size:11px;color:#1d6b3e;font-weight:700">✓ ${LANG==='ar'?'زرناه':'Gittik'}</span>`:'';m.bindPopup(`<div style="font-family:Tajawal,sans-serif;direction:${LANG==='ar'?'rtl':'ltr'};text-align:${LANG==='ar'?'right':'left'};min-width:180px"><b style="font-size:14px">${p[LANG].n}</b> ${stars}${prTxt}${gfTxt}${vTxt}<br><span style="font-size:12px;color:#555">${p[LANG].d}</span><br><a href="${gmapUrl(p)}" target="_blank" style="font-size:12px;color:#1a73e8;font-weight:700">🧭 ${LANG==='ar'?'افتح بجوجل مابس':'Google Maps'}</a></div>`);markers.push(m);});}
+function filterMap(f){drawMarkers(f);}
+function recenter(){map&&map.setView(ZORLU,14);}
+function locate(){const dot=document.getElementById('livedot'),txt=document.getElementById('livetext');if(!navigator.geolocation){txt.textContent=LANG==='ar'?'غير مدعوم':'Desteklenmiyor';return;}txt.textContent=LANG==='ar'?'جارٍ تحديد موقعكم…':'Konum…';if(watchId!==null)navigator.geolocation.clearWatch(watchId);watchId=navigator.geolocation.watchPosition(pos=>{const lat=pos.coords.latitude,lng=pos.coords.longitude,acc=pos.coords.accuracy||0;dot.classList.add('on');const rem=SHARING&&shareUntil?Math.max(0,Math.round((shareUntil-Date.now())/60000)):0;txt.innerHTML=LANG==='ar'?`📍 موقعكم مباشر ~${Math.round(acc)}م${SHARING?` · بتشاركوه 👥 (${rem}د)`:''}`:`📍 ~${Math.round(acc)}m${SHARING?` 👥 (${rem}m)`:''}`;if(!youMarker){youMarker=L.marker([lat,lng],{icon:mkIcon('#b5402f','🧍')}).addTo(map);youCircle=L.circle([lat,lng],{radius:acc,color:'#b5402f',fillColor:'#b5402f',fillOpacity:.12,weight:1}).addTo(map);}else{youMarker.setLatLng([lat,lng]);youCircle.setLatLng([lat,lng]).setRadius(acc);}window._myloc={lat,lng};if(SHARING)pushMyLoc();},err=>{dot.classList.remove('on');txt.textContent=LANG==='ar'?'فعّلوا صلاحية الموقع':'Konum izni';},{enableHighAccuracy:true,maximumAge:5000,timeout:12000});}
+async function pushMyLoc(){if(!USER||!window._myloc)return;const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);await sset('fambam:loc:'+USER.id,{id:USER.id,nm,em:USER.em,lat:window._myloc.lat,lng:window._myloc.lng,ts:Date.now()});}
+function toggleShare(){SHARING=!SHARING;const b=document.getElementById('sharebtn');if(SHARING){shareUntil=Date.now()+2*3600*1000;if(!watchId)locate();b.textContent=LANG==='ar'?'🛑 وقف':'🛑 Durdur';b.classList.add('share');pushMyLoc();shareTimer=setInterval(()=>{if(Date.now()>shareUntil){stopShare();return;}if(window._myloc)pushMyLoc();drawMembers();},15000);drawMembers();}else stopShare();}
+function stopShare(){SHARING=false;shareUntil=0;if(shareTimer){clearInterval(shareTimer);shareTimer=null;}const b=document.getElementById('sharebtn');if(b){b.textContent=LANG==='ar'?'👥 شارك موقعي':'👥 Paylaş';b.classList.remove('share');}const tx=document.getElementById('livetext');if(tx&&window._myloc)tx.innerHTML=LANG==='ar'?'📍 موقعكم محدّد (مش مشترك)':'📍 Konum bulundu';if(USER)sset('fambam:loc:'+USER.id,null);}
+async function drawMembers(){if(!map)return;const keys=await slist('fambam:loc:');const now=Date.now();for(const k of keys){const v=await sget(k);if(!v||!v.lat)continue;if(USER&&v.id===USER.id)continue;if(now-(v.ts||0)>600000)continue;if(memberMarkers[v.id])memberMarkers[v.id].setLatLng([v.lat,v.lng]);else memberMarkers[v.id]=L.marker([v.lat,v.lng],{icon:mkMember(v.em)}).addTo(map);memberMarkers[v.id].bindPopup(`<b style="font-family:Tajawal">${v.em} ${v.nm}</b>`);}}
+function buildMapSection(){document.getElementById('s-map').innerHTML=`<h2>🗺️ ${LANG==='ar'?'خريطة طرابزون':'Harita'}</h2><p class="lead">${LANG==='ar'?'شكل جوجل · مولات ومطاعم وقهوة وجوامع · فلتر أسعار · موقع كل واحد بالشلّة.':'Google · fiyat filtresi · konumlar.'}</p><div class="statusbar"><span id="livedot" class="dot-live"></span><span id="livetext">${LANG==='ar'?'اضغط «أين نحن» و«شارك موقعي» ليشوفوكم الشلّة':'"Neredeyiz" + "Paylaş"'}</span></div><div class="maptools"><button class="mt live" onclick="locate()">📍 ${LANG==='ar'?'أين نحن؟':'Neredeyiz?'}</button><button class="mt" id="sharebtn" onclick="toggleShare()">👥 ${LANG==='ar'?'شارك موقعي':'Paylaş'}</button><button class="mt" onclick="recenter()">↺ ${LANG==='ar'?'المركز':'Merkez'}</button></div><div class="maptools"><button class="mt" onclick="filterMap('all')">${LANG==='ar'?'الكل':'Hepsi'}</button><button class="mt" onclick="filterMap('mall')">🛒</button><button class="mt" onclick="filterMap('food')">🍽️</button><button class="mt" onclick="filterMap('coffee')">☕</button><button class="mt" onclick="filterMap('gf')">🌾</button><button class="mt" onclick="filterMap('kids')">👧</button><button class="mt" onclick="filterMap('mosque')">🕌</button></div><div class="maptools"><button class="mt dah" onclick="filterMap('dah')">💎 DAAAAH</button><button class="mt mid" onclick="filterMap('mid')">🙂 ${LANG==='ar'?'متوسطة':'Orta'}</button><button class="mt kadih" onclick="filterMap('kadih')">💪 ${LANG==='ar'?'الكادحة':'Halk'}</button></div><div id="map"></div>`;}
+
+/* confetti */
+function confetti(small){const cv=document.getElementById('conf');cv.style.display='block';const ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#e0a23a','#15808f','#b5402f','#2e8b57','#7b4fc0','#f3c46b'];const N=small?40:120;let parts=[];for(let i=0;i<N;i++)parts.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.3,r:4+Math.random()*6,c:cols[i%cols.length],vy:2+Math.random()*4,vx:-2+Math.random()*4,a:Math.random()*6});let t=0;(function fr(){ctx.clearRect(0,0,cv.width,cv.height);t++;parts.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a+=.1;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);ctx.restore();});if(t<110)requestAnimationFrame(fr);else cv.style.display='none';})();}
+addEventListener('resize',()=>{const cv=document.getElementById('conf');cv.width=innerWidth;cv.height=innerHeight;});
+
+/* init */
+window.addEventListener('load',async()=>{applyLang();buildRoster();buildMapSection();injectPWA();fetchWeather();VISITED=(await sget('fambam:visited'))||{};POLL=(await sget('fambam:poll'))||null;VOTES=(await sget('fambam:votes'))||{};WNR=(await sget('fambam:wnr'))||null;WANS=(await sget('fambam:wans'))||{};
+  if(SB){
+    SB.channel('fb-loc').on('postgres_changes',{event:'*',schema:'public',table:'fb_locations',filter:'room=eq.'+ROOM},()=>{if(map)drawMembers();}).subscribe();
+    SB.channel('fb-state').on('postgres_changes',{event:'*',schema:'public',table:'fb_state',filter:'room=eq.'+ROOM},async()=>{await refreshState();const a=document.querySelector('.tab.active');if(a&&a.dataset.t==='vote')renderVote();renderPresence();if(USER)updateMeter();}).subscribe();
+  }
+  let savedId=null;try{savedId=localStorage.getItem('fambam_uid');}catch(e){}
+  if(savedId&&ROSTER.find(p=>p.id===savedId)){login(savedId,true);}
+  if('serviceWorker' in navigator){try{await navigator.serviceWorker.register('sw.js');}catch(e){}}
+});
+setInterval(async()=>{if(!USER)return;const v=await sget('fambam:visited');if(v)VISITED=v;const pl=await sget('fambam:poll');POLL=pl||POLL;const vt=await sget('fambam:votes');if(vt)VOTES=vt;const wn=await sget('fambam:wnr');WNR=wn||WNR;const wa=await sget('fambam:wans');if(wa)WANS=wa;renderPresence();const a=document.querySelector('.tab.active');if(a){const t=a.dataset.t;if(t==='vote')renderVote();if(t==='map'&&map){drawMarkers(curFilter);if(SHARING)drawMembers();}updateMeter();}},15000);
+</script>
+</body>
+</html>
