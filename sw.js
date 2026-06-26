@@ -1,7 +1,7 @@
 /* FAM BAM in TRABZAM — Service Worker (offline + map tile caching) */
-const APP_CACHE = 'fambam-app-v1';
-const TILE_CACHE = 'fambam-tiles-v1';
-const LIB_CACHE = 'fambam-libs-v1';
+const APP_CACHE = 'fambam-app-v2';
+const TILE_CACHE = 'fambam-tiles-v2';
+const LIB_CACHE = 'fambam-libs-v2';
 const MAX_TILES = 1500; // cap cached tiles so storage doesn't grow forever
 
 const APP_SHELL = ['./', './index.html'];
