@@ -202,6 +202,23 @@
   .gfproof{margin:-4px 2px 12px;padding:8px 11px;border-radius:0 10px 10px 0;font-size:.8rem}
   .gfpb{font-weight:900;margin-bottom:2px}
   .gfpt{color:#444;line-height:1.55}
+  .searchwrap{margin:10px 0 4px}
+  .searchbox{display:flex;align-items:center;gap:6px;background:#fff;border:2px solid #e0a23a;border-radius:14px;padding:6px 10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+  .searchbox .sicn{font-size:1.05rem}
+  .searchbox input{flex:1;border:none;outline:none;font-family:Tajawal,sans-serif;font-size:.98rem;background:transparent;color:#0c4a57}
+  .searchbox .sclr{background:#f0ece2;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#888;font-weight:900}
+  .searchres.on{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+  .srnone{padding:12px;text-align:center;color:#777;background:#f7f3ea;border-radius:12px;font-size:.9rem}
+  .srrow{background:#fff;border:1px solid #ece6da;border-radius:14px;padding:11px 13px;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+  .srh{font-size:1rem;color:#0c4a57;margin-bottom:5px}
+  .srstar{color:#b9821c;font-weight:800;font-size:.85rem}
+  .srmeta{font-size:.82rem;margin:3px 0}
+  .srok{color:#1f7a5a;font-weight:700}
+  .srbad{color:#b3402f;font-weight:800}
+  .srsale{color:#c0392b;font-weight:800;display:inline-flex;align-items:center;gap:4px}
+  .srchk{background:#fbf2e0;color:#b9791b;border:1px solid #e8d3a8;border-radius:999px;padding:4px 11px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:Tajawal,sans-serif}
+  .srbtns{display:flex;gap:7px;margin-top:7px}
+  .lnk.sm{padding:5px 11px;font-size:.82rem}
 </style>
 </head>
 <body>
@@ -867,7 +884,58 @@ async function pushMyLoc(){if(!USER||!window._myloc)return;const nm=USER.tronly?
 function toggleShare(){SHARING=!SHARING;const b=document.getElementById('sharebtn');if(SHARING){shareUntil=Date.now()+2*3600*1000;if(!watchId)locate();b.textContent=LX('🛑 وقف','🛑 Durdur','🛑 Stop');b.classList.add('share');pushMyLoc();shareTimer=setInterval(()=>{if(Date.now()>shareUntil){stopShare();return;}if(window._myloc)pushMyLoc();drawMembers();},15000);drawMembers();}else stopShare();}
 function stopShare(){SHARING=false;shareUntil=0;if(shareTimer){clearInterval(shareTimer);shareTimer=null;}const b=document.getElementById('sharebtn');if(b){b.textContent=LX('👥 شارك موقعي','👥 Paylaş','👥 Share my location');b.classList.remove('share');}const tx=document.getElementById('livetext');if(tx&&window._myloc)tx.innerHTML=LX('📍 موقعكم محدّد (مش مشترك)','📍 Konum bulundu','📍 Located (not shared)');if(USER)sset('fambam:loc:'+USER.id,null);}
 async function drawMembers(){if(!map)return;const keys=await slist('fambam:loc:');const now=Date.now();for(const k of keys){const v=await sget(k);if(!v||!v.lat)continue;if(USER&&v.id===USER.id)continue;if(now-(v.ts||0)>600000)continue;if(memberMarkers[v.id])memberMarkers[v.id].setLatLng([v.lat,v.lng]);else memberMarkers[v.id]=L.marker([v.lat,v.lng],{icon:mkMember(v.em)}).addTo(map);memberMarkers[v.id].bindPopup(`<b style="font-family:Tajawal">${v.em} ${v.nm}</b>`);}}
-function buildMapSection(){document.getElementById('s-map').innerHTML=`<h2>${svgIco('home',20,'#0c4a57')} ${LX('أهلاً بالشلّة 👋','Hoş geldiniz 👋','Welcome, everyone 👋')}</h2><p class="lead">${LX('الخريطة + موقع كل واحد · افلتر أي شي ليطلع على الخريطة وبقائمة تحت مع المسافة عنكم · والتصويت بآخر الصفحة.','Harita + konumlar + mesafe + oylama.','The map + everyone’s location · filter anything to show it on the map + vote.')}</p><div class="statusbar"><span id="livedot" class="dot-live"></span><span id="livetext">${LX('اضغط «أين نحن» و«شارك موقعي» ليشوفوكم الشلّة','"Neredeyiz" + "Paylaş"','Tap “Where are we” and “Share my location” so the family can see you.')}</span></div><div class="maptools"><button class="mt live" onclick="locate()"><span class="fico">${svgIco('pin',15)}</span> ${LX('أين نحن؟','Neredeyiz?','Where are we?')}</button><button class="mt" id="sharebtn" onclick="toggleShare()"><span class="fico">${svgIco('users',15)}</span> ${LX('شارك موقعي','Paylaş','Share my location')}</button><button class="mt" onclick="recenter()"><span class="fico">${svgIco('center',15)}</span> ${LX('المركز','Merkez','Center')}</button></div><div class="maptools"><button class="mt" onclick="filterMap('all')"><span class="fico">${svgIco('map',16)}</span> ${LX('الكل','Hepsi','All')}</button><button class="mt" onclick="filterMap('mall')"><span class="fico">${svgIco('mall',16)}</span></button><button class="mt" onclick="filterMap('food')"><span class="fico">${svgIco('food',16)}</span></button><button class="mt" onclick="filterMap('coffee')"><span class="fico">${svgIco('coffee',16)}</span></button><button class="mt" onclick="filterMap('gf')"><span class="fico">${svgIco('gf',16)}</span></button><button class="mt" onclick="filterMap('kids')"><span class="fico">${svgIco('kids',16)}</span></button><button class="mt" onclick="filterMap('mosque')"><span class="fico">${svgIco('mosque',16)}</span></button><button class="mt" onclick="filterMap('brands')"><span class="fico">${svgIco('brand',16)}</span></button></div><div class="maptools"><button class="mt dah" onclick="filterMap('dah')"><span class="fico">${svgIco('fine',15)}</span> ${LX('الفخمة','Lüks','Upscale')}</button><button class="mt mid" onclick="filterMap('mid')"><span class="fico">${svgIco('smile',15)}</span> ${LX('المتوسطة','Orta','Mid-range')}</button><button class="mt kadih" onclick="filterMap('kadih')"><span class="fico">${svgIco('coins',15)}</span> ${LX('الاقتصادية','Ekonomik','Budget')}</button></div><div id="map"></div><div id="homelist" class="homelist"></div><div id="homevote" class="homevote"></div>`;renderHomeList(curFilter);renderHomeVote();}
+
+/* ===== name search + Trabzon location check + discount status ===== */
+const TRABZON_BBOX={latMin:40.50,latMax:41.25,lngMin:38.85,lngMax:40.45};
+function inTrabzon(lat,lng){const b=TRABZON_BBOX;return lat>=b.latMin&&lat<=b.latMax&&lng>=b.lngMin&&lng<=b.lngMax;}
+function kmHotel(lat,lng){const R=6371,toR=x=>x*Math.PI/180;const dLat=toR(lat-ZORLU[0]),dLng=toR(lng-ZORLU[1]);const a=Math.sin(dLat/2)**2+Math.cos(toR(ZORLU[0]))*Math.cos(toR(lat))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(a));}
+function norm(x){return (x||'').toString().toLocaleLowerCase('tr').replace(/[İI]/g,'i').replace(/[\u064B-\u0652]/g,'').trim();}
+function placeNames(p){return [p.ar&&p.ar.n,p.tr&&p.tr.n,p.en&&p.en.n].filter(Boolean);}
+function clearSearch(){const i=document.getElementById('psearch');if(i)i.value='';searchPlaces();}
+function searchPlaces(){
+  const ar=LANG==='ar';
+  const q=norm(document.getElementById('psearch').value);
+  const box=document.getElementById('searchres');
+  if(!q||q.length<2){box.innerHTML='';box.classList.remove('on');return;}
+  const hits=PLACES.filter(p=>p.id!=='zorlu'&&placeNames(p).some(n=>norm(n).includes(q))).slice(0,15);
+  box.classList.add('on');
+  if(!hits.length){box.innerHTML=`<div class="srnone">${LX('ما لقيت محل بهالاسم. جرّب جزء من الاسم بالتركي/الإنجليزي.','Bulunamadı.','No place by that name — try part of the Turkish/English name.')}</div>`;return;}
+  box.innerHTML=hits.map(p=>{
+    const cat=CATS[p.c];const nm=p[LANG]&&p[LANG].n?p[LANG].n:(p.tr&&p.tr.n||p.ar&&p.ar.n);
+    const ok=inTrabzon(p.lat,p.lng);const d=kmHotel(p.lat,p.lng);
+    const dtxt=d<1?`≈ ${Math.round(d*1000)} ${ar?'م':'m'}`:`≈ ${d.toFixed(1)} ${ar?'كم':'km'}`;
+    const loc=ok
+      ?`<span class="srok">✅ ${LX('داخل طرابزون','Trabzon içi','In Trabzon')} · ${LX('بُعد عن الفندق','otelden','from hotel')} ${dtxt}</span>`
+      :`<span class="srbad">⚠️ ${LX('خارج حدود طرابزون','Trabzon dışı','Outside Trabzon')} (${dtxt})</span>`;
+    const onsale=INDIRIM[p.id];
+    const disc=onsale
+      ?`<span class="srsale">${INDIRIM_LOGO_SM} ${LX('عليه خصم — مسجّل عندكم','İndirim var','Discount — logged by you')}</span>`
+      :`<button class="srchk" onclick="checkDiscount('${p.id}')">🔎 ${LX('تأكّد من عروض هالمحل','İndirim kontrol','Check this place for offers')}</button>`;
+    const gq=encodeURIComponent((p.tr&&p.tr.n||p.ar&&p.ar.n||'')+' Trabzon');
+    return `<div class="srrow"><div class="srh">${cat.em} <b>${nm}</b> ${p.r?`<span class="srstar">★ ${p.r}</span>`:''}</div>
+      <div class="srmeta">${loc}</div>
+      <div class="srmeta">${disc}</div>
+      <div class="srbtns"><button class="lnk gold sm" onclick="searchToMap(${p.lat},${p.lng})">📍 ${LX('على الخريطة','Haritada','On map')}</button>
+      <a class="lnk sm" href="${gmapUrl(p)}" target="_blank">🧭 ${LX('جوجل مابس','Google','Google Maps')}</a></div></div>`;
+  }).join('');
+}
+function searchToMap(lat,lng){try{if(!map)initMap();map.setView([lat,lng],17);}catch(e){}document.getElementById('map').scrollIntoView({behavior:'smooth',block:'center'});}
+function checkDiscount(id){
+  const p=PLACES.find(x=>x.id===id);if(!p)return;
+  const ar=LANG==='ar';
+  const nm=(p.tr&&p.tr.n)||(p.ar&&p.ar.n)||'';
+  const q=encodeURIComponent(nm+' Trabzon indirim kampanya');
+  // honest: we can't auto-confirm; open a real Google search for this shop's offers
+  if(USER&&USER.admin){
+    if(confirm(LX('بدّك تسجّل إنّ هالمحل عليه خصم؟ (منيح إذا تأكّدت بنفسك)\n\nاضغط OK = سجّل خصم · Cancel = افتح بحث جوجل عن عروضه','İndirim olarak işaretle? OK=işaretle, İptal=Google ara','Mark this place as on-discount? OK = mark it · Cancel = open a Google search for its offers'))){
+      INDIRIM[id]=true;sset('fambam:indirim',INDIRIM).then(()=>{searchPlaces();notify(LX('🏷️ سجّلنا خصم على '+nm,'İşaretlendi','Marked as on-discount'));});
+      return;
+    }
+  }
+  window.open('https://www.google.com/search?q='+q,'_blank');
+}
+
+function buildMapSection(){document.getElementById('s-map').innerHTML=`<h2>${svgIco('home',20,'#0c4a57')} ${LX('أهلاً بالشلّة 👋','Hoş geldiniz 👋','Welcome, everyone 👋')}</h2><p class="lead">${LX('الخريطة + موقع كل واحد · افلتر أي شي ليطلع على الخريطة وبقائمة تحت مع المسافة عنكم · والتصويت بآخر الصفحة.','Harita + konumlar + mesafe + oylama.','The map + everyone’s location · filter anything to show it on the map + vote.')}</p><div class="statusbar"><span id="livedot" class="dot-live"></span><span id="livetext">${LX('اضغط «أين نحن» و«شارك موقعي» ليشوفوكم الشلّة','"Neredeyiz" + "Paylaş"','Tap “Where are we” and “Share my location” so the family can see you.')}</span></div><div class="searchwrap"><div class="searchbox"><span class="sicn">🔎</span><input id="psearch" autocomplete="off" oninput="searchPlaces()" placeholder="${LX('ابحث عن محل بالاسم… (عربي/تركي/إنجليزي)','İsimle ara…','Search a place by name…')}"><button class="sclr" onclick="clearSearch()" title="مسح">✕</button></div><div id="searchres" class="searchres"></div></div><div class="maptools"><button class="mt live" onclick="locate()"><span class="fico">${svgIco('pin',15)}</span> ${LX('أين نحن؟','Neredeyiz?','Where are we?')}</button><button class="mt" id="sharebtn" onclick="toggleShare()"><span class="fico">${svgIco('users',15)}</span> ${LX('شارك موقعي','Paylaş','Share my location')}</button><button class="mt" onclick="recenter()"><span class="fico">${svgIco('center',15)}</span> ${LX('المركز','Merkez','Center')}</button></div><div class="maptools"><button class="mt" onclick="filterMap('all')"><span class="fico">${svgIco('map',16)}</span> ${LX('الكل','Hepsi','All')}</button><button class="mt" onclick="filterMap('mall')"><span class="fico">${svgIco('mall',16)}</span></button><button class="mt" onclick="filterMap('food')"><span class="fico">${svgIco('food',16)}</span></button><button class="mt" onclick="filterMap('coffee')"><span class="fico">${svgIco('coffee',16)}</span></button><button class="mt" onclick="filterMap('gf')"><span class="fico">${svgIco('gf',16)}</span></button><button class="mt" onclick="filterMap('kids')"><span class="fico">${svgIco('kids',16)}</span></button><button class="mt" onclick="filterMap('mosque')"><span class="fico">${svgIco('mosque',16)}</span></button><button class="mt" onclick="filterMap('brands')"><span class="fico">${svgIco('brand',16)}</span></button></div><div class="maptools"><button class="mt dah" onclick="filterMap('dah')"><span class="fico">${svgIco('fine',15)}</span> ${LX('الفخمة','Lüks','Upscale')}</button><button class="mt mid" onclick="filterMap('mid')"><span class="fico">${svgIco('smile',15)}</span> ${LX('المتوسطة','Orta','Mid-range')}</button><button class="mt kadih" onclick="filterMap('kadih')"><span class="fico">${svgIco('coins',15)}</span> ${LX('الاقتصادية','Ekonomik','Budget')}</button></div><div id="map"></div><div id="homelist" class="homelist"></div><div id="homevote" class="homevote"></div>`;renderHomeList(curFilter);renderHomeVote();}
 
 /* confetti */
 function confetti(small){const cv=document.getElementById('conf');cv.style.display='block';const ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#e0a23a','#15808f','#b5402f','#2e8b57','#7b4fc0','#f3c46b'];const N=small?40:120;let parts=[];for(let i=0;i<N;i++)parts.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.3,r:4+Math.random()*6,c:cols[i%cols.length],vy:2+Math.random()*4,vx:-2+Math.random()*4,a:Math.random()*6});let t=0;(function fr(){ctx.clearRect(0,0,cv.width,cv.height);t++;parts.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a+=.1;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);ctx.restore();});if(t<110)requestAnimationFrame(fr);else cv.style.display='none';})();}
