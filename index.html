@@ -71,9 +71,6 @@
   .lnk{font-size:.76rem;font-weight:800;text-decoration:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);color:var(--sea);background:#fff;cursor:pointer;font-family:inherit}
   .lnk.gold{background:var(--gold);border-color:var(--gold);color:#3a2700}.lnk.gmap{background:#1a73e8;border-color:#1a73e8;color:#fff}
   .goodline{background:#eaf6ee;border-inline-start:4px solid var(--good);padding:8px 10px;border-radius:8px;font-size:.8rem;color:#1f5c38;margin-top:8px}
-  .joke{background:linear-gradient(120deg,#fff6e2,#fdeede);border:1px dashed var(--gold);border-radius:14px;padding:12px;margin-bottom:12px;font-weight:700;color:#6a4a13}
-  .joke .top{display:flex;gap:10px;align-items:center}.joke .fish{font-size:1.7rem;animation:swim 2s ease-in-out infinite}.joke .tr{font-size:.74rem;color:#9a7a3a;font-weight:600;margin-top:6px;opacity:.85}
-  @keyframes swim{0%,100%{transform:translateX(0) rotate(-4deg)}50%{transform:translateX(6px) rotate(4deg)}}
   .count{background:linear-gradient(120deg,var(--sea),var(--teal));color:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px;text-align:center}.count b{font-size:1.4rem;display:block}
   .syed{background:linear-gradient(120deg,#7a4a2b,#9c6a3a);color:#fff;border-radius:12px;padding:11px 13px;margin-bottom:12px;text-align:center;font-weight:800}
   .dayhead{background:linear-gradient(120deg,var(--teal),var(--sea));color:#fff;border-radius:16px;padding:13px 15px;margin-bottom:12px}
@@ -110,6 +107,15 @@
   .credit{background:var(--sea2);color:#cfe9ec;text-align:center;font-size:.7rem;padding:9px}
   body.tr{direction:ltr}body.tr nav,body.tr .picker,body.tr .dayswitch,body.tr .maptools{direction:ltr}
   .leaflet-popup-content{margin:10px 12px}
+  .dahcard{background:linear-gradient(135deg,#fff8ec,#fdf0f5);border:1px solid var(--gold);border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:0 2px 10px rgba(185,130,28,.12)}
+  .dahhead{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#6a4a13;margin-bottom:9px;font-size:.92rem}
+  .dahcount{font-size:.72rem;background:var(--gold);color:#fff;padding:2px 9px;border-radius:999px;font-weight:700}
+  .dahgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+  .dahmini{background:#fff;border:1px solid #f0e2c4;border-radius:11px;padding:8px 9px;cursor:pointer;transition:transform .12s,box-shadow .12s;display:flex;flex-direction:column;gap:3px}
+  .dahmini:active{transform:scale(.97)}.dahmini:hover{box-shadow:0 2px 8px rgba(185,130,28,.18)}
+  .dahmini .dn{font-size:.74rem;font-weight:700;color:#3a3a3a;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .dahmini .dr{font-size:.74rem;font-weight:800;color:#b9821c}
+  #s-map .mt.on{background:var(--gold);color:#fff;border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -303,16 +309,6 @@ const DAYS=[
  {dt:TRIP[3],d:{ar:'الثلاثاء ٢١ تموز · علم وتسوّق',tr:'21 Tem Salı'},t:{ar:'مركز العلوم + Forum + عسل + عشاء راقٍ',tr:'Bilim + Forum'},tip:{ar:'آخر يوم كامل (الرجوع الأربعاء 10ص).',tr:'Son tam gün.'},mens:{ar:'🌙 سهرة الوداع للشباب ٤٠+: أركيلة وشاي وحلو — وداع طرابزون 💙 (آخر فرض لمنصور 😅)',tr:'Veda gecesi: nargile & çay',lat:41.0046,lng:39.7270},slots:[{l:{ar:'الصباح — علمي',tr:'Bilim'},items:['bilim']},{l:{ar:'بعد الظهر — ترفيه + تسوّق',tr:'Forum'},items:['forum']},{l:{ar:'العصر — قهوة',tr:'Kahve'},items:['nevada']},{l:{ar:'المساء — عشاء ختامي',tr:'Veda'},items:['berweuli']}]},
 ];
 
-const JOKES=[
- {ar:'تيمل ودرسون بالغابة. تيمل: «شوف قدّيش الغابة حلوة!» درسون: «ما عم بشوفها… الأشجار حاجبينها!» 🌲',tr:'Temel: Ormanın güzelliğine bak! Dursun: Ağaçlardan göremiyorum ki! 🌲'},
- {ar:'وقع تيمل عن السطح. درسون: «شو صار فيك؟!» تيمل: «ما بعرف، أنا كمان لسّا واصل متلك!» 😄',tr:'Temel çatıdan düştü. Dursun: Ne oldu? Temel: Ben de yeni geldum! 😄'},
- {ar:'تيمل بيدهن خطوط الشارع: أول يوم ٧٠٠م، تاني ٥٠٠… المدير: «عم تكسل!» تيمل: «لأ، كل يوم ببعد أكتر عن علبة الدهان!» 🪣',tr:'Temel: Her gün boya kutusundan uzaklaşeyrum! 🪣'},
- {ar:'وقع تيمل عن مبنى ٦٠ طابق… ولمّا وصل الطابق الأول قال: «الحمدلله، طالما وصلت لهون عايش، أكيد ما رح موت من الطابق الأول!» 🏢',tr:'Temel: 1. kattan ölmem! 🏢'},
- {ar:'درسون: «كم سمكة حمسي بتاكل وأنت صايم؟» تيمل: «١٠٠.» درسون: «لو قلت وحدة كان عندي نكتة حلوة!» 🐟',tr:'Dursun: Oruçlu kaç hamsi yersin? Temel: 100! 🐟'},
- {ar:'سألوا طرابزوني: «بتحكي مع حالك لمّا تكون لحالك؟» قال: «لأ، بتخيّل الشخص قدّامي وبحكي معه!» 😎',tr:'Karadenizli: Adamı gözümün önüne getirir öyle konuşurum! 😎'},
- {ar:'أئمة طرابزون دايماً بينخسروا قدّام أئمة ريزه. لبّسوا لاعب طرابزون سبور جبّة وقالوا «إمامنا الجديد»… ومع هيك خسروا ٢–١! ⚽',tr:'Trabzonlu imamlar Rizelilere yine 2-1 kaybeder! ⚽'},
- {ar:'تيمل بيقود صيّادين: «انبطحوا، جحر أرنب» — طلع أرنب. بعدين جحر ضخم؛ قال: «هاد ما بعرف شو بيطلع… انبطحوا أنتو، الي بيطلع نصيبنا!» 🐰',tr:'Avcı Temel: Ne çıkacağını bilmeyrum, siz yatın! 🐰'},
-];
 
 const SYED=['سيدنا مبسوط منكم اليوم 💛','سيدنا بنحبك… ومين اللي ما بحبك! 😄','اللهم خلّيها أحلى رحلة ع الشلّة 🤲','منصور بيسلّم ومصرّ ع سهرة الليلة 😅','عيشوا اللحظة — سيدنا فخور فيكم 🌟'];
 
@@ -407,7 +403,7 @@ function applyLang(){document.documentElement.lang=LANG;document.documentElement
   document.getElementById('langbtn').textContent=(LANG==='ar')?'TR':'AR';
   document.querySelectorAll('[data-i]').forEach(e=>{const k=e.dataset.i;if(T[k])e.textContent=T[k][LANG];});
   document.getElementById('lsub').textContent=(LANG==='ar')?'منو أنت من الشلّة؟ اضغط اسمك للدخول (بدون باسوورد)':"FAM BAM'dan kimsin? İsmine bas";
-  document.getElementById('credit').textContent=(LANG==='ar')?'صُنع كرفيق رحلة لـ FAM BAM · نكت تيمل حقيقية · أوقات الصلاة حساب فلكي تقريبي':'FAM BAM · gerçek Temel fıkraları · namaz yaklaşık';
+  document.getElementById('credit').textContent=(LANG==='ar')?'صُنع كرفيق رحلة لـ FAM BAM · أوقات الصلاة حساب فلكي تقريبي':'FAM BAM · namaz yaklaşık';
   updateDateWx();if(USER)setUchip();}
 
 const secOf={home:'s-home',map:'s-map',days:'s-days',fine:'s-fine',pray:'s-pray',gf:'s-gf',coffee:'s-coffee',kids:'s-kids',shop:'s-shop',honey:'s-honey',vibes:'s-vibes',xlate:'s-xlate',vote:'s-vote'};
@@ -426,14 +422,13 @@ function placeCard(p){const cat=CATS[p.c],gf=GF[p.gf||'na'],pr=PR[p.pr];const st
 async function toggleVisited(id){if(!USER||!USER.admin)return;VISITED=(await sget('fambam:visited'))||{};if(VISITED[id])delete VISITED[id];else VISITED[id]={by:USER.id,ts:Date.now()};await sset('fambam:visited',VISITED);renderAll();updateMeter();if(VISITED[id])confetti(true);}
 function updateMeter(){const all=PLACES.filter(p=>!['hotel','vibe','mosque'].includes(p.c));const v=all.filter(p=>VISITED[p.id]).length;const pct=all.length?Math.round(v/all.length*100):0;document.getElementById('mfill').style.width=pct+'%';document.getElementById('mlbl').textContent=(LANG==='ar'?`زرنا ${v} من ${all.length} · باقي ${all.length-v} 🐟`:`${v}/${all.length} · ${all.length-v} 🐟`);}
 
-let jokeIdx=Math.floor(Math.random()*JOKES.length);
-function newJoke(){jokeIdx=(jokeIdx+1)%JOKES.length;renderHome();}
 function tripCountdown(){const start=new Date(Date.UTC(2026,6,18,4,30));const now=new Date();const diff=start-now;if(diff>0){const days=Math.floor(diff/86400000),hrs=Math.floor(diff%86400000/3600000);return LANG==='ar'?`باقي <b>${days} يوم و ${hrs} ساعة</b> ع طرابزون! 🎒`:`<b>${days} gün ${hrs} saat</b> kaldı! 🎒`;}const end=new Date(Date.UTC(2026,6,22,7,0));if(now<end)return LANG==='ar'?'<b>الرحلة عمّ تصير الآن! 🎉</b>':'<b>Tatil başladı! 🎉</b>';return LANG==='ar'?'<b>أحلى ذكريات 💛</b>':'<b>Güzel anılar 💛</b>';}
-function renderHome(){const j=JOKES[jokeIdx];const SYEDH=['سيدنا مبسوط منكم اليوم 💛','سيدنا مبسوط فيكم ومشتاقلكم 💛','سيدنا فخور ومبسوط فيكم 🌟','سيدنا بيحبكم ومبسوط منكم 💛'];const syed=SYEDH[new Date().getDate()%SYEDH.length];
+function renderHome(){const SYEDH=['سيدنا مبسوط منكم اليوم 💛','سيدنا مبسوط فيكم ومشتاقلكم 💛','سيدنا فخور ومبسوط فيكم 🌟','سيدنا بيحبكم ومبسوط منكم 💛'];const syed=SYEDH[new Date().getDate()%SYEDH.length];
+   const _dah=PLACES.filter(p=>p.pr==='dah').sort((a,b)=>parseFloat(b.r||0)-parseFloat(a.r||0)).slice(0,6);const _dahCards=_dah.map(p=>`<div class="dahmini" onclick="goMapDah()"><div class="dn">${p[LANG].n.replace(' 💎','')}</div><div class="dr">★ ${p.r}</div></div>`).join('');
   document.getElementById('s-home').innerHTML=`
    <div class="count">${tripCountdown()}</div>
    <div class="syed">💛 ${syed}</div>
-   <div class="joke"><div class="top"><span class="fish">🐟</span><span>${LANG==='ar'?'نكتة طرابزون اليوم':'Günün fıkrası'}: ${j[LANG]}</span></div><div class="tr">🇹🇷 ${j.tr}</div><div class="btnrow"><button class="lnk" onclick="newJoke()">🔀 ${LANG==='ar'?'نكتة ثانية':'Başka'}</button></div></div>
+   <div class="dahcard"><div class="dahhead"><span>💎 ${LANG==='ar'?'أفخم الأماكن — الفايع':'En lüks — DAAAH'}</span><span class="dahcount">${LANG==='ar'?'٣٠ مكان':'30 yer'}</span></div><div class="dahgrid">${_dahCards}</div><div class="btnrow"><button class="lnk gold" onclick="goMapDah()">🗺️ ${LANG==='ar'?'شوف الـ٣٠ ع الخريطة':'30 yeri haritada gör'}</button></div></div>
    <h2>${LANG==='ar'?'هلا بالشلّة في':'Hoş geldin'} <span class="em">${LANG==='ar'?'طرابزون':'Trabzon'}</span> 🌿</h2>
    <p class="lead">${LANG==='ar'?'خريطة شكل جوجل + موقع كل واحد، صلاة وشروق، مترجم تركي، تصويت و«وين نروح»، وسهرة شباب كل يوم 😎.':'Google harita, namaz, çeviri, oylama, erkek gecesi 😎.'}</p>
    <div class="card"><h3>🗺️ ${LANG==='ar'?'وين الشلّة هلأ':'Konumlar'}</h3><p>${LANG==='ar'?'فعّلوا «شارك موقعي» وكل واحد بيشوف الباقين على الخريطة.':'"Konumumu paylaş".'}</p><div class="btnrow"><button class="lnk gold" onclick="go('map')">${LANG==='ar'?'افتح الخريطة':'Harita'}</button></div></div>
@@ -469,7 +464,7 @@ function renderKids(filter){curKid=filter;const opts=[['all',LANG==='ar'?'الك
   document.getElementById('s-kids').innerHTML=`<h2>👧 ${LANG==='ar'?'ترفيه الأطفال':'Çocuk'}</h2><p class="lead">${LANG==='ar'?'وين الأتراك بيرفّهوا عيالهم + مهمّات ممتعة (٦ و١١).':'Türkler + görevler.'}</p>${missions}<div class="picker">${picker}</div>${items.map(p=>placeCard(p)).join('')||`<div class="card"><p>${LANG==='ar'?'جرّب فئة ثانية.':'Başka.'}</p></div>`}`;}
 function toggleMission(i){kidDone[i]=!kidDone[i];renderKids(curKid);if(KIDMISSIONS.every((_,j)=>kidDone[j]))confetti();else if(kidDone[i])confetti(true);}
 
-function renderShop(){const shop=PLACES.filter(p=>['shop','gift','mall'].includes(p.c));document.getElementById('s-shop').innerHTML=`<h2>🛍️ ${LANG==='ar'?'تسوّق الزوجات والمولات':'Alışveriş & AVM'}</h2><p class="lead">${LANG==='ar'?'كل المولات مع تقييمها + وين الأهالي بيتسوّقوا. (نكتة المول: مين يلعب ومين يشرب قهوة 😄)':'Tüm AVM\'ler puanıyla + yerel çarşılar.'}</p>
+function renderShop(){const shop=PLACES.filter(p=>['shop','gift','mall'].includes(p.c));document.getElementById('s-shop').innerHTML=`<h2>🛍️ ${LANG==='ar'?'تسوّق الزوجات والمولات':'Alışveriş & AVM'}</h2><p class="lead">${LANG==='ar'?'كل المولات مع تقييمها + وين الأهالي بيتسوّقوا.':'Tüm AVM\'ler puanıyla + yerel çarşılar.'}</p>
   <div class="card" style="border-color:#c43a72"><h3>💍 ${LANG==='ar'?'دليل تسوّق الزوجات':'Hanımlar için'}</h3><ul class="clean"><li>${LANG==='ar'?'<b>ذهب وأساور:</b> شارع كوندوراجيلار وبيدستان — أساور «الحصير» الذهبية الطرابزونية الشهيرة.':'<b>Altın:</b> Kunduracılar + Bedesten (Trabzon hasırı).'}</li><li>${LANG==='ar'?'<b>ماركات عالمية وتركية:</b> Forum (الأكبر) — موضة وأحذية وتجميل وعطور.':'<b>Markalar:</b> Forum.'}</li><li>${LANG==='ar'?'<b>أوتلت أرخص:</b> Cevahir (Mavi outlet) + شرفة بحر للصور.':'<b>Outlet:</b> Cevahir (Mavi).'}</li><li>${LANG==='ar'?'<b>هدايا وتوابل وعسل ونحاس:</b> بيدستان وكَمَرألتي التاريخية.':'<b>Hediyelik:</b> Bedesten, Kemeraltı.'}</li><li>${LANG==='ar'?'⚠️ تذكير: وقت صلاة الجمعة البيع والشراء يتوقف — أجّلوا التسوّق بعد الصلاة.':'⚠️ Cuma ezanında alışveriş ertelensin.'}</li></ul></div>
   ${shop.map(p=>placeCard(p)).join('')}`;}
 
@@ -530,6 +525,7 @@ function mkIcon(col,em){return L.divIcon({className:'',html:`<div style="backgro
 function mkMember(em){return L.divIcon({className:'',html:`<div style="background:#fff;width:30px;height:30px;border-radius:50%;border:3px solid #e0a23a;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:15px">${em}</div>`,iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-15]});}
 function drawMarkers(filter){curFilter=filter;if(!map)return;markers.forEach(m=>map.removeLayer(m));markers=[];PLACES.forEach(p=>{let pass=filter==='all'||(filter==='food'&&(p.c==='food'||p.c==='gf'))||(filter==='gf'&&(p.gf==='yes'||p.gf==='ok'))||(filter==='kids'&&p.c==='kids')||(filter==='coffee'&&p.c==='coffee')||(filter==='mall'&&p.c==='mall')||(filter==='mosque'&&p.c==='mosque')||(['dah','mid','kadih'].includes(filter)&&p.pr===filter);if(!pass)return;const cat=CATS[p.c];const m=L.marker([p.lat,p.lng],{icon:mkIcon(cat.col,cat.em)}).addTo(map);const stars=p.r?`<span style="color:#b9821c;font-weight:700">★ ${p.r}</span>`:'';const gf=GF[p.gf||'na'];const pr=PR[p.pr];const gfTxt=(p.gf&&p.gf!=='na')?`<br><span style="font-size:11px;color:${gf.col};font-weight:700">${gf[LANG]}</span>`:'';const prTxt=pr?` <span style="font-size:11px;color:${pr.col};font-weight:700">${pr[LANG]}</span>`:'';const vTxt=VISITED[p.id]?`<br><span style="font-size:11px;color:#1d6b3e;font-weight:700">✓ ${LANG==='ar'?'زرناه':'Gittik'}</span>`:'';m.bindPopup(`<div style="font-family:Tajawal,sans-serif;direction:${LANG==='ar'?'rtl':'ltr'};text-align:${LANG==='ar'?'right':'left'};min-width:180px"><b style="font-size:14px">${p[LANG].n}</b> ${stars}${prTxt}${gfTxt}${vTxt}<br><span style="font-size:12px;color:#555">${p[LANG].d}</span><br><a href="${gmapUrl(p)}" target="_blank" style="font-size:12px;color:#1a73e8;font-weight:700">🧭 ${LANG==='ar'?'افتح بجوجل مابس':'Google Maps'}</a></div>`);markers.push(m);});}
 function filterMap(f){drawMarkers(f);}
+function goMapDah(){go('map');setTimeout(()=>{if(map){map.invalidateSize();drawMarkers('dah');document.querySelectorAll('#s-map .mt').forEach(b=>b.classList.remove('on'));const db=document.querySelector('#s-map .mt.dah');if(db)db.classList.add('on');}},170);}
 function recenter(){map&&map.setView(ZORLU,14);}
 function locate(){const dot=document.getElementById('livedot'),txt=document.getElementById('livetext');if(!navigator.geolocation){txt.textContent=LANG==='ar'?'غير مدعوم':'Desteklenmiyor';return;}txt.textContent=LANG==='ar'?'جارٍ تحديد موقعكم…':'Konum…';if(watchId!==null)navigator.geolocation.clearWatch(watchId);watchId=navigator.geolocation.watchPosition(pos=>{const lat=pos.coords.latitude,lng=pos.coords.longitude,acc=pos.coords.accuracy||0;dot.classList.add('on');const rem=SHARING&&shareUntil?Math.max(0,Math.round((shareUntil-Date.now())/60000)):0;txt.innerHTML=LANG==='ar'?`📍 موقعكم مباشر ~${Math.round(acc)}م${SHARING?` · بتشاركوه 👥 (${rem}د)`:''}`:`📍 ~${Math.round(acc)}m${SHARING?` 👥 (${rem}m)`:''}`;if(!youMarker){youMarker=L.marker([lat,lng],{icon:mkIcon('#b5402f','🧍')}).addTo(map);youCircle=L.circle([lat,lng],{radius:acc,color:'#b5402f',fillColor:'#b5402f',fillOpacity:.12,weight:1}).addTo(map);}else{youMarker.setLatLng([lat,lng]);youCircle.setLatLng([lat,lng]).setRadius(acc);}window._myloc={lat,lng};if(SHARING)pushMyLoc();},err=>{dot.classList.remove('on');txt.textContent=LANG==='ar'?'فعّلوا صلاحية الموقع':'Konum izni';},{enableHighAccuracy:true,maximumAge:5000,timeout:12000});}
 async function pushMyLoc(){if(!USER||!window._myloc)return;const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);await sset('fambam:loc:'+USER.id,{id:USER.id,nm,em:USER.em,lat:window._myloc.lat,lng:window._myloc.lng,ts:Date.now()});}
