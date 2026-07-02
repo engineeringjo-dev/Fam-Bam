@@ -959,7 +959,7 @@ function renderKnow(){
 
 /* ===== مطاعم ===== */
 const BIGGROUP=['cinaralti','inan','nihatusta','fevzihoca','ganitar','kaanolta','sumelacamp'];
-const FANCY={zorlu:5,radisson:5,novotel:5,seralakeresort:5,karnivor:5,suvva:4,denizyildizi:4,boztepebalik:4,vadibalik:4,kalyera:4,kalyoncu:4,adanali:4,bordomavi:4,botanik:4,modatepe:4,cephanelik:4,leefor:4,coffeeway:4,ganitar:3,seralake:3,meselik:3,asimer:3,huna:3,lobby:3,platin61:3,okkam:2,kalkanoglu:1,berweuli:4,happymoons:3};
+const FANCY={zorlu:5,radisson:5,novotel:5,seralakeresort:5,karnivor:5,suvva:4,denizyildizi:4,boztepebalik:4,vadibalik:4,kalyera:4,kalyoncu:4,adanali:4,bordomavi:4,botanik:4,modatepe:4,cephanelik:4,leefor:4,coffeeway:4,ganitar:3,seralake:3,meselik:3,asimer:3,huna:3,lobby:3,platin61:3,okkam:2,kalkanoglu:1,berweuli:4,happymoons:3,xakademi:3,bernek:3,pizzalocale:2,guzeli:3,taksimgurme:3,kalender:2,pekunlu:2,beton:1,cemilusta:3,faroz:2,akcaabat:2,fevzihoca:3,komaroglu:2,cambo:2,cinaralti:3,inan:3,nihatusta:3,kaanolta:3,seyrisefa:3,sumelacamp:2,zivera:3,lazut:3,baliklama:2,sofiagarden:3};
 const FOODTAGS={
  bordomavi:['fish'],faroz:['fish'],fevzihoca:['fish','kofte'],boztepebalik:['fish','view'],vadibalik:['fish','view'],
  kalyera:['fish','view'],kaanolta:['fish'],baliklama:['fish'],denizyildizi:['fish'],inan:['fish'],sumelacamp:['fish'],
@@ -982,7 +982,7 @@ function renderFood(f2){
   let list=PLACES.filter(p=>p.c==='food'||p.c==='gf');
   if(curFood==='big') list=list.filter(p=>BIGGROUP.includes(p.id));
   else if(curFood!=='all') list=list.filter(p=>(FOODTAGS[p.id]||[]).includes(curFood));
-  list=sortPlaces(list);
+  list=list.sort((a,b)=>((FANCY[b.id]||0)-(FANCY[a.id]||0))||(parseFloat(b.r||0)-parseFloat(a.r||0)));
   const head=`<h2 class="sec-h">🍽️ ${LX('مطاعم طرابزون','Restoranlar','Restaurants')}</h2><p class="sec-sub">${LX('كل مطاعم الرحلة بمكان واحد — مرتّبة بالأقرب لفندقكم. فلتر «يناسب ١٩» للمجموعة الكبيرة 👥','En yakın sıralı. 19 kişi filtresi 👥','All trip restaurants, sorted by nearest. Use \u201cFits 19\u201d for the big group 👥')}</p>`;
   const bar=`<div class="mapbtnrow"><button class="mapall" onclick="goMapFilter('food')">🗺️ ${LX('شوف الكل على الخريطة','Haritada','See all on map')} · ${list.length} 🍽️</button></div>`;
   const chips=`<div class="picker foodpick">${picker}</div>`;
