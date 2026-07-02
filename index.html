@@ -912,7 +912,7 @@ async function openWnr(){if(!USER||!USER.admin)return;const q=document.getElemen
 async function submitWnr(){if(!WNR||WNR.revealed||!USER)return;const t=document.getElementById('wans').value.trim();if(!t)return;WANS=(await sget('fambam:wans'))||{};VREQS=(await sget('fambam:votereqs'))||[];INDIRIM=(await sget('fambam:indirim'))||{};const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);WANS[USER.id]={nm,em:USER.em,text:t};await sset('fambam:wans',WANS);renderVote();confetti(true);}
 async function revealWnr(){if(!USER||!USER.admin||!WNR)return;WNR.revealed=true;await sset('fambam:wnr',WNR);renderVote();confetti();}
 
-function renderFine(){const list=sortPlaces(PLACES.filter(p=>p.pr==='dah'));const order={hotel:0,food:1,view:2,coffee:3};list.sort((a,b)=>(order[a.c]??9)-(order[b.c]??9));
+function renderFine(){const list=PLACES.filter(p=>p.pr==='dah').sort((a,b)=>((FANCY[b.id]||0)-(FANCY[a.id]||0))||(parseFloat(b.r||0)-parseFloat(a.r||0)));
   document.getElementById('s-fine').innerHTML=`<h2>${svgIco('fine',20,'#9c27b0')} ${LANG==='ar'?'الفايع — أرقى أماكن طرابزون':'Lüks — Trabzon\'un en iyileri'}</h2>
    <p class="lead">${LANG==='ar'?'ملاحظة صريحة: «الفايع» بطرابزون يعني سمك فاخر وبيوت تاريخية ومطاعم فنادق وإطلالات — مش مطاعم غربية فخمة. هدول الأرقى:':'Trabzon\'da lüks = premium balık, tarihi konak, otel restoranı, manzara.'}</p>
    ${mapBar('dah')}${list.map(p=>placeCard(p)).join('')}`;}
@@ -959,6 +959,7 @@ function renderKnow(){
 
 /* ===== مطاعم ===== */
 const BIGGROUP=['cinaralti','inan','nihatusta','fevzihoca','ganitar','kaanolta','sumelacamp'];
+const FANCY={zorlu:5,radisson:5,novotel:5,seralakeresort:5,karnivor:5,suvva:4,denizyildizi:4,boztepebalik:4,vadibalik:4,kalyera:4,kalyoncu:4,adanali:4,bordomavi:4,botanik:4,modatepe:4,cephanelik:4,leefor:4,coffeeway:4,ganitar:3,seralake:3,meselik:3,asimer:3,huna:3,lobby:3,platin61:3,okkam:2,kalkanoglu:1,berweuli:4,happymoons:3};
 const FOODTAGS={
  bordomavi:['fish'],faroz:['fish'],fevzihoca:['fish','kofte'],boztepebalik:['fish','view'],vadibalik:['fish','view'],
  kalyera:['fish','view'],kaanolta:['fish'],baliklama:['fish'],denizyildizi:['fish'],inan:['fish'],sumelacamp:['fish'],
