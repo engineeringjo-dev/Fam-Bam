@@ -276,6 +276,44 @@ h2{position:relative}
 .pill.newp{background:#c8402e;color:#fff}
 .callbtn{background:linear-gradient(135deg,#2f7f70,#23615a);color:#fff!important;border:none;border-radius:999px;padding:8px 14px;font-weight:800;font-family:inherit;font-size:.85rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(47,127,112,.3)}
 .foot-tag{display:block;margin-top:4px;opacity:.85;font-size:.78rem}
+
+/* ===== TRABZON PREMIUM — bold identity pass ===== */
+/* shoreline wave under nav (sea dipping into hazelnut cream) */
+.seawave{height:16px;margin-top:-1px;background:#163f3a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 16' preserveAspectRatio='none'%3E%3Cpath d='M0 0 C30 16 60 0 90 10 C105 15 115 8 120 4 L120 16 L0 16 Z' fill='%23f6efe1'/%3E%3C/svg%3E") repeat-x bottom/120px 16px}
+/* headings: deep sea + honey underline bar */
+h2{color:#1d4f4a;position:relative;padding-bottom:8px}
+h2::after{content:'';position:absolute;inset-inline-start:0;bottom:0;width:52px;height:4px;border-radius:99px;background:linear-gradient(90deg,#e8b04a,#dd9a2f)}
+/* cards: category color ribs (RTL-aware) + layered depth + entrance stagger */
+.card{border-radius:18px;border-inline-start:5px solid #e5d9c2;box-shadow:0 1px 2px rgba(46,42,34,.05),0 6px 18px rgba(46,42,34,.06);animation:cardin .4s both}
+.card:nth-of-type(1){animation-delay:.02s}.card:nth-of-type(2){animation-delay:.06s}.card:nth-of-type(3){animation-delay:.1s}.card:nth-of-type(4){animation-delay:.14s}.card:nth-of-type(5){animation-delay:.18s}.card:nth-of-type(6){animation-delay:.22s}
+@keyframes cardin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.cat-food{border-inline-start-color:#dd9a2f}        /* عسل */
+.cat-gf{border-inline-start-color:#23a455}          /* أمان رايا */
+.cat-coffee{border-inline-start-color:#8b5a2b}      /* بندق */
+.cat-kids{border-inline-start-color:#7b4fc0}
+.cat-view{border-inline-start-color:#c56a4e}        /* تيراكوتا */
+.cat-nat,.cat-walk,.cat-vibe{border-inline-start-color:#2f7f70} /* بحر */
+.cat-mosque{border-inline-start-color:#1d6b3e}
+.cat-hotel{border-inline-start-color:#9c27b0}
+.cat-shop,.cat-gift,.cat-mall,.cat-brand,.cat-makeup,.cat-shoe{border-inline-start-color:#2f80c4}
+/* interactive life */
+.lnk,.callbtn,.mapall,.tab,.ds,.opt{transition:transform .12s,box-shadow .12s,filter .12s}
+.lnk:active,.callbtn:active,.mapall:active,.opt:active{transform:scale(.95)}
+.tab:active{transform:scale(.93)}
+.pill.newp{animation:newpulse 2.2s ease-in-out infinite}
+@keyframes newpulse{0%,100%{box-shadow:0 0 0 0 rgba(200,64,46,.45)}50%{box-shadow:0 0 0 6px rgba(200,64,46,0)}}
+/* day switcher: sea active with honey ring */
+.ds.on{background:#1d4f4a;color:#fff;border-color:#1d4f4a;box-shadow:0 0 0 3px rgba(221,154,47,.45)}
+/* pills refinement */
+.pill{border-radius:99px;font-weight:800}
+/* filter chips */
+.opt.on{background:#1d4f4a;color:#fff;box-shadow:0 2px 8px rgba(29,79,74,.3)}
+/* header title glow of honey */
+header h1 span.hl,header .brand b{text-shadow:0 1px 12px rgba(232,176,74,.35)}
+/* prayer times strip: deep sea premium */
+.ptable,.praytimes{border-radius:16px;overflow:hidden}
+/* scrollbar subtle (desktop) */
+main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{background:#d8c9a8;border-radius:99px}
 </style>
 </head>
 <body>
@@ -331,7 +369,7 @@ h2{position:relative}
   <button class="tab" data-t="xlate" data-i="nav_xlate"></button>
   <button class="tab" data-t="vote" data-i="nav_vote"></button>
 </nav>
-
+<div class="seawave" aria-hidden="true"></div>
 <main>
   <section id="s-home"></section>
   <section id="s-map" class="show"></section>
@@ -684,7 +722,7 @@ function placeCard(p){const cat=CATS[p.c],gf=GF[p.gf||'na'],pr=PR[p.pr];const st
   const prBadge=pr?`<span class="pill" style="background:${pr.col}22;color:${pr.col}">${pr[LANG]}</span>`:'';
   let vBtn='';if(USER&&USER.admin&&p.c!=='hotel')vBtn=`<button class="lnk ${visited?'':'gold'}" onclick="toggleVisited('${p.id}')">${visited?(LX('↩ شطب','↩ Geri','↩ Undo')):(LX('✓ زرناه','✓ Gittik','✓ Visited'))}</button>`;
   let mx='';if(p.mall)mx=`<div class="mallx"><div>${p.mall.kids[LANG]}</div><div>${p.mall.couples[LANG]}</div><div>${p.mall.coffee[LANG]}</div></div>`;
-  return `<div class="card ${visited?'isv':''}"><h3>${cat.em} ${p[LANG].n} ${stars}</h3><div class="badges">${p.new?`<span class="pill newp">🆕 NEW</span>`:''}${(typeof BIGGROUP!=='undefined'&&BIGGROUP.includes(p.id))?`<span class="pill biggrp">👥 ${LX('يناسب ١٩','19 kişi','Fits 19')}</span>`:''}<span class="pill" style="background:${cat.col}22;color:${cat.col}">${cat[LANG]}</span>${prBadge}${gfBadge}${vBadge}${distTxt(p)?`<span class="pill" style="background:#e2efeb;color:#2f7f70">📍 ${distTxt(p)}</span>`:''}</div><p>${p[LANG].d}</p>${p.c==='coffee'?`<p class="almondnote">${ALMONDNOTE[LANG]}</p>`:''}${mx}<div class="btnrow"><button class="lnk gold" onclick="jumpMap(${p.lat},${p.lng})"><span class="fico">${svgIco('pin',13,'#fff')}</span> ${LX('على الخريطة','Haritada','On map')}</button><a class="lnk gmap" href="${gmapUrl(p)}" target="_blank">🧭 ${LX('جوجل مابس','Google','Google Maps')}</a>${(typeof PHONES!=='undefined'&&PHONES[p.id])?`<a class="callbtn" href="tel:+9${PHONES[p.id]}">📞 ${LX('اتصل واحجز','Ara & rezerve et','Call & book')}</a>`:''}${vBtn}</div></div>`;}
+  return `<div class="card cat-${p.c} ${visited?'isv':''}"><h3>${cat.em} ${p[LANG].n} ${stars}</h3><div class="badges">${p.new?`<span class="pill newp">🆕 NEW</span>`:''}${(typeof BIGGROUP!=='undefined'&&BIGGROUP.includes(p.id))?`<span class="pill biggrp">👥 ${LX('يناسب ١٩','19 kişi','Fits 19')}</span>`:''}<span class="pill" style="background:${cat.col}22;color:${cat.col}">${cat[LANG]}</span>${prBadge}${gfBadge}${vBadge}${distTxt(p)?`<span class="pill" style="background:#e2efeb;color:#2f7f70">📍 ${distTxt(p)}</span>`:''}</div><p>${p[LANG].d}</p>${p.c==='coffee'?`<p class="almondnote">${ALMONDNOTE[LANG]}</p>`:''}${mx}<div class="btnrow"><button class="lnk gold" onclick="jumpMap(${p.lat},${p.lng})"><span class="fico">${svgIco('pin',13,'#fff')}</span> ${LX('على الخريطة','Haritada','On map')}</button><a class="lnk gmap" href="${gmapUrl(p)}" target="_blank">🧭 ${LX('جوجل مابس','Google','Google Maps')}</a>${(typeof PHONES!=='undefined'&&PHONES[p.id])?`<a class="callbtn" href="tel:+9${PHONES[p.id]}">📞 ${LX('اتصل واحجز','Ara & rezerve et','Call & book')}</a>`:''}${vBtn}</div></div>`;}
 async function toggleVisited(id){if(!USER||!USER.admin)return;VISITED=(await sget('fambam:visited'))||{};if(VISITED[id])delete VISITED[id];else VISITED[id]={by:USER.id,ts:Date.now()};await sset('fambam:visited',VISITED);renderAll();updateMeter();if(VISITED[id])confetti(true);}
 function updateMeter(){const all=PLACES.filter(p=>!['hotel','vibe','mosque'].includes(p.c));const v=all.filter(p=>VISITED[p.id]).length;const pct=all.length?Math.round(v/all.length*100):0;document.getElementById('mfill').style.width=pct+'%';document.getElementById('mlbl').textContent=(LANG==='ar'?`زرنا ${v} من ${all.length} · باقي ${all.length-v} 🐟`:`${v}/${all.length} · ${all.length-v} 🐟`);}
 
