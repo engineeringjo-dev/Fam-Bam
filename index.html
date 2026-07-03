@@ -354,6 +354,31 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 .convrow input:focus{outline:none;border-color:#dd9a2f;box-shadow:0 0 0 3px rgba(221,154,47,.2)}
 .convswap{text-align:center;color:#dd9a2f;font-weight:900;margin:2px 0}
 .ratehint{font-size:.75rem;color:#6d6355;margin-top:8px}
+
+/* family chat */
+.chatcard{padding:12px}
+.chathead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.chathead b{color:#1d4f4a;font-size:1rem}
+.nfybtn{background:#e2efeb;color:#23615a;border:1.5px solid #d7eae5;border-radius:999px;padding:6px 12px;font-family:inherit;font-weight:800;font-size:.75rem;cursor:pointer}
+.chatmsgs{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:4px 2px;background:#faf6ec;border-radius:12px;border:1px solid #efe6d2;min-height:70px}
+.chatempty{text-align:center;color:#6d6355;font-size:.8rem;padding:20px 6px}
+.cmsg{max-width:86%;background:#fff;border:1px solid #e5d9c2;border-radius:12px;border-start-start-radius:4px;padding:6px 10px;align-self:flex-start;box-shadow:0 1px 2px rgba(46,42,34,.05)}
+.cmsg.mine{align-self:flex-end;background:#e2efeb;border-color:#d7eae5;border-start-start-radius:12px;border-start-end-radius:4px}
+.cwho{display:block;font-size:.68rem;font-weight:900;color:#8b5a2b}
+.cmsg.mine .cwho{color:#23615a}
+.ctxt{font-size:.88rem;font-weight:700;color:#2e2a22;word-break:break-word}
+.ctm{display:block;font-size:.6rem;color:#6d6355;margin-top:2px;text-align:end}
+.chatchips{display:flex;gap:7px;overflow-x:auto;padding:8px 2px 4px;scrollbar-width:none}
+.chatchips::-webkit-scrollbar{display:none}
+.cchip{flex:0 0 auto;background:#fff;border:1.5px solid #e5d9c2;color:#1d4f4a;border-radius:999px;padding:7px 12px;font-family:inherit;font-weight:800;font-size:.75rem;cursor:pointer}
+.cchip.star{background:linear-gradient(135deg,#fff3d9,#ffe9bd);border-color:#dd9a2f;color:#7a5410}
+.cchip:active{transform:scale(.94)}
+.chatrow{display:flex;gap:8px;margin-top:8px}
+.chatrow input{flex:1;border:1.5px solid #e5d9c2;border-radius:999px;padding:10px 14px;font-family:inherit;font-weight:700;font-size:.9rem;background:#fff;color:#2e2a22}
+.chatrow input:focus{outline:none;border-color:#dd9a2f;box-shadow:0 0 0 3px rgba(221,154,47,.18)}
+.chatsend{background:linear-gradient(135deg,#2f7f70,#23615a);color:#fff;border:none;border-radius:50%;width:42px;height:42px;font-size:1.05rem;cursor:pointer;box-shadow:0 2px 8px rgba(47,127,112,.3)}
+.chatbdg{position:absolute;top:2px;inset-inline-end:4px;background:#c8402e;color:#fff;font-size:.62rem;font-weight:900;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.tab{position:relative}
 </style>
 </head>
 <body>
@@ -715,6 +740,8 @@ function updateDateWx(){const d=new Date();let ds;try{ds=d.toLocaleDateString(LX
 function buildRoster(){document.getElementById('roster').innerHTML=ROSTER.map(p=>{const nm=p.tronly?'Sibel':(LANG==='ar'?p.ar:p.tr);return `<button class="who" onclick="login('${p.id}')"><span class="em">${p.em}</span>${nm}<span class="rl">${LANG==='ar'?p.tAr:p.tTr}</span><span class="jk">${LANG==='ar'?p.jAr:p.jTr}</span></button>`;}).join('');}
 function login(id,quiet){USER=ROSTER.find(p=>p.id===id);if(!USER)return;if(USER.id==='sibel'){LANG='tr';applyLang();}
   try{localStorage.setItem('fambam_uid',id);}catch(e){}
+  try{startChatLoop();}catch(e){}
+  try{if(localStorage.getItem('fbNfy')==='1'){setTimeout(()=>{const b=document.getElementById('nfybtn');if(b)b.textContent='🔔 ✅';},400);}}catch(e){}
   const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);
   document.getElementById('fem').textContent=USER.em;
   document.getElementById('fname').innerHTML=(LX('يا هلا ','Hoş geldin ','Welcome '))+'<span class="y">'+nm+'</span>!';
@@ -750,7 +777,7 @@ function applyLang(){document.documentElement.lang=LANG;document.documentElement
   updateDateWx();if(USER)setUchip();}
 
 const secOf={home:'s-map',map:'s-map',days:'s-days',fine:'s-fine',pray:'s-pray',gf:'s-gf',coffee:'s-coffee',kids:'s-kids',shop:'s-shop',discount:'s-discount',honey:'s-honey',vibes:'s-vibes',money:'s-money',xlate:'s-xlate',food:'s-food',know:'s-know',vote:'s-vote'};
-function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));document.querySelectorAll('main>section').forEach(s=>s.classList.remove('show'));document.getElementById(secOf[t]).classList.add('show');window.scrollTo({top:0,behavior:'smooth'});if(secOf[t]==='s-map'){if(!map)initMap();setTimeout(()=>{if(map){map.invalidateSize();renderHomeList(curFilter);renderHomeVote();}},140);}}
+function go(t){if(t==='home'){setTimeout(()=>{try{markChatSeen();renderChat();}catch(e){}},250);} document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));document.querySelectorAll('main>section').forEach(s=>s.classList.remove('show'));document.getElementById(secOf[t]).classList.add('show');window.scrollTo({top:0,behavior:'smooth'});if(secOf[t]==='s-map'){if(!map)initMap();setTimeout(()=>{if(map){map.invalidateSize();renderHomeList(curFilter);renderHomeVote();}},140);}}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.t)));
 
 function pById(id){return PLACES.find(p=>p.id===id);}
@@ -772,6 +799,10 @@ function renderHome(){const SYEDH=['سيدنا مبسوط منكم اليوم �
   document.getElementById('s-home').innerHTML=`
    <div class="count">${tripCountdown()}</div>
    <div class="syed">💛 ${syed}</div>
+   <div class="card chatcard" id="chatcard"><div class="chathead"><b>💬 ${LX('شات الشلّة','Aile sohbeti','Family chat')}</b><button class="nfybtn" id="nfybtn" onclick="askNotify()">🔔 ${LX('التنبيهات','Bildirim','Alerts')}</button></div>
+   <div id="chatmsgs" class="chatmsgs">${LX('عم أحمّل الرسائل…','Yükleniyor…','Loading…')}</div>
+   <div class="chatchips"><button class="cchip star" onclick="sendChat('حسناً ولكننا سنتأخر قليلاً 😅')">⭐ ${LX('حسناً ولكننا سنتأخر قليلاً 😅','Tamam ama biraz gecikeceğiz 😅','OK but we\'ll be a bit late 😅')}</button><button class="cchip" onclick="sendChat(LX('وصلنا 📍','Geldik 📍','We arrived 📍'))">${LX('وصلنا 📍','Geldik 📍','Arrived 📍')}</button><button class="cchip" onclick="sendChat(LX('وينكم؟ 👀','Neredesiniz? 👀','Where are you? 👀'))">${LX('وينكم؟ 👀','Neredesiniz? 👀','Where r u? 👀')}</button><button class="cchip" onclick="sendChat(LX('يلّا نازلين 🚐','Hadi iniyoruz 🚐','Heading down 🚐'))">${LX('يلّا نازلين 🚐','İniyoruz 🚐','Heading down 🚐')}</button><button class="cchip" onclick="sendChat(LX('جوعانين 🍽️','Acıktık 🍽️','We\'re hungry 🍽️'))">${LX('جوعانين 🍽️','Acıktık 🍽️','Hungry 🍽️')}</button></div>
+   <div class="chatrow"><input id="chatin" type="text" maxlength="200" placeholder="${LX('اكتب رسالة…','Mesaj yaz…','Type a message…')}" onkeydown="if(event.key==='Enter')sendChatInput()"><button class="chatsend" onclick="sendChatInput()">➤</button></div></div>
    <div class="dahcard"><div class="dahhead"><span>💎 ${LX('أفخم الأماكن — الفايع','En lüks — DAAAH','Most upscale places')}</span><span class="dahcount">${LX('٣٠ مكان','30 yer','30 spots')}</span></div><div class="dahgrid">${_dahCards}</div><div class="btnrow"><button class="lnk gold" onclick="goMapDah()">🗺️ ${LX('شوف الـ٣٠ ع الخريطة','30 yeri haritada gör','See the 30 on the map')}</button></div></div>
    <h2>${LX('هلا بالشلّة في','Hoş geldin','Welcome to')} <span class="em">${LX('طرابزون','Trabzon','Trabzon')}</span> 🌿</h2>
    <p class="lead">${LX('خريطة شكل جوجل + موقع كل واحد، صلاة وشروق، مترجم تركي، تصويت و«وين نروح»، وسهرة شباب كل يوم 😎.','Google harita, namaz, çeviri, oylama, erkek gecesi 😎.','Google-style map + everyone’s location, prayer & sunrise, translator, voting, men’s night 😎.')}</p>
@@ -929,6 +960,57 @@ function cnv(src){const r=getFBR();const u=document.getElementById('cUsd'),t=doc
   const norm=v=>parseFloat(String(v).replace(/[٠-٩]/g,d=>'0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]).replace(/,/g,'.'))||0;
   if(src==='u'){const v=norm(u.value);t.value=v?(v*r.try).toFixed(0):'';}
   else{const v=norm(t.value);u.value=v?(v/r.try).toFixed(2):'';}}
+
+/* ===== family chat + notifications ===== */
+let CHAT=[],chatTimer=null,chatBusy=false;
+function chatSeenTs(){return parseInt(localStorage.getItem('fbChatSeen')||'0');}
+function markChatSeen(){if(CHAT.length){localStorage.setItem('fbChatSeen',String(CHAT[CHAT.length-1].ts));}updateChatBadge();}
+function updateChatBadge(){const tab=document.querySelector('.tab[data-t=home]');if(!tab)return;
+  const unread=CHAT.filter(m=>m.ts>chatSeenTs()&&(!USER||m.uid!==USER.id)).length;
+  let b=tab.querySelector('.chatbdg');
+  if(unread>0){if(!b){b=document.createElement('span');b.className='chatbdg';tab.appendChild(b);}b.textContent=unread>9?'9+':unread;}
+  else if(b)b.remove();}
+function escCh(t){return String(t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+function renderChat(){const box=document.getElementById('chatmsgs');if(!box)return;
+  if(!CHAT.length){box.innerHTML='<div class="chatempty">'+LX('لسا ما في رسائل — افتحوا السيرة 😄','Henüz mesaj yok 😄','No messages yet 😄')+'</div>';return;}
+  box.innerHTML=CHAT.slice(-60).map(m=>{const mine=USER&&m.uid===USER.id;
+    const tm=new Date(m.ts).toLocaleTimeString(LANG==='ar'?'ar-JO':'tr-TR',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="cmsg${mine?' mine':''}"><span class="cwho">${m.em||'👤'} ${escCh(m.nm||'')}</span><span class="ctxt">${escCh(m.txt)}</span><span class="ctm">${tm}</span></div>`;}).join('');
+  box.scrollTop=box.scrollHeight;}
+async function loadChat(silent){if(chatBusy)return;chatBusy=true;
+  try{const prevLast=CHAT.length?CHAT[CHAT.length-1].ts:0;
+    const arr=await sget('chat');if(Array.isArray(arr))CHAT=arr;
+    renderChat();updateChatBadge();
+    const news=CHAT.filter(m=>m.ts>prevLast&&(!USER||m.uid!==USER.id));
+    if(!silent&&prevLast>0&&news.length){const last=news[news.length-1];
+      const onHome=document.getElementById('s-home')&&document.getElementById('s-home').classList.contains('show');
+      if(document.hidden){fireNotif(last);}
+      else if(!onHome){notify('💬 '+(last.nm||'')+': '+last.txt.slice(0,60));}
+      else{markChatSeen();}
+    }
+  }catch(e){}chatBusy=false;}
+async function sendChat(txt){if(!USER){notify(LX('سجّل دخول أول 😊','Önce giriş yap','Log in first'));return;}
+  txt=String(txt||'').trim();if(!txt)return;
+  const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);
+  const msg={id:Date.now()+'-'+Math.random().toString(36).slice(2,6),uid:USER.id,nm,em:USER.em,txt:txt.slice(0,200),ts:Date.now()};
+  try{const cur=await sget('chat');const arr=Array.isArray(cur)?cur:[];
+    arr.push(msg);arr.sort((a,b)=>a.ts-b.ts);const trimmed=arr.slice(-150);
+    await sset('chat',trimmed);CHAT=trimmed;renderChat();markChatSeen();
+  }catch(e){notify('⚠️ '+LX('ما انبعتت — جرّب ثاني','Gönderilemedi','Failed — try again'));}}
+function sendChatInput(){const el=document.getElementById('chatin');if(!el)return;const v=el.value;el.value='';sendChat(v);}
+function startChatLoop(){if(chatTimer)clearInterval(chatTimer);loadChat(true);chatTimer=setInterval(()=>loadChat(false),10000);}
+/* notifications */
+function askNotify(){
+  if(!('Notification' in window)){notify(LX('جهازك ما بيدعم التنبيهات من المتصفح','Cihaz desteklemiyor','Not supported on this device'));return;}
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(ios&&!isStandalone()){notify(LX('📲 عالآيفون: ثبّتوا التطبيق عالشاشة أولاً (زر 📲 فوق) بعدين فعّلوا التنبيهات','📲 iPhone: önce uygulamayı yükleyin','📲 iPhone: install the app first (📲 button), then enable'));return;}
+  Notification.requestPermission().then(p=>{
+    if(p==='granted'){localStorage.setItem('fbNfy','1');document.getElementById('nfybtn')&&(document.getElementById('nfybtn').textContent='🔔 ✅');notify(LX('✅ التنبيهات مفعّلة! رح يوصلك إشعار بكل رسالة جديدة والتطبيق مفتوح بالخلفية','✅ Bildirimler açık!','✅ Alerts on!'));
+      try{navigator.serviceWorker.getRegistration().then(r=>r&&r.showNotification('FAM BAM 🎉',{body:LX('هيك بيبيّن الإشعار — أهلاً بالشلّة!','Bildirimler böyle görünür!','This is how alerts look!'),tag:'fb-test'})).catch(()=>{});}catch(e){}}
+    else{notify(LX('ما انفعّلت — اسمحلها من إعدادات المتصفح','İzin verilmedi','Permission denied'));}});}
+function fireNotif(m){if(localStorage.getItem('fbNfy')!=='1'||!('Notification' in window)||Notification.permission!=='granted')return;
+  try{navigator.serviceWorker.getRegistration().then(r=>{if(r)r.showNotification((m.em||'💬')+' '+(m.nm||''),{body:m.txt.slice(0,120),tag:'fb-chat',renotify:true});}).catch(()=>{});}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadChat(true);});
 function renderMoney(){
   const ar=LANG==='ar';const canEdit=USER&&USER.id==='raya';
   let html=`<h2>${svgIco('coins',20,'#1d4f4a')} ${ar?'تقسيم المصاريف':'Hesap Bölüşme'}</h2>`;
@@ -1193,7 +1275,6 @@ function pollHTML(){if(!POLL)return `<div class="card"><p>${LX('لسّا ما ف
 function whoVotedHTML(){if(!POLL)return '';const rows=Object.entries(VOTES).map(([id,idx])=>{const m=ROSTER.find(r=>r.id===id);if(!m)return '';const nm=m.tronly?'Sibel':(LANG==='ar'?m.ar:m.tr);return `<div class="wv"><b>${m.em} ${nm}</b><span>${POLL.opts[idx]}</span></div>`;}).join('');return rows?`<div class="card wvc"><h4>${LX('🔎 مين صوّت شو','Kim ne oyladı','🔎 Who voted what')}</h4>${rows}</div>`:'';}
 function renderHomeVote(){const el=document.getElementById('homevote');if(!el)return;el.innerHTML=`<div class="hvhead">${svgIco('vote',18,'#1d4f4a')} <b>${LX('تصويت الشلّة','Oylama','Family vote')}</b><button class="lnk" onclick="go('vote')">${LX('كل التصويتات ←','Tümü ←','All votes ←')}</button></div>`+pollHTML();}
 function notify(msg){let t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}t.textContent=msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),3200);try{if('Notification'in window&&Notification.permission==='granted'&&document.hidden){new Notification('FAM BAM',{body:msg});}}catch(e){}}
-function askNotify(){try{if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}}
 function firstRunPerms(){let done=false;try{done=localStorage.getItem('fambam_perms')==='1';}catch(e){}
   // show iOS install hint / FAB regardless if not standalone
   try{const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);const fab=document.getElementById('instFab');if(fab&&!isStandalone()&&(deferredPrompt||ios))fab.style.display='inline-flex';}catch(e){}

@@ -1,5 +1,5 @@
 /* FAM BAM in TRABZAM — Service Worker (offline + map tile caching) */
-const APP_CACHE = 'fambam-app-v22';
+const APP_CACHE = 'fambam-app-v23';
 const TILE_CACHE = 'fambam-tiles-v4';
 const LIB_CACHE = 'fambam-libs-v4';
 const MAX_TILES = 1500; // cap cached tiles so storage doesn't grow forever
@@ -67,4 +67,14 @@ self.addEventListener('fetch', e => {
     })());
     return;
   }
+});
+
+// focus/open the app when a notification is tapped
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil((async () => {
+    const all = await self.clients.matchAll({type:'window', includeUncontrolled:true});
+    if (all.length){ all[0].focus(); }
+    else { self.clients.openWindow('./'); }
+  })());
 });
