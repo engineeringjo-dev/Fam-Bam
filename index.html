@@ -777,7 +777,7 @@ function applyLang(){document.documentElement.lang=LANG;document.documentElement
   updateDateWx();if(USER)setUchip();}
 
 const secOf={home:'s-map',map:'s-map',days:'s-days',fine:'s-fine',pray:'s-pray',gf:'s-gf',coffee:'s-coffee',kids:'s-kids',shop:'s-shop',discount:'s-discount',honey:'s-honey',vibes:'s-vibes',money:'s-money',xlate:'s-xlate',food:'s-food',know:'s-know',vote:'s-vote'};
-function go(t){if(t==='home'){setTimeout(()=>{try{markChatSeen();renderChat();}catch(e){}},250);} document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));document.querySelectorAll('main>section').forEach(s=>s.classList.remove('show'));document.getElementById(secOf[t]).classList.add('show');window.scrollTo({top:0,behavior:'smooth'});if(secOf[t]==='s-map'){if(!map)initMap();setTimeout(()=>{if(map){map.invalidateSize();renderHomeList(curFilter);renderHomeVote();}},140);}}
+function go(t){if(t==='home'){setTimeout(()=>{try{markChatSeen();renderChat();}catch(e){}},250);} if(t==='money'){setTimeout(()=>{try{refreshExpenses(true);}catch(e){}},60);} document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));document.querySelectorAll('main>section').forEach(s=>s.classList.remove('show'));document.getElementById(secOf[t]).classList.add('show');window.scrollTo({top:0,behavior:'smooth'});if(secOf[t]==='s-map'){if(!map)initMap();setTimeout(()=>{if(map){map.invalidateSize();renderHomeList(curFilter);renderHomeVote();}},140);}}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.t)));
 
 function pById(id){return PLACES.find(p=>p.id===id);}
@@ -902,7 +902,8 @@ async function addBill(){
   if(Math.abs(sum-total)>0.5){const ok=confirm((LANG==='ar'?'الموزّع ('+fmtTL(sum)+') مش مساوي للمجموع ('+fmtTL(total)+'). تأكيد الحفظ؟':'Toplam uyuşmuyor. Kaydet?'));if(!ok)return;}
   EXPENSES.push({id:Date.now(),payer,total:Math.round(total*100)/100,note,shares});
   await sset('fambam:expenses',EXPENSES);
-  notify(LX('✅ تمت إضافة الفاتورة','Eklendi','✅ Bill added'));
+  let saved=false;try{const chk=await sget('fambam:expenses');saved=Array.isArray(chk)&&chk.some(b=>b.id===EXPENSES[EXPENSES.length-1].id);}catch(e){}
+  notify(saved?LX('✅ تمت الإضافة ووصلت للجميع','✅ Eklendi ve herkese ulaştı','✅ Added & synced to everyone'):LX('⚠️ انحفظت عندك بس ما وصلت للسيرفر — تأكدي من النت واكبسي إضافة من جديد','⚠️ Sunucuya ulaşmadı — interneti kontrol edin','⚠️ Saved locally but did NOT reach the server — check internet and add again'));
   renderMoney();
 }
 async function delBill(id){
@@ -995,7 +996,7 @@ async function sendChat(txt){if(!USER){notify(LX('سجّل دخول أول 😊'
     await sset('chat',trimmed);CHAT=trimmed;renderChat();markChatSeen();
   }catch(e){notify('⚠️ '+LX('ما انبعتت — جرّب ثاني','Gönderilemedi','Failed — try again'));}}
 function sendChatInput(){const el=document.getElementById('chatin');if(!el)return;const v=el.value;el.value='';sendChat(v);}
-function startChatLoop(){if(chatTimer)clearInterval(chatTimer);loadChat(true);chatTimer=setInterval(()=>loadChat(false),10000);}
+function startChatLoop(){if(chatTimer)clearInterval(chatTimer);loadChat(true);chatTimer=setInterval(()=>{loadChat(false);try{const m=document.getElementById('s-money');if(m&&m.classList.contains('show'))refreshExpenses(false);}catch(e){}},10000);}
 /* notifications */
 function askNotify(){
   if(!('Notification' in window)){notify(LX('جهازك ما بيدعم التنبيهات من المتصفح','Cihaz desteklemiyor','Not supported on this device'));return;}
@@ -1008,6 +1009,14 @@ function askNotify(){
 function fireNotif(m){if(localStorage.getItem('fbNfy')!=='1'||!('Notification' in window)||Notification.permission!=='granted')return;
   try{navigator.serviceWorker.getRegistration().then(r=>{if(r)r.showNotification((m.em||'💬')+' '+(m.nm||''),{body:m.txt.slice(0,120),tag:'fb-chat',renotify:true});}).catch(()=>{});}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadChat(true);});
+
+async function refreshExpenses(force){
+  try{const ex=await sget('fambam:expenses');
+    const changed=Array.isArray(ex)&&JSON.stringify(ex)!==JSON.stringify(EXPENSES);
+    if(changed)EXPENSES=ex;
+    const onMoney=document.getElementById('s-money')&&document.getElementById('s-money').classList.contains('show');
+    if((changed||force)&&onMoney)renderMoney();
+  }catch(e){}}
 function renderMoney(){
   const ar=LANG==='ar';const canEdit=USER&&USER.id==='raya';
   let html=`<h2>${svgIco('coins',20,'#1d4f4a')} ${ar?'تقسيم المصاريف':'Hesap Bölüşme'}</h2>`;
