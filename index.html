@@ -340,6 +340,20 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 .instbtn{font-size:1rem;padding:0 12px}
 .uchip{height:38px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.14)}
 .hbtns{gap:8px}
+
+/* live rate + converter */
+.ratesline{font-size:1rem;margin:6px 0}
+.ratets{font-size:.72rem;color:#6d6355;margin:2px 0 8px}
+.ratebtn{background:linear-gradient(135deg,#2f7f70,#23615a);color:#fff;border:none;border-radius:999px;padding:9px 16px;font-family:inherit;font-weight:800;font-size:.85rem;cursor:pointer;box-shadow:0 2px 8px rgba(47,127,112,.3)}
+.ratebtn:disabled{opacity:.6}
+.convbox{margin-top:12px;background:#fff9ec;border:1.5px solid #e5d9c2;border-radius:14px;padding:10px}
+.convtitle{font-weight:900;font-size:.8rem;color:#8b5a2b;margin-bottom:8px}
+.convrow{display:flex;align-items:center;gap:8px}
+.cvl{font-weight:900;font-size:.85rem;color:#1d4f4a;min-width:74px}
+.convrow input{flex:1;border:1.5px solid #e5d9c2;border-radius:10px;padding:9px;font-family:inherit;font-weight:800;font-size:1rem;text-align:center;background:#fff;color:#2e2a22}
+.convrow input:focus{outline:none;border-color:#dd9a2f;box-shadow:0 0 0 3px rgba(221,154,47,.2)}
+.convswap{text-align:center;color:#dd9a2f;font-weight:900;margin:2px 0}
+.ratehint{font-size:.75rem;color:#6d6355;margin-top:8px}
 </style>
 </head>
 <body>
@@ -894,11 +908,42 @@ function computeSettle(){
   while(i<deb.length&&j<cred.length&&g<200){g++;const m=Math.round(Math.min(deb[i].v,cred[j].v)*100)/100;if(m>0)tx.push({from:deb[i].id,to:cred[j].id,amt:m});deb[i].v=Math.round((deb[i].v-m)*100)/100;cred[j].v=Math.round((cred[j].v-m)*100)/100;if(deb[i].v<=0.009)i++;if(cred[j].v<=0.009)j++;}
   return {paid,owed,bal,tx};
 }
+
+/* ===== live exchange rate + converter ===== */
+function getFBR(){try{const r=JSON.parse(localStorage.getItem('fbRate')||'null');if(r&&r.try)return r;}catch(e){}return {try:46.7,eur:53,jod:65.9,ts:0};}
+function paintRate(){const r=getFBR();const e1=document.getElementById('rUsd');if(!e1)return;
+  e1.textContent=r.try.toFixed(2);const e2=document.getElementById('rEur');if(e2)e2.textContent=r.eur.toFixed(1);
+  const e3=document.getElementById('rJod');if(e3)e3.textContent=r.jod.toFixed(1);
+  const ts=document.getElementById('rateTs');
+  if(ts)ts.textContent=r.ts?(LX('آخر تحديث لايف: ','Son canlı güncelleme: ','Last live update: ')+new Date(r.ts).toLocaleString(LANG==='ar'?'ar-JO':(LANG==='tr'?'tr-TR':'en-GB'),{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})):LX('سعر مرجعي (٣ تموز) — اكبس تحديث للسعر اللحظي','Referans kur — canlı için güncelle','Reference rate — tap update for live');}
+async function updateRate(){const btn=document.getElementById('rateBtn');if(btn){btn.disabled=true;btn.textContent='⏳ '+LX('عم أجيب السعر…','Kur alınıyor…','Fetching…');}
+  let ok=false;
+  try{const d=await (await fetch('https://open.er-api.com/v6/latest/USD',{cache:'no-store'})).json();
+    if(d&&d.rates&&d.rates.TRY){const t=d.rates.TRY;const r={try:t,eur:d.rates.EUR?t/d.rates.EUR:t/0.88,jod:d.rates.JOD?t/d.rates.JOD:t/0.709,ts:Date.now()};localStorage.setItem('fbRate',JSON.stringify(r));ok=true;}}catch(e){}
+  if(!ok){try{const d=await (await fetch('https://api.frankfurter.app/latest?from=USD&to=TRY,EUR',{cache:'no-store'})).json();
+    if(d&&d.rates&&d.rates.TRY){const t=d.rates.TRY;const r={try:t,eur:d.rates.EUR?t/d.rates.EUR:t/0.88,jod:t/0.709,ts:Date.now()};localStorage.setItem('fbRate',JSON.stringify(r));ok=true;}}catch(e){}}
+  paintRate();cnv(document.getElementById('cUsd')&&document.getElementById('cUsd').value?'u':'t');
+  if(btn){btn.disabled=false;btn.textContent='🔄 '+LX('حدّث السعر (لايف)','Kuru güncelle (canlı)','Update rate (live)');}
+  notify(ok?LX('✅ انجاب السعر اللحظي!','✅ Canlı kur alındı!','✅ Live rate fetched!'):LX('⚠️ ما في نت — عارض آخر سعر محفوظ','⚠️ İnternet yok — son kayıtlı kur','⚠️ Offline — showing last saved rate'));}
+function cnv(src){const r=getFBR();const u=document.getElementById('cUsd'),t=document.getElementById('cTry');if(!u||!t)return;
+  const norm=v=>parseFloat(String(v).replace(/[٠-٩]/g,d=>'0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]).replace(/,/g,'.'))||0;
+  if(src==='u'){const v=norm(u.value);t.value=v?(v*r.try).toFixed(0):'';}
+  else{const v=norm(t.value);u.value=v?(v/r.try).toFixed(2):'';}}
 function renderMoney(){
   const ar=LANG==='ar';const canEdit=USER&&USER.id==='raya';
   let html=`<h2>${svgIco('coins',20,'#1d4f4a')} ${ar?'تقسيم المصاريف':'Hesap Bölüşme'}</h2>`;
   html+=`<p class="lead">${ar?'راية المديرة بتسجّل كل فاتورة (مين دفع + المجموع + كم على كل واحد بالليرة)، والتطبيق بيحسب المقاصة — مين عليه لمين بأقل عدد تحويلات. 💵':'Raya faturaları girer, uygulama hesaplaşmayı hesaplar.'}</p>`;
-  html+=`<div class="card" style="border-color:#dd9a2f"><h3>💱 ${LX('سعر الصرف (مرجع)','Döviz (referans)','Exchange rate (reference)')}</h3><p>${LX('وقت التحضير (٣ تموز ٢٠٢٦): <b>$1 ≈ 46.7₺</b> · <b>€1 ≈ 53₺</b> — يعني 1000₺ ≈ $21. الليرة بتتغيّر بسرعة: شيّكوا يوم السفر، وبدّلوا بمكاتب الصرافة بالبلد مش بالمطار.','3 Tem 2026: $1≈46,7₺ · €1≈53₺. Kur değişken — seyahat günü kontrol edin.','As of Jul 3, 2026: <b>$1 ≈ 46.7₺</b> · <b>€1 ≈ 53₺</b> — so 1,000₺ ≈ $21. The lira moves fast: check on travel day; exchange at city offices, not the airport.')}</p></div>`;
+  html+=`<div class="card" style="border-color:#dd9a2f"><h3>💱 ${LX('سعر الصرف','Döviz kuru','Exchange rate')}</h3>
+    <p class="ratesline">$1 ≈ <b id="rUsd">…</b>₺ &nbsp;·&nbsp; €1 ≈ <b id="rEur">…</b>₺ &nbsp;·&nbsp; ${LX('١ دينار','1 JOD','1 JOD')} ≈ <b id="rJod">…</b>₺</p>
+    <p class="ratets" id="rateTs"></p>
+    <button class="ratebtn" id="rateBtn" onclick="updateRate()">🔄 ${LX('حدّث السعر (لايف)','Kuru güncelle (canlı)','Update rate (live)')}</button>
+    <div class="convbox"><div class="convtitle">${LX('المحوّل الفوري','Hızlı çevirici','Quick converter')}</div>
+      <div class="convrow"><span class="cvl">💵 USD</span><input id="cUsd" type="text" inputmode="decimal" dir="ltr" placeholder="0" oninput="cnv('u')"></div>
+      <div class="convswap">⇅</div>
+      <div class="convrow"><span class="cvl">🇹🇷 TRY</span><input id="cTry" type="text" inputmode="decimal" dir="ltr" placeholder="0" oninput="cnv('t')"></div>
+    </div>
+    <p class="ratehint">${LX('بدّلوا بمكاتب الصرافة بالبلد مش بالمطار 😉','Döviz bürosunda bozdurun, havalimanında değil 😉','Exchange at city offices, not the airport 😉')}</p></div>`;
+  setTimeout(paintRate,0);
   // form (raya only)
   if(canEdit){
     const opts=moneyPeople().map(p=>`<option value="${p.id}">${p.em} ${p[LANG]}</option>`).join('');
