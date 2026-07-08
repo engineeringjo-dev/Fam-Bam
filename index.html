@@ -379,6 +379,10 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 .chatsend{background:linear-gradient(135deg,#2f7f70,#23615a);color:#fff;border:none;border-radius:50%;width:42px;height:42px;font-size:1.05rem;cursor:pointer;box-shadow:0 2px 8px rgba(47,127,112,.3)}
 .chatbdg{position:absolute;top:2px;inset-inline-end:4px;background:#c8402e;color:#fff;font-size:.62rem;font-weight:900;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px}
 .tab{position:relative}
+
+#anthembtn{position:relative}
+#anthembtn.playing::after{content:'';position:absolute;inset:-2px;border-radius:inherit;border:2px solid rgba(232,176,74,.6);animation:anthempulse 1.6s ease-in-out infinite}
+@keyframes anthempulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
 </style>
 </head>
 <body>
@@ -407,6 +411,8 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
   <div class="htop">
     <div class="brand"><span class="dot"></span><h1>FAM BAM <span style="color:var(--gold)">in</span> TRABZAM</h1></div>
     <div class="hbtns">
+      <audio id="anthem" src="anthem.mp3" preload="auto" loop></audio>
+      <button class="instbtn" id="anthembtn" onclick="toggleAnthem()" title="نشيد الشلّة">🎵</button>
       <button class="instbtn" id="instbtn" onclick="installApp()">📲</button>
       <div class="langdd"><button class="langbtn" id="langbtn" onclick="toggleLangMenu(event)"><span id="langcur">العربية</span> <span class="lcar">▾</span></button><div class="langmenu" id="langmenu"><button data-l="ar" onclick="setLang('ar')">🇸🇦 العربية</button><button data-l="tr" onclick="setLang('tr')">🇹🇷 Türkçe</button><button data-l="en" onclick="setLang('en')">🇬🇧 English</button></div></div>
       <span class="uchip" id="uchip" onclick="logout()"></span>
@@ -755,6 +761,7 @@ function buildRoster(){document.getElementById('roster').innerHTML=ROSTER.map(p=
 function login(id,quiet){USER=ROSTER.find(p=>p.id===id);if(!USER)return;if(USER.id==='sibel'){LANG='tr';applyLang();}
   try{localStorage.setItem('fambam_uid',id);}catch(e){}
   try{startChatLoop();}catch(e){}
+  try{armAnthem();}catch(e){}
   try{if(localStorage.getItem('fbNfy')==='1'){setTimeout(()=>{const b=document.getElementById('nfybtn');if(b)b.textContent='🔔 ✅';},400);}}catch(e){}
   const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);
   document.getElementById('fem').textContent=USER.em;
@@ -1043,6 +1050,31 @@ async function refreshExpenses(force){
     const onMoney=document.getElementById('s-money')&&document.getElementById('s-money').classList.contains('show');
     if((changed||force)&&onMoney)renderMoney();
   }catch(e){}}
+
+/* ===== group anthem ===== */
+let anthemArmed=false;
+function anthemEl(){return document.getElementById('anthem');}
+function setAnthemIcon(){const b=document.getElementById('anthembtn');const a=anthemEl();if(!b||!a)return;
+  b.textContent=(a.paused||a.muted)?'🔇':'🎵';}
+function playAnthem(){const a=anthemEl();if(!a)return;
+  if(localStorage.getItem('fbAnthemOff')==='1')return;
+  a.muted=false;a.volume=0.65;
+  const p=a.play();if(p&&p.catch)p.catch(()=>{});setAnthemIcon();}
+function toggleAnthem(){const a=anthemEl();if(!a)return;
+  if(a.paused||a.muted){localStorage.removeItem('fbAnthemOff');a.muted=false;a.play().catch(()=>{});}
+  else{a.pause();localStorage.setItem('fbAnthemOff','1');}
+  setAnthemIcon();}
+/* browsers block autoplay until first gesture — arm once, fire on first tap/key */
+function armAnthem(){if(anthemArmed)return;anthemArmed=true;
+  const go=()=>{playAnthem();window.removeEventListener('pointerdown',go);window.removeEventListener('keydown',go);window.removeEventListener('touchstart',go);};
+  window.addEventListener('pointerdown',go,{once:true});
+  window.addEventListener('keydown',go,{once:true});
+  window.addEventListener('touchstart',go,{once:true});
+  /* try immediate (works on Android/desktop if returning user gesture cached) */
+  setTimeout(playAnthem,300);}
+document.addEventListener('visibilitychange',()=>{const a=anthemEl();if(!a)return;
+  if(document.hidden){if(!a.paused)a.pause();}
+  else if(localStorage.getItem('fbAnthemOff')!=='1'&&anthemArmed){a.play().catch(()=>{});}});
 function renderMoney(){
   const ar=LANG==='ar';const canEdit=USER&&USER.id==='raya';
   let html=`<h2>${svgIco('coins',20,'#1d4f4a')} ${ar?'تقسيم المصاريف':'Hesap Bölüşme'}</h2>`;
