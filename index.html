@@ -403,6 +403,12 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 .addgo{flex:2;background:linear-gradient(135deg,#2f7f70,#23615a);color:#fff;border:none;border-radius:12px;padding:12px;font-family:inherit;font-weight:900;cursor:pointer}
 .addedby{background:#eaf6ee;border:1px dashed #1d6b3e;color:#1d6b3e;font-size:.72rem;font-weight:800;border-radius:8px;padding:4px 10px;margin:0 2px -4px;display:flex;justify-content:space-between;align-items:center}
 .rmadd{background:none;border:none;color:#b5402f;font-weight:900;cursor:pointer;font-size:.9rem}
+
+.vetobtn{width:100%;margin-top:10px;background:linear-gradient(135deg,#b5402f,#8f2f22);color:#fff;border:none;border-radius:12px;padding:12px;font-family:inherit;font-weight:900;font-size:.9rem;cursor:pointer;box-shadow:0 2px 8px rgba(181,64,47,.35)}
+.vetobtn:active{transform:scale(.97)}
+.vetocard{border-color:#b5402f;background:linear-gradient(180deg,#fdeeeb,#fffdf6)}
+.vetorow{display:flex;justify-content:space-between;align-items:center;padding:7px 2px;border-bottom:1px dashed #e5d9c2;font-size:.88rem}
+.vetorow span{font-size:.72rem;color:#6d6355}
 </style>
 </head>
 <body>
@@ -786,6 +792,7 @@ function login(id,quiet){USER=ROSTER.find(p=>p.id===id);if(!USER)return;if(USER.
   try{startChatLoop();}catch(e){}
   try{armAnthem();}catch(e){}
   try{loadDayAdds();}catch(e){}
+  try{loadVetoes();}catch(e){}
   try{if(localStorage.getItem('fbNfy')==='1'){setTimeout(()=>{const b=document.getElementById('nfybtn');if(b)b.textContent='🔔 ✅';},400);}}catch(e){}
   const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);
   document.getElementById('fem').textContent=USER.em;
@@ -1059,7 +1066,7 @@ async function sendChat(txt){if(!USER){notify(LX('سجّل دخول أول 😊'
     await sset('chat',trimmed);CHAT=trimmed;renderChat(true);markChatSeen();
   }catch(e){notify('⚠️ '+LX('ما انبعتت — جرّب ثاني','Gönderilemedi','Failed — try again'));}}
 function sendChatInput(){const el=document.getElementById('chatin');if(!el)return;const v=el.value;el.value='';sendChat(v);}
-function startChatLoop(){if(chatTimer)clearInterval(chatTimer);loadChat(true);chatTimer=setInterval(()=>{loadChat(false);try{const m=document.getElementById('s-money');if(m&&m.classList.contains('show'))refreshExpenses(false);}catch(e){}try{const pv=JSON.stringify(DAYADDS);loadDayAdds().then(()=>{const dd=document.getElementById('s-days');if(dd&&dd.classList.contains('show')&&JSON.stringify(DAYADDS)!==pv)renderDays();});}catch(e){}},10000);}
+function startChatLoop(){if(chatTimer)clearInterval(chatTimer);loadChat(true);chatTimer=setInterval(()=>{loadChat(false);try{const m=document.getElementById('s-money');if(m&&m.classList.contains('show'))refreshExpenses(false);}catch(e){}try{const pv=JSON.stringify(DAYADDS);loadDayAdds().then(()=>{const dd=document.getElementById('s-days');if(dd&&dd.classList.contains('show')&&JSON.stringify(DAYADDS)!==pv)renderDays();});}catch(e){}try{const vv0=JSON.stringify(VETOES);loadVetoes().then(()=>{const vt=document.getElementById('s-vote');if(vt&&vt.classList.contains('show')&&JSON.stringify(VETOES)!==vv0)renderVote();});}catch(e){}},10000);}
 /* notifications */
 function askNotify(){
   if(!('Notification' in window)){notify(LX('جهازك ما بيدعم التنبيهات من المتصفح','Cihaz desteklemiyor','Not supported on this device'));return;}
@@ -1254,9 +1261,47 @@ function renderHalal(){
 function renderXlate(){document.getElementById('s-xlate').innerHTML=`<h2>🔤 ${LX('مترجم عربي ↔ تركي','Çevirmen','Arabic ↔ Turkish translator')}</h2><p class="lead">${LX('دفتر عبارات بنطق صوتي تركي (🔊) + ترجمة حرّة عبر Google Translate.','Sesli + Google Translate.','A phrasebook with Turkish voice (🔊) + free translation via Google.')}</p><div class="card"><h3>✍️ ${LX('ترجمة حرّة','Serbest','Free translation')}</h3><input class="input" id="trinput" placeholder="${LX('اكتب هنا…','Yaz…','Type here…')}"><div class="btnrow"><button class="lnk gmap" onclick="gtrans('ar','tr')">${LX('عربي → تركي','AR→TR','AR → TR')}</button><button class="lnk" onclick="gtrans('tr','ar')">${LX('تركي → عربي','TR→AR','TR → AR')}</button><a class="lnk gold" href="https://translate.google.com/?sl=ar&tl=tr&op=translate" target="_blank">${LX('Google Translate (صوت/كاميرا)','Google Translate','Google Translate (voice/camera)')}</a></div><div class="goodline">${LX('للترجمة الصوتية الحيّة والكاميرا حمّلوا تطبيق Google Translate من المتجر.','Sesli/kamera için Google Translate uygulaması.','For live voice & camera translation, install the Google Translate app.')}</div></div><div class="card"><h3>💬 ${LX('عبارات جاهزة (🔊 لفظ تركي)','Hazır cümleler 🔊','Ready phrases (🔊 Turkish)')}</h3>${PHRASES.map(p=>`<div class="phrase"><b>${p.ar}</b><span class="tr">${p.tr}</span><button class="spk" onclick="speak('${p.tr.replace(/'/g,'')}')">🔊</button></div>`).join('')}</div>`;}
 
 /* vote + ween nrooh */
+/* ===== elder one-time veto ===== */
+const ELDERS=['hamza','raya','zaid','ruya','ramz','mansour','hasan','rawan','ahmad','sibel'];
+let VETOES={used:{},active:[]};
+function isElder(){return USER&&ELDERS.includes(USER.id);}
+async function loadVetoes(){try{const v=await sget('fambam:vetoes');if(v&&typeof v==='object'){VETOES={used:v.used||{},active:Array.isArray(v.active)?v.active:[]};}}catch(e){}}
+function vetoBadgeHTML(){
+  if(!VETOES.active||!VETOES.active.length)return '';
+  const items=VETOES.active.map(x=>`<div class="vetorow">🚫 <b>${x.place}</b> <span>${LX('فيتو من','Veto:','Veto by')} ${x.by}</span></div>`).join('');
+  return `<div class="card vetocard"><h4>🚫 ${LX('أماكن ممنوعة بالفيتو','Veto edilenler','Vetoed places')}</h4>${items}<p class="hlhint">${LX('الفيتو قرار نهائي لأحد الكبار — يُحترم.','Büyüklerin vetosu kesindir.','An elder\u2019s veto is final — please respect it.')}</p></div>`;
+}
+async function castVeto(){
+  if(!isElder()){notify(LX('حق الفيتو للكبار فقط 🚫','Sadece büyükler','Veto is for elders only'));return;}
+  if(!POLL){notify(LX('ما في تصويت مطروح','Oylama yok','No active vote'));return;}
+  if(VETOES.used[USER.id]){notify(LX('استعملت فيتوك مسبقاً — مرة وحدة فقط 🙏','Vetonu kullandın','You already used your one veto 🙏'));return;}
+  const nm=(USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr));
+  const ok=confirm(LX('تأكيد الفيتو على «'+POLL.q+'»؟\n\nهذا حقك مرة واحدة فقط طوال الرحلة ولا يمكن التراجع.','Veto onayı? Tek hakkın.','Confirm veto on this vote?\n\nThis is your ONE-TIME right for the whole trip and cannot be undone.'));
+  if(!ok)return;
+  try{
+    const cur=await sget('fambam:vetoes');const V=(cur&&typeof cur==='object')?{used:cur.used||{},active:Array.isArray(cur.active)?cur.active:[]}:{used:{},active:[]};
+    if(V.used[USER.id]){VETOES=V;notify(LX('استعملت فيتوك مسبقاً 🙏','Vetonu kullandın','Veto already used 🙏'));renderVote();return;}
+    V.used[USER.id]=true;
+    V.active.push({place:POLL.q,by:nm,uid:USER.id,ts:Date.now()});
+    await sset('fambam:vetoes',V);VETOES=V;
+    // close the vetoed poll
+    try{const pl=await sget('fambam:poll');if(pl&&pl.id===POLL.id){pl.closed=true;pl.vetoed=true;pl.vetoedBy=nm;await sset('fambam:poll',pl);POLL=pl;}}catch(e){}
+    notify('🚫 '+LX('تم استخدام الفيتو — المكان ممنوع','Veto uygulandı','Veto applied — place blocked'));
+    renderVote();
+  }catch(e){notify('⚠️ '+LX('ما تم — جرّب ثاني','Hata','Failed — try again'));}
+}
+function vetoButtonHTML(){
+  if(!isElder())return '';
+  if(!POLL||POLL.closed)return '';
+  if(VETOES.used[USER.id])return `<p class="hlhint" style="margin-top:8px">🚫 ${LX('استعملت حق الفيتو (مرة واحدة)','Veto hakkını kullandın','You\u2019ve used your one-time veto')}</p>`;
+  return `<button class="vetobtn" onclick="castVeto()">🚫 ${LX('استخدم حق الفيتو (مرة واحدة)','Veto kullan','Use your one-time veto')}</button>`;
+}
+
 function renderVote(){const el=document.getElementById('s-vote');const ad=USER&&USER.admin;let html=`<h2>🗳️ ${LX('تصويت الشلّة','Oylama','Family vote')}</h2>`;
   if(ad)html+=`<div class="card"><h3>👑 ${LX('اطرح تصويت','Oylama aç','Start a vote')}</h3><input class="input" id="pq" placeholder="${LX('السؤال…','Soru…','The question…')}"><input class="input" id="po0" placeholder="${LX('خيار ١','1','Option 1')}"><input class="input" id="po1" placeholder="${LX('خيار ٢','2','Option 2')}"><input class="input" id="po2" placeholder="${LX('خيار ٣','3','Option 3')}"><input class="input" id="po3" placeholder="${LX('خيار ٤','4','Option 4')}"><div class="btnrow"><button class="lnk gold" onclick="createPoll()">${LX('انشر 🚀','Yayınla','Publish 🚀')}</button>${POLL?`<button class="lnk" onclick="closePoll()">${LX('أعلن الفائز 🏆','Kazanan 🏆','Announce winner 🏆')}</button>`:''}</div></div>`;
   html+=pollHTML();
+  html+=vetoButtonHTML();
+  html+=vetoBadgeHTML();
   // member can request/suggest a poll
   if(!ad){html+=`<div class="card"><h4>${LX('📨 اطلب تصويت من حمزة','Oylama iste','📨 Request a vote from Hamza')}</h4><input class="input" id="vreq" placeholder="${LX('اكتب سؤال التصويت المقترح…','Öneri…','Type your suggested vote question…')}"><div class="btnrow"><button class="lnk gold" onclick="sendVoteReq()">${LX('أرسل الطلب 📨','Gönder','Send request 📨')}</button></div></div>`;}
   // admin sees pending requests
@@ -1526,7 +1571,7 @@ window.addEventListener('load',async()=>{try{const sl=localStorage.getItem('famb
   if(savedId&&ROSTER.find(p=>p.id===savedId)){login(savedId,true);}
   if('serviceWorker' in navigator){try{await navigator.serviceWorker.register('sw.js');}catch(e){}}
 });
-setInterval(async()=>{if(!USER)return;const v=await sget('fambam:visited');if(v)VISITED=v;const pl=await sget('fambam:poll');POLL=pl||POLL;const vt=await sget('fambam:votes');if(vt)VOTES=vt;const wn=await sget('fambam:wnr');WNR=wn||WNR;const wa=await sget('fambam:wans');if(wa)WANS=wa;const ind2=await sget('fambam:indirim');if(ind2)INDIRIM=ind2;const vr=await sget('fambam:votereqs');if(vr)VREQS=vr;checkNotifs();renderPresence();const a=document.querySelector('.tab.active');if(a){const t=a.dataset.t;if(t==='vote')renderVote();if(t==='discount')renderDiscount();if(secOf[t]==='s-map'&&map){drawMarkers(curFilter);renderHomeVote();if(SHARING)drawMembers();}updateMeter();}},15000);
+setInterval(async()=>{if(!USER)return;const v=await sget('fambam:visited');if(v)VISITED=v;const pl=await sget('fambam:poll');POLL=pl||POLL;const vt=await sget('fambam:votes');if(vt)VOTES=vt;const wn=await sget('fambam:wnr');WNR=wn||WNR;const wa=await sget('fambam:wans');if(wa)WANS=wa;const ind2=await sget('fambam:indirim');if(ind2)INDIRIM=ind2;const vr=await sget('fambam:votereqs');if(vr)VREQS=vr;checkNotifs();renderPresence();const a=document.querySelector('.tab.active');if(a){const t=a.dataset.t;if(t==='vote'){renderVote();(async()=>{try{const pl=await sget('fambam:poll');if(pl)POLL=pl;const vv=await sget('fambam:votes');if(vv)VOTES=vv;await loadVetoes();const vt=document.getElementById('s-vote');if(vt&&vt.classList.contains('show'))renderVote();}catch(e){}})();}if(t==='discount')renderDiscount();if(secOf[t]==='s-map'&&map){drawMarkers(curFilter);renderHomeVote();if(SHARING)drawMembers();}updateMeter();}},15000);
 </script>
 </body>
 </html>
