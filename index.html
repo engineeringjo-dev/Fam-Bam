@@ -383,6 +383,26 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 #anthembtn{position:relative}
 #anthembtn.playing::after{content:'';position:absolute;inset:-2px;border-radius:inherit;border:2px solid rgba(232,176,74,.6);animation:anthempulse 1.6s ease-in-out infinite}
 @keyframes anthempulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
+
+/* add-to-day + vote buttons + overlay */
+.lnk.addday{background:#1d6b3e;color:#fff}
+.lnk.votethis{background:#7b4fc0;color:#fff}
+.addov{position:fixed;inset:0;background:rgba(20,30,25,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center;animation:fadeov .2s}
+@keyframes fadeov{from{opacity:0}to{opacity:1}}
+.addbox{background:#fffdf6;width:100%;max-width:460px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.3);max-height:80vh;overflow-y:auto}
+.addtitle{font-weight:900;font-size:1.05rem;color:#1d4f4a;margin-bottom:12px}
+.addlbl{font-weight:800;font-size:.82rem;color:#6d6355;margin:12px 2px 8px}
+.addrow{display:flex;gap:8px;flex-wrap:wrap}
+.addchip{border:1.5px solid #e5d9c2;background:#fff;border-radius:12px;padding:8px 12px;font-family:inherit;font-weight:800;font-size:.85rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-width:44px;color:#2e2a22}
+.addchip span{font-size:.62rem;color:#6d6355;font-weight:700}
+.addchip.sel{background:#1d4f4a;color:#fff;border-color:#1d4f4a}
+.addchip.sel span{color:#d7eae5}
+.addchip.slotc{flex-direction:row}
+.addbtns{display:flex;gap:10px;margin-top:18px}
+.addcancel{flex:1;background:#eee7d6;border:none;border-radius:12px;padding:12px;font-family:inherit;font-weight:800;color:#6d6355;cursor:pointer}
+.addgo{flex:2;background:linear-gradient(135deg,#2f7f70,#23615a);color:#fff;border:none;border-radius:12px;padding:12px;font-family:inherit;font-weight:900;cursor:pointer}
+.addedby{background:#eaf6ee;border:1px dashed #1d6b3e;color:#1d6b3e;font-size:.72rem;font-weight:800;border-radius:8px;padding:4px 10px;margin:0 2px -4px;display:flex;justify-content:space-between;align-items:center}
+.rmadd{background:none;border:none;color:#b5402f;font-weight:900;cursor:pointer;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -672,7 +692,7 @@ const PLACES=[
 ];
 
 const DAYS=[
- {dt:TRIP[0],d:{ar:'السبت ١٨ تموز · الوصول',tr:'18 Tem Cmt · Varış'},t:{ar:'وصول فخم: فطور الزوّار الأول + مثلث الأطفال + عشاء ستيك 💎',tr:'Varış: Leefor + Zağnos + Karnivor'},tip:{ar:'الاستلام 7:30ص. الخطة: فطور Leefor (أرقى فطور) → استراحة بالفندق → <b>مثلث الأطفال</b> (زاغنوس مغامرات + أكواريوم النفق + حديقة الطيور — كلهم جنب بعض!) → تمشاية Uzun Sokak → عشاء Karnivor ستيك 💎 (احجزوا للـ١٩!). 🎭 <b>خيار المسا:</b> مهرجان أكاتشأباط الدولي شغّال (١٣–٢٠ تموز) — أمسية رقص شعبي مجانية ~١٥كم غرب.',tr:'07:30 alış. Akşam: Akçaabat festivali (13-20 Tem) opsiyonu.'},mens:{ar:'🌙 سهرة الشباب ٤٠+ (زي سهرة دبي اللي فرضها منصور 😅): شاي وطاولة عالكورنيش غانيتا',tr:'40+ erkek gecesi: Ganita çay & tavla',lat:41.0089713,lng:39.7319544},plan:{breakfast:["leefor"],lunch:["cinaralti"],dinner:["karnivor"],coffee:["frenza"],shop:["uzunsokak"],kids:["zagnos","akvaryum","kusparki"]}},
+ {dt:TRIP[0],d:{ar:'السبت ١٨ تموز · الوصول',tr:'18 Tem Cmt · Varış'},t:{ar:'وصول فخم: فطور الزوّار الأول + مثلث الأطفال + عشاء ستيك 💎',tr:'Varış: Leefor + Zağnos + Karnivor'},tip:{ar:'الاستلام 7:30ص. الخطة: فطور Leefor (أرقى فطور) → استراحة بالفندق → <b>مثلث الأطفال</b> (زاغنوس مغامرات + أكواريوم النفق + حديقة الطيور — كلهم جنب بعض!) → تمشاية Uzun Sokak → عشاء Karnivor ستيك 💎 (احجزوا للـ١٩!). 🎭 <b>خيار المسا:</b> مهرجان أكاتشأباط الدولي شغّال (١٣–٢٠ تموز) — أمسية رقص شعبي مجانية ~١٥كم غرب.',tr:'07:30 alış. Akşam: Akçaabat festivali (13-20 Tem) opsiyonu.'},mens:{ar:'🌙 سهرة الشباب ٤٠+ (زي سهرة دبي اللي فرضها منصور 😅): شاي وطاولة عالكورنيش غانيتا',tr:'40+ erkek gecesi: Ganita çay & tavla',lat:41.0089713,lng:39.7319544},plan:{breakfast:["leefor"],lunch:["cinaralti"],dinner:["karnivor","kebapci"],coffee:["frenza"],shop:["uzunsokak"],kids:["zagnos","akvaryum","kusparki"]}},
  {dt:TRIP[1],d:{ar:'الأحد ١٩ تموز · البحر والإطلالة',tr:'19 Tem Paz'},t:{ar:'فطور تركي فاخر + سيرا والقصر + غروب بوزتبه ← عشاء بإطلالة 💎',tr:'Asimer + Sera + Boztepe günbatımı'},tip:{ar:'الخطة الغربية: فطور Asimer التركي الفاخر 💎 → بحيرة سيرا (قوارب البطّ للأطفال) + قصر أتاتورك → غداء Kaan Olta بالحديقة الصيفية → قيلولة → <b>غروب شرفة بوزتبه (~٧:٤٥م)</b> + دير كيزلار <b>بالممر الرابط الجديد</b> (الأحد مفتوح — الاثنين مغلق!) → عشاء Vadi Balık على بوزتبه بإطلالة أضواء المدينة 💎 (احجزوا). ⚠️ كالكانأوغلو وكَلندر مغلقين الأحد.',tr:'⚠️ Pazar: Kalkanoğlu kapalı. Boztepe günbatımı + Kızlar (bağlantı yolu).'},mens:{ar:'🌙 سهرة الشباب ٤٠+: شاي الغروب على شرفة بوزتبه (منصور مصرّ 😅)',tr:'Boztepe çay',lat:40.9981425,lng:39.7318837},plan:{breakfast:["asimer"],lunch:["kaanolta"],dinner:["vadibalik"],coffee:["huna"],shop:["forum"],kids:["sera","kosk"]}},
  {dt:TRIP[2],d:{ar:'الاثنين ٢٠ تموز · سوميلا الفخم',tr:'20 Tem Pzt · Sümela'},t:{ar:'سوميلا 8ص بالتذكرة الإلكترونية + سلمون النهر + سطلاج حمسي كوي 💎',tr:'Sümela 08:00 + alabalık + sütlaç'},tip:{ar:'انطلاق 7ص (فطور سريع بالفندق). <b>سوميلا أول الفتح 8ص</b> — اشتروا التذاكر مسبقاً من muze.gov.tr (€٢٠) لتفادي الطابور، شاتل إلزامي + درج (كبار السن يستنّوا بالكافيه تحت). الرجعة: <b>سطلاج حمسي كوي الأسطوري</b> 😋 → غداء سلمون مرقّط طازج بـSümela Camping على النهر (ركن ألعاب أطفال). 🌉 <b>للنشيطين (بغضّ النظر عن الكلفة):</b> كمّلوا لتراس تورول الزجاجي + مغارة كاراجا (~١س إضافية، فان مستقل). 🏔️ <b>هيدرنبي يبدأ اليوم</b> (٢٠–٢٢) — خيار مسائي بديل. عشاء Adanalı كباب فاخر 💎. ⚠️ مركز العلوم وكيزلار مغلقين الاثنين.',tr:'Sümela 08:00 (e-bilet). Hamsiköy sütlaç. Aktifler: Torul + Karaca. Hıdırnebi başlıyor.'},mens:{ar:'🌙 سهرة الشباب ٤٠+: قهوة وكنافة بالميدان + لفّة مسا (شكراً منصور 😅)',tr:'Meydan kahve & künefe',lat:41.0046,lng:39.7270},plan:{breakfast:["zorlu"],lunch:["sumelacamp"],dinner:["adanali"],coffee:["hamsikoy"],shop:["bedesten"],kids:["sumelacamp"]}},
  {dt:TRIP[3],d:{ar:'الثلاثاء ٢١ تموز · أوزنجول الملكي',tr:'21 Tem Salı · Uzungöl'},t:{ar:'فطور رايا الآمن + أوزنجول باكر + İnan للـ١٩ + قارب الغروب ⛵ + عشاء الوداع 💎',tr:'X Akademi + Uzungöl + İnan + tekne + Berweuli'},tip:{ar:'انطلاق 7:30ص شرقاً: <b>فطور X Akademi</b> (جلوتين-فري ١٠٠٪ لرايا — على طريق أوزنجول أصلاً!) → <b>أوزنجول قبل الزحمة</b> (~9:30ص، الممشى سهل للكل، التراس العلوي مجاني) → <b>غداء İnan Kardeşler</b> — سعة ٣٠٠، احجزوا: ☎️ 0462 656 62 60 → رجعة مع وقفة قهوة Way Coffee (مقصورات VIP 🆕) → مركز العلوم للأطفال (مفتوح الثلاثاء) → <b>⛵ قارب خاص وقت الغروب من فاروز (قاربين للـ١٩!)</b> → <b>عشاء الوداع: Berweuli Ala Carte</b> قصر تاريخي 💎 (احجزوا وأكّدوا خيارات الجلوتين). آخر يوم كامل!',tr:'X Akademi → Uzungöl erken → İnan (rez: 0462 656 62 60) → tekne → Berweuli veda.'},mens:{ar:'🌙 سهرة الوداع للشباب ٤٠+: شاي وحلو — وداع طرابزون 💙 (آخر فرض لمنصور 😅)',tr:'Veda gecesi',lat:41.0046,lng:39.7270},plan:{breakfast:["xakademi"],lunch:["inan"],dinner:["berweuli"],coffee:["coffeeway"],shop:["forum"],kids:["bilim","farozboat"]}},
@@ -765,6 +785,7 @@ function login(id,quiet){USER=ROSTER.find(p=>p.id===id);if(!USER)return;if(USER.
   try{localStorage.setItem('fambam_uid',id);}catch(e){}
   try{startChatLoop();}catch(e){}
   try{armAnthem();}catch(e){}
+  try{loadDayAdds();}catch(e){}
   try{if(localStorage.getItem('fbNfy')==='1'){setTimeout(()=>{const b=document.getElementById('nfybtn');if(b)b.textContent='🔔 ✅';},400);}}catch(e){}
   const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);
   document.getElementById('fem').textContent=USER.em;
@@ -801,7 +822,7 @@ function applyLang(){document.documentElement.lang=LANG;document.documentElement
   updateDateWx();if(USER)setUchip();}
 
 const secOf={home:'s-map',map:'s-map',days:'s-days',fine:'s-fine',pray:'s-pray',gf:'s-gf',coffee:'s-coffee',kids:'s-kids',shop:'s-shop',discount:'s-discount',honey:'s-honey',vibes:'s-vibes',money:'s-money',xlate:'s-xlate',food:'s-food',know:'s-know',vote:'s-vote'};
-function go(t){if(t==='home'){setTimeout(()=>{try{markChatSeen();renderChat();}catch(e){}},250);} if(t==='money'){setTimeout(()=>{try{refreshExpenses(true);}catch(e){}},60);} document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));document.querySelectorAll('main>section').forEach(s=>s.classList.remove('show'));document.getElementById(secOf[t]).classList.add('show');window.scrollTo({top:0,behavior:'smooth'});if(secOf[t]==='s-map'){if(!map)initMap();setTimeout(()=>{if(map){map.invalidateSize();renderHomeList(curFilter);renderHomeVote();}},140);}}
+function go(t){if(t==='home'){setTimeout(()=>{try{markChatSeen();renderChat();}catch(e){}},250);} if(t==='money'){setTimeout(()=>{try{refreshExpenses(true);}catch(e){}},60);} if(t==='days'){setTimeout(()=>{try{loadDayAdds().then(()=>{const dd=document.getElementById('s-days');if(dd&&dd.classList.contains('show'))renderDays();});}catch(e){}},60);} document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.t===t));document.querySelectorAll('main>section').forEach(s=>s.classList.remove('show'));document.getElementById(secOf[t]).classList.add('show');window.scrollTo({top:0,behavior:'smooth'});if(secOf[t]==='s-map'){if(!map)initMap();setTimeout(()=>{if(map){map.invalidateSize();renderHomeList(curFilter);renderHomeVote();}},140);}}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.t)));
 
 function pById(id){return PLACES.find(p=>p.id===id);}
@@ -813,7 +834,7 @@ function placeCard(p){const cat=CATS[p.c],gf=GF[p.gf||'na'],pr=PR[p.pr];const st
   const prBadge=pr?`<span class="pill" style="background:${pr.col}22;color:${pr.col}">${pr[LANG]}</span>`:'';
   let vBtn='';if(USER&&USER.admin&&p.c!=='hotel')vBtn=`<button class="lnk ${visited?'':'gold'}" onclick="toggleVisited('${p.id}')">${visited?(LX('↩ شطب','↩ Geri','↩ Undo')):(LX('✓ زرناه','✓ Gittik','✓ Visited'))}</button>`;
   let mx='';if(p.mall)mx=`<div class="mallx"><div>${p.mall.kids[LANG]}</div><div>${p.mall.couples[LANG]}</div><div>${p.mall.coffee[LANG]}</div></div>`;
-  return `<div class="card cat-${p.c} ${visited?'isv':''}"><h3>${cat.em} ${p[LANG].n} ${stars}</h3><div class="badges">${p.new?`<span class="pill newp">🆕 NEW</span>`:''}${(typeof BIGGROUP!=='undefined'&&BIGGROUP.includes(p.id))?`<span class="pill biggrp">👥 ${LX('يناسب ١٩','19 kişi','Fits 19')}</span>`:''}<span class="pill" style="background:${cat.col}22;color:${cat.col}">${cat[LANG]}</span>${prBadge}${gfBadge}${vBadge}${distTxt(p)?`<span class="pill" style="background:#e2efeb;color:#2f7f70">📍 ${distTxt(p)}</span>`:''}</div><p>${p[LANG].d}</p>${p.c==='coffee'?`<p class="almondnote">${ALMONDNOTE[LANG]}</p>`:''}${mx}<div class="btnrow"><button class="lnk gold" onclick="jumpMap(${p.lat},${p.lng})"><span class="fico">${svgIco('pin',13,'#fff')}</span> ${LX('على الخريطة','Haritada','On map')}</button><a class="lnk gmap" href="${gmapUrl(p)}" target="_blank">🧭 ${LX('جوجل مابس','Google','Google Maps')}</a>${(typeof PHONES!=='undefined'&&PHONES[p.id])?`<a class="callbtn" href="tel:+9${PHONES[p.id]}">📞 ${LX('اتصل واحجز','Ara & rezerve et','Call & book')}</a>`:''}${vBtn}</div></div>`;}
+  return `<div class="card cat-${p.c} ${visited?'isv':''}"><h3>${cat.em} ${p[LANG].n} ${stars}</h3><div class="badges">${p.new?`<span class="pill newp">🆕 NEW</span>`:''}${(typeof BIGGROUP!=='undefined'&&BIGGROUP.includes(p.id))?`<span class="pill biggrp">👥 ${LX('يناسب ١٩','19 kişi','Fits 19')}</span>`:''}<span class="pill" style="background:${cat.col}22;color:${cat.col}">${cat[LANG]}</span>${prBadge}${gfBadge}${vBadge}${distTxt(p)?`<span class="pill" style="background:#e2efeb;color:#2f7f70">📍 ${distTxt(p)}</span>`:''}</div><p>${p[LANG].d}</p>${p.c==='coffee'?`<p class="almondnote">${ALMONDNOTE[LANG]}</p>`:''}${mx}<div class="btnrow"><button class="lnk gold" onclick="jumpMap(${p.lat},${p.lng})"><span class="fico">${svgIco('pin',13,'#fff')}</span> ${LX('على الخريطة','Haritada','On map')}</button><a class="lnk gmap" href="${gmapUrl(p)}" target="_blank">🧭 ${LX('جوجل مابس','Google','Google Maps')}</a>${(typeof PHONES!=='undefined'&&PHONES[p.id])?`<a class="callbtn" href="tel:+9${PHONES[p.id]}">📞 ${LX('اتصل واحجز','Ara & rezerve et','Call & book')}</a>`:''}${(p.c==='fam'||p.id==='zorlu')?'':`<button class="lnk addday" onclick="openAddDay(&#39;${p.id}&#39;)">➕ ${LX('ليوم','Güne','To day')}</button><button class="lnk votethis" onclick="quickVote(&#39;${p.id}&#39;)">🗳️ ${LX('صوّت','Oyla','Vote')}</button>`}${vBtn}</div></div>`;}
 async function toggleVisited(id){if(!USER||!USER.admin)return;VISITED=(await sget('fambam:visited'))||{};if(VISITED[id])delete VISITED[id];else VISITED[id]={by:USER.id,ts:Date.now()};await sset('fambam:visited',VISITED);renderAll();updateMeter();if(VISITED[id])confetti(true);}
 function updateMeter(){const all=PLACES.filter(p=>!['hotel','vibe','mosque'].includes(p.c));const v=all.filter(p=>VISITED[p.id]).length;const pct=all.length?Math.round(v/all.length*100):0;document.getElementById('mfill').style.width=pct+'%';document.getElementById('mlbl').textContent=(LANG==='ar'?`زرنا ${v} من ${all.length} · باقي ${all.length-v} 🐟`:`${v}/${all.length} · ${all.length-v} 🐟`);}
 
@@ -852,7 +873,7 @@ function renderDays(){const sw=DAYS.map((d,i)=>{const wd=new Date(d.dt.y,d.dt.m-
   const prow=`<div class="prayrow">${pnames.map((n,k)=>`<div class="pcell"><span>${n}</span><b>${hm(pv[k])}</b></div>`).join('')}</div>`;
   const meals=[{k:'breakfast',ic:'sunrise',ar:'فطور',tr:'Kahvaltı',col:'#dd9a2f'},{k:'lunch',ic:'utensils',ar:'غداء',tr:'Öğle',col:'#2f7f70'},{k:'dinner',ic:'moon-star',ar:'عشاء',tr:'Akşam',col:'#7b4fc0'},{k:'coffee',ic:'coffee',ar:'قهوة',tr:'Kahve',col:'#7a4a2b'},{k:'shop',ic:'shop',ar:'تسوّق السيدات',tr:'Alışveriş',col:'#c43a72'},{k:'kids',ic:'kids',ar:'ألعاب الأطفال',tr:'Çocuk',col:'#3a7bd5'}];
   const plan=d.plan||{};
-  const planHtml=meals.map(m=>{const ids=plan[m.k]||[];const head=`<div class="slot" style="border-color:${m.col}"><span class="sico" style="background:${m.col}">${svgIco(m.ic,15,'#fff')}</span> ${LANG==='ar'?m.ar:m.tr}</div>`;const cards=ids.length?ids.map(id=>{const pp=pById(id);return pp?placeCard(pp):'';}).join(''):`<p class="hlhint" style="margin:2px 2px 12px">${LX('— شوفوا القسم المخصّص للمزيد','—','— see the dedicated section for more')}</p>`;return head+cards;}).join('');
+  const planHtml=meals.map(m=>{const baseIds=plan[m.k]||[];const addKey=curDay+':'+m.k;const added=(DAYADDS[addKey]||[]);const ids=baseIds.concat(added.map(a=>a.id));const head=`<div class="slot" style="border-color:${m.col}"><span class="sico" style="background:${m.col}">${svgIco(m.ic,15,'#fff')}</span> ${LANG==='ar'?m.ar:m.tr}</div>`;const cards=ids.length?ids.map(id=>{const pp=pById(id);if(!pp)return '';const ai=added.find(a=>a.id===id);const badge=ai?('<div class="addedby">➕ '+LX('أضافه','Ekleyen','Added by')+' '+ai.by+' <button class="rmadd" onclick="removeDayAdd('+curDay+',\''+m.k+'\',\''+id+'\')">✕</button></div>'):'';return badge+placeCard(pp);}).join(''):`<p class="hlhint" style="margin:2px 2px 12px">${LX('— شوفوا القسم المخصّص للمزيد','—','— see the dedicated section for more')}</p>`;return head+cards;}).join('');
   const body=`<div class="dayhead"><div class="d">${d.d[LANG]}</div><h3>${d.t[LANG]}</h3><div class="tip">${d.tip[LANG]}</div><div class="wx">${dayWx(dt)}</div></div>`+prow+mens+fri+planHtml;
   document.getElementById('s-days').innerHTML=`<h2>${svgIco('days',20,'#1d4f4a')} ${LX('برنامج الأيام','Plan','Daily plan')}</h2><p class="lead">${LX('كل يوم: التاريخ + الطقس + مواعيد الصلاة + اقتراح فطور وغداء وعشاء وقهوة وتسوّق وألعاب أطفال.','Her gün: tarih, hava, namaz, öğün önerileri.','Each day: date + weather + prayer times + breakfast/lunch/dinner/coffee/shopping/kids suggestions.')}</p>${tripEvents()}<div class="dayswitch">${sw}</div>${body}`;}
 
@@ -1038,7 +1059,7 @@ async function sendChat(txt){if(!USER){notify(LX('سجّل دخول أول 😊'
     await sset('chat',trimmed);CHAT=trimmed;renderChat(true);markChatSeen();
   }catch(e){notify('⚠️ '+LX('ما انبعتت — جرّب ثاني','Gönderilemedi','Failed — try again'));}}
 function sendChatInput(){const el=document.getElementById('chatin');if(!el)return;const v=el.value;el.value='';sendChat(v);}
-function startChatLoop(){if(chatTimer)clearInterval(chatTimer);loadChat(true);chatTimer=setInterval(()=>{loadChat(false);try{const m=document.getElementById('s-money');if(m&&m.classList.contains('show'))refreshExpenses(false);}catch(e){}},10000);}
+function startChatLoop(){if(chatTimer)clearInterval(chatTimer);loadChat(true);chatTimer=setInterval(()=>{loadChat(false);try{const m=document.getElementById('s-money');if(m&&m.classList.contains('show'))refreshExpenses(false);}catch(e){}try{const pv=JSON.stringify(DAYADDS);loadDayAdds().then(()=>{const dd=document.getElementById('s-days');if(dd&&dd.classList.contains('show')&&JSON.stringify(DAYADDS)!==pv)renderDays();});}catch(e){}},10000);}
 /* notifications */
 function askNotify(){
   if(!('Notification' in window)){notify(LX('جهازك ما بيدعم التنبيهات من المتصفح','Cihaz desteklemiyor','Not supported on this device'));return;}
@@ -1084,6 +1105,64 @@ function armAnthem(){if(anthemArmed)return;anthemArmed=true;
 document.addEventListener('visibilitychange',()=>{const a=anthemEl();if(!a)return;
   if(document.hidden){if(!a.paused)a.pause();}
   else if(localStorage.getItem('fbAnthemOff')!=='1'&&anthemArmed){a.play().catch(()=>{});}});
+/* ===== add-to-day (family-synced) + quick vote ===== */
+let DAYADDS={};
+const MEALKINDS=[{k:'breakfast',ar:'فطور',tr:'Kahvaltı',en:'Breakfast'},{k:'lunch',ar:'غداء',tr:'Öğle',en:'Lunch'},{k:'dinner',ar:'عشاء',tr:'Akşam',en:'Dinner'},{k:'coffee',ar:'قهوة',tr:'Kahve',en:'Coffee'},{k:'kids',ar:'أطفال',tr:'Çocuk',en:'Kids'},{k:'shop',ar:'تسوّق',tr:'Alışveriş',en:'Shopping'}];
+async function loadDayAdds(){try{const d=await sget('fambam:dayadds');if(d&&typeof d==='object')DAYADDS=d;}catch(e){}}
+function openAddDay(pid){
+  if(!USER){notify(LX('سجّل دخول أول 😊','Önce giriş','Log in first'));return;}
+  const p=pById(pid);if(!p)return;
+  const nm=p[LANG]?p[LANG].n:((p.ar&&p.ar.n)||pid);
+  const wn=(LANG==='ar')?['أحد','اثنين','ثلاثا','أربعا','خميس','جمعة','سبت']:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let h='<div class="addbox"><div class="addtitle">➕ '+LX('أضِف','Ekle','Add')+': <b>'+nm+'</b></div>';
+  h+='<div class="addlbl">'+LX('اختر اليوم:','Gün seç:','Pick a day:')+'</div><div class="addrow">';
+  DAYS.forEach((d,i)=>{h+='<button class="addchip'+(i===curDay?' sel':'')+'" onclick="pickAddDay('+i+')" data-di="'+i+'">'+d.dt.d+'<span>'+wn[new Date(d.dt.y,d.dt.m-1,d.dt.d).getDay()]+'</span></button>';});
+  h+='</div><div class="addlbl">'+LX('أي وجبة/فئة:','Öğün:','Which slot:')+'</div><div class="addrow" id="addslots">';
+  MEALKINDS.forEach((m,j)=>{h+='<button class="addchip slotc'+(j===0?' sel':'')+'" onclick="pickAddSlot(\''+m.k+'\',this)">'+(LANG==='ar'?m.ar:(LANG==='en'?m.en:m.tr))+'</button>';});
+  h+='</div><div class="addbtns"><button class="addcancel" onclick="closeAddDay()">'+LX('إلغاء','İptal','Cancel')+'</button><button class="addgo" onclick="confirmAddDay(\''+pid+'\')">✅ '+LX('أضِف للبرنامج','Ekle','Add to plan')+'</button></div></div>';
+  const ov=document.createElement('div');ov.id='addOverlay';ov.className='addov';ov.innerHTML=h;
+  ov.onclick=(e)=>{if(e.target===ov)closeAddDay();};
+  document.body.appendChild(ov);ov._di=curDay;ov._slot='breakfast';
+}
+function pickAddDay(i){const ov=document.getElementById('addOverlay');if(!ov)return;ov._di=i;ov.querySelectorAll('.addchip[data-di]').forEach(b=>b.classList.toggle('sel',+b.dataset.di===i));}
+function pickAddSlot(k,el){const ov=document.getElementById('addOverlay');if(!ov)return;ov._slot=k;ov.querySelectorAll('#addslots .slotc').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
+function closeAddDay(){const ov=document.getElementById('addOverlay');if(ov)ov.remove();}
+async function confirmAddDay(pid){
+  const ov=document.getElementById('addOverlay');if(!ov)return;
+  const di=ov._di,slot=ov._slot,key=di+':'+slot;
+  try{
+    const cur=await sget('fambam:dayadds');const obj=(cur&&typeof cur==='object')?cur:{};
+    if(!obj[key])obj[key]=[];
+    if(!obj[key].some(x=>x.id===pid))obj[key].push({id:pid,by:(USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr)),ts:Date.now()});
+    await sset('fambam:dayadds',obj);DAYADDS=obj;
+    notify('✅ '+LX('انضاف ليوم ','Eklendi ','Added to day ')+DAYS[di].dt.d);
+    closeAddDay();
+    const dd=document.getElementById('s-days');if(dd&&dd.classList.contains('show')){curDay=di;renderDays();}
+  }catch(e){notify('⚠️ '+LX('ما انضاف — جرّب ثاني','Hata','Failed — try again'));}
+}
+async function removeDayAdd(di,slot,pid){
+  try{const cur=await sget('fambam:dayadds');const obj=(cur&&typeof cur==='object')?cur:{};const key=di+':'+slot;
+    if(obj[key]){obj[key]=obj[key].filter(x=>x.id!==pid);if(!obj[key].length)delete obj[key];}
+    await sset('fambam:dayadds',obj);DAYADDS=obj;renderDays();notify(LX('انشال','Silindi','Removed'));}catch(e){}
+}
+async function quickVote(pid){
+  if(!USER){notify(LX('سجّل دخول أول 😊','Önce giriş','Log in first'));return;}
+  const p=pById(pid);if(!p)return;const nm=p[LANG]?p[LANG].n:pid;
+  try{
+    const cur=await sget('fambam:poll');let poll=cur&&cur.id?cur:null;
+    if(poll&&!poll.closed&&poll.opts&&poll.opts.length<6&&/؟|\?|mi|gidelim|Go to/.test(poll.q||'')){
+      if(!poll.opts.includes(nm)){poll.opts.push(nm);await sset('fambam:poll',poll);POLL=poll;
+        notify('🗳️ '+LX('انضاف كخيار للتصويت المفتوح!','Açık oylamaya eklendi!','Added to the open vote!'));
+        const vv=document.getElementById('s-vote');if(vv&&vv.classList.contains('show'))renderVote();return;}
+    }
+    const q=LX('نروح على «'+nm+'»؟','"'+nm+'" gidelim mi?','Go to "'+nm+'"?');
+    poll={id:Date.now(),q,opts:[LX('نعم 👍','Evet 👍','Yes 👍'),LX('لا 👎','Hayır 👎','No 👎'),LX('اقتراح ثاني','Başka','Another')],closed:false,by:(USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr))};
+    await sset('fambam:poll',poll);POLL=poll;VOTES={};seenPollId=poll.id;
+    notify('🗳️ '+LX('طُرح للتصويت! روحوا تبويب التصويت','Oylama açıldı!','Vote created! Open the Vote tab'));
+    const vv=document.getElementById('s-vote');if(vv&&vv.classList.contains('show'))renderVote();
+  }catch(e){notify('⚠️ '+LX('ما انطرح — جرّب ثاني','Hata','Failed'));}
+}
+
 function renderMoney(){
   const ar=LANG==='ar';const canEdit=USER&&USER.id==='raya';
   let html=`<h2>${svgIco('coins',20,'#1d4f4a')} ${ar?'تقسيم المصاريف':'Hesap Bölüşme'}</h2>`;
