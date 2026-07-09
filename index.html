@@ -717,7 +717,8 @@ const SYED=[
  'هل تعلم؟ طاب كراع أجمل من طرابزون بـ٣ مرات ونصّ — حسب المقياس السويسري لتقييم الضواحي الإسلامية 🏆🇨🇭',
  'هل تعلم؟ إذا أصلك من مثلث الذكاء، فهذا لا يعني بشكل مؤكد أنك ذكي 🧠😅',
  'هل تعلمين؟ ذهاب الرجل للتسوّق يعادل ألم الولادة ٧ مرات 🛍️😩',
- 'أحسنتَ لهم يوماً، وأسأتَ لهم دهراً… فتذكّروا الدهر ونسوا اليوم ✨'
+ 'أحسنتَ لهم يوماً، وأسأتَ لهم دهراً… فتذكّروا الدهر ونسوا اليوم ✨',
+ 'بتعرف شو الفرق بين رأيك والديلفري؟ الديلفري نحنا بنطلبه 😏🛵'
 ];
 
 const PHRASES=[
@@ -802,7 +803,7 @@ function login(id,quiet){USER=ROSTER.find(p=>p.id===id);if(!USER)return;if(USER.
   document.getElementById('login').classList.add('hide');
   if(!quiet){const f=document.getElementById('flash');f.classList.add('show');confetti();setTimeout(()=>f.classList.remove('show'),2400);}
   setUchip();renderAll();startPresence();go('home');try{const nv=document.querySelector('nav');if(nv&&!localStorage.getItem('fambam_navhint')){setTimeout(()=>{nv.scrollTo({left:120,behavior:'smooth'});setTimeout(()=>nv.scrollTo({left:0,behavior:'smooth'}),650);localStorage.setItem('fambam_navhint','1');},900);}}catch(e){}initNotifBaseline();firstRunPerms();
-  if(!quiet)setTimeout(showAd,2700);}
+  if(!quiet)setTimeout(()=>{if(Math.random()<0.5)showAd();},2700);}
 function logout(){stopShare();stopPresence();if(USER){sset('fambam:pres:'+USER.id,null);}try{localStorage.removeItem('fambam_uid');}catch(e){}USER=null;document.getElementById('login').classList.remove('hide');document.getElementById('presbar').innerHTML='';buildRoster();}
 /* ===== Presence: مين أونلاين الآن ===== */
 let presTimer=null;
