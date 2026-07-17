@@ -449,6 +449,9 @@ header :where(button,a,input):focus-visible{outline-color:#fff;outline-offset:2p
 .input,#psearch,.convrow input,.chatrow input{min-height:44px}
 .mens a{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 .mapall{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+
+.gfnote{border-color:var(--good);background:linear-gradient(180deg,#eefaf2,var(--paper));border-inline-start:5px solid var(--good)}
+.gfnote b{color:#1f7a45}
 </style>
 </head>
 <body>
@@ -1456,17 +1459,19 @@ let curFood='all';
 function goMapFilter(fl){curFilter=fl;go('home');setTimeout(()=>{if(typeof renderHomeList==='function')renderHomeList(fl);if(map&&typeof drawMarkers==='function')drawMarkers(fl);},200);}
 function renderFood(f2){
   curFood=f2||curFood||'all';
-  const opts=[['all',LX('الكل','Hepsi','All')],['big','👥 '+LX('يناسب ١٩','19 kişi','Fits 19')],['fish',LX('🐟 سمك','🐟 Balık','🐟 Fish')],['kofte',LX('🍢 كفتة','🍢 Köfte','🍢 Köfte')],['breakfast',LX('🍳 فطور','🍳 Kahvaltı','🍳 Breakfast')],['view',LX('🌆 إطلالة','🌆 Manzara','🌆 View')],['sweet',LX('🍰 حلويات','🍰 Tatlı','🍰 Sweets')]];
+  const opts=[['all',LX('الكل','Hepsi','All')],['gfsafe','🚫🌾 '+LX('جلوتين-فري','Glutensiz','Gluten-free')],['big','👥 '+LX('يناسب ١٩','19 kişi','Fits 19')],['fish',LX('🐟 سمك','🐟 Balık','🐟 Fish')],['kofte',LX('🍢 كفتة','🍢 Köfte','🍢 Köfte')],['breakfast',LX('🍳 فطور','🍳 Kahvaltı','🍳 Breakfast')],['view',LX('🌆 إطلالة','🌆 Manzara','🌆 View')],['sweet',LX('🍰 حلويات','🍰 Tatlı','🍰 Sweets')]];
   const picker=opts.map(o=>`<button class="opt ${o[0]===curFood?'on':''}" onclick="renderFood('${o[0]}')">${o[1]}</button>`).join('');
   let list=PLACES.filter(p=>p.c==='food'||p.c==='gf');
   if(curFood==='big') list=list.filter(p=>BIGGROUP.includes(p.id));
+  else if(curFood==='gfsafe') list=list.filter(p=>p.gf==='yes'||p.gf==='ok');
   else if(curFood!=='all') list=list.filter(p=>(FOODTAGS[p.id]||[]).includes(curFood));
-  list=list.sort((a,b)=>((FANCY[b.id]||0)-(FANCY[a.id]||0))||(parseFloat(b.r||0)-parseFloat(a.r||0)));
+  list=list.sort((a,b)=>(curFood==='gfsafe'?(({yes:0,ok:1}[a.gf]??9)-({yes:0,ok:1}[b.gf]??9)):0)||((FANCY[b.id]||0)-(FANCY[a.id]||0))||(parseFloat(b.r||0)-parseFloat(a.r||0)));
   const head=`<h2 class="sec-h">🍽️ ${LX('مطاعم طرابزون','Restoranlar','Restaurants')}</h2><p class="sec-sub">${LX('كل مطاعم الرحلة بمكان واحد — مرتّبة بالأقرب لفندقكم. فلتر «يناسب ١٩» للمجموعة الكبيرة 👥','En yakın sıralı. 19 kişi filtresi 👥','All trip restaurants, sorted by nearest. Use \u201cFits 19\u201d for the big group 👥')}</p>`;
+  const gfnote=curFood==='gfsafe'?`<div class="card gfnote"><b>🚫🌾 ${LX('١٠ خيارات آمنة لرايا','Rayaya uygun 10 seçenek','10 safe options for Raya')}</b><p class="hlhint">${LX('مُستثنى عمداً ٣٤ مطعماً حالتهم «محدود» أو «غير مناسب» — خطر تلوّث متقاطع. اقرأوا شارة كل مطعم: <b>آمن/مخصّص</b> يعني مطبخ خالٍ تماماً، و<b>يناسب — اسأل</b> يعني لازم تتأكدوا مع الطاقم قبل الطلب.','34 restoran kasıtlı olarak hariç tutuldu (çapraz bulaşma riski).','34 restaurants are deliberately excluded — their status is \u201climited\u201d or \u201cnot suitable\u201d (cross-contamination risk). Read each badge: <b>Safe/dedicated</b> means a fully GF kitchen; <b>Suitable — ask</b> means confirm with staff before ordering.')}</p></div>`:'';
   const bar=`<div class="mapbtnrow"><button class="mapall" onclick="goMapFilter('food')">🗺️ ${LX('شوف الكل على الخريطة','Haritada','See all on map')} · ${list.length} 🍽️</button></div>`;
   const chips=`<div class="picker foodpick">${picker}</div>`;
   const cards=list.length?list.map(p=>placeCard(p)).join(''):`<p class="hlhint">${LX('ما في نتائج بهالفلتر','Sonuç yok','No results')}</p>`;
-  document.getElementById('s-food').innerHTML=head+chips+bar+`<div class="cards">${cards}</div>`;
+  document.getElementById('s-food').innerHTML=head+chips+bar+gfnote+`<div class="cards">${cards}</div>`;
 }
 
 function renderAll(){applyLang();renderHome();renderDays();renderFine();renderPray();renderGF();renderList('s-coffee',()=>catSection(['coffee']));renderKids(curKid);renderDiscount();renderHoney();renderList('s-vibes',()=>catSection(['view','walk','vibe','nat']));renderMoney();renderXlate();renderVote();renderKnow();renderFood();if(map){drawMarkers(curFilter);renderHomeList(curFilter);renderHomeVote();}updateMeter();}
