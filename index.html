@@ -22,7 +22,7 @@
   .roster{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:560px;width:100%}
   .who{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.16);color:#fff;font-family:inherit;font-weight:800;font-size:.9rem;padding:10px 12px;border-radius:14px;cursor:pointer;transition:.15s;width:calc(50% - 5px);max-width:170px}
   .who:active{background:var(--gold);color:#3a2700}
-  .who .em{font-size:1.3rem;display:block}.who .rl{display:block;font-weight:700;font-size:.66rem;opacity:.92;margin-top:2px}.who .jk{display:block;font-weight:500;font-size:.6rem;opacity:.7;margin-top:1px}
+  .who .em{font-size:1.3rem;display:block}.who .rl{display:block;font-weight:700;font-size:.76rem;opacity:.95;margin-top:2px}.who .jk{display:block;font-weight:500;font-size:.74rem;opacity:.9;margin-top:1px}
   #flash{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;background:rgba(7,30,36,.94);color:#fff;text-align:center;padding:24px;flex-direction:column}
   #flash.show{display:flex}
   #flash .em{font-size:3.6rem;animation:pop .6s ease}#flash h2{font-size:1.7rem;margin:6px 0 2px;font-weight:900}#flash .y{color:var(--gold)}#flash p{color:#d7eae5;margin:2px 0;font-size:1rem;max-width:340px}
@@ -49,7 +49,7 @@
   @keyframes pbpulse{0%,100%{opacity:1}50%{opacity:.45}}
   .presbar .pb-who{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.13);border:1px solid rgba(123,220,160,.4);padding:2px 8px;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff}
   nav{display:flex;gap:6px;overflow-x:auto;padding:9px 12px;background:var(--sea2);position:sticky;top:0;z-index:30;scrollbar-width:none}nav::-webkit-scrollbar{display:none}
-  .tab{flex:0 0 auto;border:none;background:rgba(255,255,255,.08);color:#dff1f3;padding:7px 12px;border-radius:999px;font-family:inherit;font-size:.8rem;font-weight:800;cursor:pointer;white-space:nowrap}
+  .tab{flex:0 0 auto;border:none;background:rgba(255,255,255,.08);color:#dff1f3;padding:7px 12px;min-height:44px;border-radius:999px;font-family:inherit;font-size:.8rem;font-weight:800;cursor:pointer;white-space:nowrap}
   .tab.active{background:var(--gold);color:#3a2700}
   main{max-width:760px;margin:0 auto;padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 40px)}
   section{display:none;animation:fade .25s}section.show{display:block}
@@ -120,7 +120,7 @@
   .brtop{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:.92rem;color:#2a2a2a}
   .brsub{font-size:.78rem;color:#666;margin:5px 0 8px;line-height:1.5}
   .brrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .brmall{font-size:.74rem;color:#888;font-weight:600}
+  .brmall{font-size:.74rem;color:var(--muted);font-weight:600}
   .brsec{margin:14px 0 8px;color:#c43a72;font-size:1rem}
   .indbadge{background:#e53935;color:#fff;font-size:.7rem;font-weight:800;padding:2px 9px;border-radius:999px}
   .hoteltip{background:#b5402f;color:#fff;border:none;font-weight:800;font-family:Tajawal,sans-serif;border-radius:8px;padding:2px 8px}.ahmadtip{background:#1d6b3e;color:#fff;border:none;font-weight:800;font-family:Tajawal,sans-serif;border-radius:8px;padding:2px 8px}
@@ -139,7 +139,7 @@
   .almondnote{margin:6px 0 0;font-size:.82rem;font-weight:800;color:#7a4a2b;background:#f3e9df;border-right:3px solid #a9741c;padding:5px 9px;border-radius:7px}
   .homelist{margin:12px 0 4px}
   .hlhead{font-weight:800;color:#1d4f4a;font-size:.92rem;margin:10px 2px 8px;padding-bottom:5px;border-bottom:2px solid #e7ddd0}
-  .hlhint{color:#888;font-size:.84rem;margin:8px 2px}
+  .hlhint{color:var(--muted);font-size:.84rem;margin:8px 2px}
   .mini{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #ece3d6;border-radius:12px;padding:8px 10px;margin-bottom:7px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
   .mico{flex:0 0 auto;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center}
   .mibody{flex:1;min-width:0}
@@ -192,7 +192,7 @@
   .txrow{display:flex;align-items:center;gap:7px;padding:9px 6px;border-bottom:1px dashed #e3ddd0}
   .txrow:last-child{border-bottom:none}
   .txf{color:#b3402f;font-weight:800;font-size:.9rem}
-  .txar{color:#888;font-weight:900}
+  .txar{color:var(--muted);font-weight:900}
   .txt2{color:#1f7a5a;font-weight:800;font-size:.9rem}
   .txamt{margin-inline-start:auto;background:#1d4f4a;color:#fff;padding:3px 10px;border-radius:999px;font-size:.86rem}
   .ptable{padding:4px 8px}
@@ -206,7 +206,7 @@
   .searchbox{display:flex;align-items:center;gap:6px;background:#fff;border:2px solid #dd9a2f;border-radius:14px;padding:6px 10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
   .searchbox .sicn{font-size:1.05rem}
   .searchbox input{flex:1;border:none;outline:none;font-family:Tajawal,sans-serif;font-size:.98rem;background:transparent;color:#1d4f4a}
-  .searchbox .sclr{background:#f0ece2;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;color:#888;font-weight:900}
+  .searchbox .sclr{background:#f0ece2;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;color:var(--muted);font-weight:900}
   .searchres.on{margin-top:8px;display:flex;flex-direction:column;gap:8px}
   .srnone{padding:12px;text-align:center;color:#777;background:#f7f3ea;border-radius:12px;font-size:.9rem}
   .srrow{background:#fff;border:1px solid #ece6da;border-radius:14px;padding:11px 13px;box-shadow:0 1px 5px rgba(0,0,0,.05)}
@@ -336,9 +336,9 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 .mt.mid.on{background:var(--mid);border-color:var(--mid)}
 .mt.kadih.on{background:var(--kadih);border-color:var(--kadih)}
 /* header controls: unified glass (honey reserved for active tab) */
-.langbtn,.instbtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28);height:38px;display:inline-flex;align-items:center;gap:5px;padding:0 13px;font-size:.78rem}
+.langbtn,.instbtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28);height:44px;display:inline-flex;align-items:center;gap:5px;padding:0 13px;font-size:.78rem}
 .instbtn{font-size:1rem;padding:0 12px}
-.uchip{height:38px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.14)}
+.uchip{height:44px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.14)}
 .hbtns{gap:8px}
 
 /* live rate + converter */
@@ -359,7 +359,7 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 .chatcard{padding:12px}
 .chathead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .chathead b{color:#1d4f4a;font-size:1rem}
-.nfybtn{background:#e2efeb;color:#23615a;border:1.5px solid #d7eae5;border-radius:999px;padding:6px 12px;font-family:inherit;font-weight:800;font-size:.75rem;cursor:pointer}
+.nfybtn{min-height:44px;background:#e2efeb;color:#23615a;border:1.5px solid #d7eae5;border-radius:999px;padding:6px 12px;font-family:inherit;font-weight:800;font-size:.75rem;cursor:pointer}
 .chatmsgs{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:4px 2px;background:#faf6ec;border-radius:12px;border:1px solid #efe6d2;min-height:70px}
 .chatempty{text-align:center;color:#6d6355;font-size:.8rem;padding:20px 6px}
 .cmsg{max-width:86%;background:#fff;border:1px solid #e5d9c2;border-radius:12px;border-start-start-radius:4px;padding:6px 10px;align-self:flex-start;box-shadow:0 1px 2px rgba(46,42,34,.05)}
@@ -370,7 +370,7 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 .ctm{display:block;font-size:.6rem;color:#6d6355;margin-top:2px;text-align:end}
 .chatchips{display:flex;gap:7px;overflow-x:auto;padding:8px 2px 4px;scrollbar-width:none}
 .chatchips::-webkit-scrollbar{display:none}
-.cchip{flex:0 0 auto;background:#fff;border:1.5px solid #e5d9c2;color:#1d4f4a;border-radius:999px;padding:7px 12px;font-family:inherit;font-weight:800;font-size:.75rem;cursor:pointer}
+.cchip{flex:0 0 auto;min-height:44px;background:#fff;border:1.5px solid #e5d9c2;color:#1d4f4a;border-radius:999px;padding:7px 12px;font-family:inherit;font-weight:800;font-size:.75rem;cursor:pointer}
 .cchip.star{background:linear-gradient(135deg,#fff3d9,#ffe9bd);border-color:#dd9a2f;color:#7a5410}
 .cchip:active{transform:scale(.94)}
 .chatrow{display:flex;gap:8px;margin-top:8px}
@@ -419,6 +419,36 @@ main ::-webkit-scrollbar{height:6px;width:6px}main ::-webkit-scrollbar-thumb{bac
 .exptxt b{font-size:.92rem;font-weight:900}
 .exptxt small{font-size:.72rem;opacity:.92}
 .exparrow{font-size:1.1rem;flex-shrink:0;z-index:1}
+
+/* ===== وصولية: تركيز مرئي عام (البند ١) ===== */
+:where(button,a,input,select,textarea,[tabindex]):focus-visible{
+  outline:3px solid var(--gold);
+  outline-offset:2px;
+  border-radius:6px;
+}
+/* داخل الهيدر الداكن: حلقة فاتحة لتباين كافٍ */
+header :where(button,a,input):focus-visible{outline-color:#fff;outline-offset:2px}
+/* ===== وصولية: احترام تقليل الحركة (البند ٥) ===== */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
+/* ===== وصولية: حدّ أدنى لأهداف اللمس ٤٤px (البند ٢) ===== */
+.mt,.opt,.kchip,.lnk,.callbtn,.ratebtn,.krand,.chatsend,.spk,.addchip,.cchip,.tab,.nfybtn{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.searchbox .sclr{width:44px;height:44px}
+.input,#psearch,.convrow input,.chatrow input{min-height:44px}
+.mens a{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.mapall{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -1190,23 +1220,23 @@ function renderMoney(){
     <p class="ratets" id="rateTs"></p>
     <button class="ratebtn" id="rateBtn" onclick="updateRate()">🔄 ${LX('حدّث السعر (لايف)','Kuru güncelle (canlı)','Update rate (live)')}</button>
     <div class="convbox"><div class="convtitle">${LX('المحوّل الفوري — عبّي أي خانة والباقي بينحسب','Herhangi birini yazın','Fill ANY field — the rest auto-calculate')}</div>
-      <div class="convrow"><span class="cvl">🇹🇷 ${LX('ليرة','TL','TRY')}</span><input id="cTry" type="text" inputmode="decimal" dir="ltr" placeholder="0" oninput="cnv('t')"></div>
+      <div class="convrow"><span class="cvl">🇹🇷 ${LX('ليرة','TL','TRY')}</span><input id="cTry" type="text" inputmode="decimal" dir="ltr" placeholder="0" oninput="cnv('t')" aria-label="${LX('المبلغ بالليرة التركية','Türk lirası tutarı','Amount in Turkish lira')}"></div>
       <div class="convswap">⇅</div>
-      <div class="convrow"><span class="cvl">🇯🇴 ${LX('دينار','JOD','JOD')}</span><input id="cJod" type="text" inputmode="decimal" dir="ltr" placeholder="0" oninput="cnv('j')"></div>
+      <div class="convrow"><span class="cvl">🇯🇴 ${LX('دينار','JOD','JOD')}</span><input id="cJod" type="text" inputmode="decimal" dir="ltr" placeholder="0" oninput="cnv('j')" aria-label="${LX('المبلغ بالدينار الأردني','Ürdün dinarı tutarı','Amount in Jordanian dinars')}"></div>
       <div class="convswap">⇅</div>
-      <div class="convrow"><span class="cvl">💵 ${LX('دولار','USD','USD')}</span><input id="cUsd" type="text" inputmode="decimal" dir="ltr" placeholder="0" oninput="cnv('u')"></div>
+      <div class="convrow"><span class="cvl">💵 ${LX('دولار','USD','USD')}</span><input id="cUsd" type="text" inputmode="decimal" dir="ltr" placeholder="0" oninput="cnv('u')" aria-label="${LX('المبلغ بالدولار','Dolar tutarı','Amount in US dollars')}"></div>
     </div>
     <p class="ratehint">${LX('بدّلوا بمكاتب الصرافة بالبلد مش بالمطار 😉','Döviz bürosunda bozdurun, havalimanında değil 😉','Exchange at city offices, not the airport 😉')}</p></div>`;
   setTimeout(paintRate,0);
   // form (raya only)
   if(canEdit){
     const opts=moneyPeople().map(p=>`<option value="${p.id}">${p.em} ${p[LANG]||p.tr}</option>`).join('');
-    const inputs=moneyPeople().map(p=>`<label class="shl">${p.em} ${p[LANG]||p.tr}<input type="number" inputmode="decimal" min="0" step="0.01" id="sh_${p.id}" oninput="updateRemain()" placeholder="0"></label>`).join('');
+    const inputs=moneyPeople().map(p=>`<label class="shl">${p.em} ${p[LANG]||p.tr}<input type="number" inputmode="decimal" min="0" step="0.01" id="sh_${p.id}" oninput="updateRemain()" placeholder="0" aria-label="${LX('حصة','Pay:','Share for')} ${pName(p)}"></label>`).join('');
     html+=`<div class="card moneyform">
       <h3>${ar?'➕ فاتورة جديدة':'Yeni fatura'}</h3>
       <label class="fld">${ar?'مين دفع؟':'Ödeyen'}<select id="mPayer">${opts}</select></label>
-      <label class="fld">${ar?'اسم المحل (اختياري)':'Yer (ops.)'}<input type="text" id="mNote" placeholder="${ar?'مثلاً: عشاء بوردو مافي':'...'}"></label>
-      <label class="fld">${ar?'مجموع الفاتورة (₺)':'Toplam ₺'}<input type="number" inputmode="decimal" min="0" step="0.01" id="mTotal" oninput="updateRemain()" placeholder="0"></label>
+      <label class="fld">${ar?'اسم المحل (اختياري)':'Yer (ops.)'}<input type="text" id="mNote" aria-label="${ar?'وصف الفاتورة':'Bill description'}" placeholder="${ar?'مثلاً: عشاء بوردو مافي':'...'}"></label>
+      <label class="fld">${ar?'مجموع الفاتورة (₺)':'Toplam ₺'}<input type="number" inputmode="decimal" min="0" step="0.01" id="mTotal" oninput="updateRemain()" placeholder="0" aria-label="${ar?'إجمالي الفاتورة بالليرة':'Total bill in lira'}"></label>
       <div class="splitrow"><button class="lnk" onclick="splitEqualAll()">${ar?'⚖️ بالتساوي على الكل':'Eşit böl'}</button><button class="lnk" onclick="clearShares()">${ar?'🧹 تصفير':'Temizle'}</button></div>
       <div class="sublbl">${ar?'كم على كل واحد (₺):':'Kişi başı (₺):'}</div>
       <div class="pgrid">${inputs}</div>
@@ -1269,7 +1299,7 @@ function renderHalal(){
   document.getElementById('s-halal').innerHTML=head+c1+c2+c3+c4+`<div class="goodline" style="text-align:center;margin-top:6px">${ar?'🤍 رحلة ممتعة وحلال — والبركة بالالتزام':'🤍'}</div>`;
 }
 
-function renderXlate(){document.getElementById('s-xlate').innerHTML=`<h2>🔤 ${LX('مترجم عربي ↔ تركي','Çevirmen','Arabic ↔ Turkish translator')}</h2><p class="lead">${LX('دفتر عبارات بنطق صوتي تركي (🔊) + ترجمة حرّة عبر Google Translate.','Sesli + Google Translate.','A phrasebook with Turkish voice (🔊) + free translation via Google.')}</p><div class="card"><h3>✍️ ${LX('ترجمة حرّة','Serbest','Free translation')}</h3><input class="input" id="trinput" placeholder="${LX('اكتب هنا…','Yaz…','Type here…')}"><div class="btnrow"><button class="lnk gmap" onclick="gtrans('ar','tr')">${LX('عربي → تركي','AR→TR','AR → TR')}</button><button class="lnk" onclick="gtrans('tr','ar')">${LX('تركي → عربي','TR→AR','TR → AR')}</button><a class="lnk gold" href="https://translate.google.com/?sl=ar&tl=tr&op=translate" target="_blank">${LX('Google Translate (صوت/كاميرا)','Google Translate','Google Translate (voice/camera)')}</a></div><div class="goodline">${LX('للترجمة الصوتية الحيّة والكاميرا حمّلوا تطبيق Google Translate من المتجر.','Sesli/kamera için Google Translate uygulaması.','For live voice & camera translation, install the Google Translate app.')}</div></div><div class="card"><h3>💬 ${LX('عبارات جاهزة (🔊 لفظ تركي)','Hazır cümleler 🔊','Ready phrases (🔊 Turkish)')}</h3>${PHRASES.map(p=>`<div class="phrase"><b>${p.ar}</b><span class="tr">${p.tr}</span><button class="spk" onclick="speak('${p.tr.replace(/'/g,'')}')">🔊</button></div>`).join('')}</div>`;}
+function renderXlate(){document.getElementById('s-xlate').innerHTML=`<h2>🔤 ${LX('مترجم عربي ↔ تركي','Çevirmen','Arabic ↔ Turkish translator')}</h2><p class="lead">${LX('دفتر عبارات بنطق صوتي تركي (🔊) + ترجمة حرّة عبر Google Translate.','Sesli + Google Translate.','A phrasebook with Turkish voice (🔊) + free translation via Google.')}</p><div class="card"><h3>✍️ ${LX('ترجمة حرّة','Serbest','Free translation')}</h3><input class="input" id="trinput" aria-label="${LX('النص المراد ترجمته','Çevrilecek metin','Text to translate')}" placeholder="${LX('اكتب هنا…','Yaz…','Type here…')}"><div class="btnrow"><button class="lnk gmap" onclick="gtrans('ar','tr')">${LX('عربي → تركي','AR→TR','AR → TR')}</button><button class="lnk" onclick="gtrans('tr','ar')">${LX('تركي → عربي','TR→AR','TR → AR')}</button><a class="lnk gold" href="https://translate.google.com/?sl=ar&tl=tr&op=translate" target="_blank">${LX('Google Translate (صوت/كاميرا)','Google Translate','Google Translate (voice/camera)')}</a></div><div class="goodline">${LX('للترجمة الصوتية الحيّة والكاميرا حمّلوا تطبيق Google Translate من المتجر.','Sesli/kamera için Google Translate uygulaması.','For live voice & camera translation, install the Google Translate app.')}</div></div><div class="card"><h3>💬 ${LX('عبارات جاهزة (🔊 لفظ تركي)','Hazır cümleler 🔊','Ready phrases (🔊 Turkish)')}</h3>${PHRASES.map(p=>`<div class="phrase"><b>${p.ar}</b><span class="tr">${p.tr}</span><button class="spk" onclick="speak('${p.tr.replace(/'/g,'')}')">🔊</button></div>`).join('')}</div>`;}
 
 /* vote + ween nrooh */
 /* ===== elder one-time veto ===== */
@@ -1309,17 +1339,17 @@ function vetoButtonHTML(){
 }
 
 function renderVote(){const el=document.getElementById('s-vote');const ad=USER&&USER.admin;let html=`<h2>🗳️ ${LX('تصويت الشلّة','Oylama','Family vote')}</h2>`;
-  if(ad)html+=`<div class="card"><h3>👑 ${LX('اطرح تصويت','Oylama aç','Start a vote')}</h3><input class="input" id="pq" placeholder="${LX('السؤال…','Soru…','The question…')}"><input class="input" id="po0" placeholder="${LX('خيار ١','1','Option 1')}"><input class="input" id="po1" placeholder="${LX('خيار ٢','2','Option 2')}"><input class="input" id="po2" placeholder="${LX('خيار ٣','3','Option 3')}"><input class="input" id="po3" placeholder="${LX('خيار ٤','4','Option 4')}"><div class="btnrow"><button class="lnk gold" onclick="createPoll()">${LX('انشر 🚀','Yayınla','Publish 🚀')}</button>${POLL?`<button class="lnk" onclick="closePoll()">${LX('أعلن الفائز 🏆','Kazanan 🏆','Announce winner 🏆')}</button>`:''}</div></div>`;
+  if(ad)html+=`<div class="card"><h3>👑 ${LX('اطرح تصويت','Oylama aç','Start a vote')}</h3><input class="input" id="pq" aria-label="${LX('سؤال التصويت','Oylama sorusu','Vote question')}" placeholder="${LX('السؤال…','Soru…','The question…')}"><input class="input" id="po0" aria-label="${LX('خيار التصويت ١','Seçenek 1','Vote option 1')}" placeholder="${LX('خيار ١','1','Option 1')}"><input class="input" id="po1" aria-label="${LX('خيار التصويت ٢','Seçenek 2','Vote option 2')}" placeholder="${LX('خيار ٢','2','Option 2')}"><input class="input" id="po2" aria-label="${LX('خيار التصويت ٣','Seçenek 3','Vote option 3')}" placeholder="${LX('خيار ٣','3','Option 3')}"><input class="input" id="po3" aria-label="${LX('خيار التصويت ٤','Seçenek 4','Vote option 4')}" placeholder="${LX('خيار ٤','4','Option 4')}"><div class="btnrow"><button class="lnk gold" onclick="createPoll()">${LX('انشر 🚀','Yayınla','Publish 🚀')}</button>${POLL?`<button class="lnk" onclick="closePoll()">${LX('أعلن الفائز 🏆','Kazanan 🏆','Announce winner 🏆')}</button>`:''}</div></div>`;
   html+=pollHTML();
   html+=vetoButtonHTML();
   html+=vetoBadgeHTML();
   // member can request/suggest a poll
-  if(!ad){html+=`<div class="card"><h4>${LX('📨 اطلب تصويت من حمزة','Oylama iste','📨 Request a vote from Hamza')}</h4><input class="input" id="vreq" placeholder="${LX('اكتب سؤال التصويت المقترح…','Öneri…','Type your suggested vote question…')}"><div class="btnrow"><button class="lnk gold" onclick="sendVoteReq()">${LX('أرسل الطلب 📨','Gönder','Send request 📨')}</button></div></div>`;}
+  if(!ad){html+=`<div class="card"><h4>${LX('📨 اطلب تصويت من حمزة','Oylama iste','📨 Request a vote from Hamza')}</h4><input class="input" id="vreq" aria-label="${LX('سؤال تصويت مقترح','Önerilen soru','Suggested vote question')}" placeholder="${LX('اكتب سؤال التصويت المقترح…','Öneri…','Type your suggested vote question…')}"><div class="btnrow"><button class="lnk gold" onclick="sendVoteReq()">${LX('أرسل الطلب 📨','Gönder','Send request 📨')}</button></div></div>`;}
   // admin sees pending requests
   if(ad&&VREQS&&VREQS.length){html+=`<div class="card"><h4>${LX('📨 طلبات تصويت من الشلّة','İstekler','📨 Vote requests from the family')}</h4>`+VREQS.map((r,i)=>`<div class="wv"><b>${r.em} ${r.nm}</b><span>${r.q}</span><button class="lnk" onclick="useVoteReq(${i})">${LX('اطرحه ⤴','Kullan','Post it ⤴')}</button></div>`).join('')+`</div>`;}
   html+=`<h2 style="margin-top:18px">🤪 ${LX('وييييين نرووووح؟','Nereye?','Where to?!')}</h2><p class="lead">${LX('كل واحد بيكتب اقتراحه، وبيتخبّى لين حمزة يكشف الكل — بطلع مضحك!','Herkes yazar, Hamza açıklar.','Everyone writes a suggestion, hidden until Hamza reveals them all.')}</p>`;
-  if(ad)html+=`<div class="card"><h3>👑 ${LX('افتح جولة','Tur aç','Open a round')}</h3><input class="input" id="wq" placeholder="${LX('وين نروح بكرة؟','Soru…','The question…')}"><div class="btnrow"><button class="lnk gold" onclick="openWnr()">${LX('ابدأ','Başlat','Start')}</button>${WNR&&!WNR.revealed?`<button class="lnk" onclick="revealWnr()">${LX('🎭 اكشف الكل','🎭 Aç','🎭 Reveal all')}</button>`:''}</div></div>`;
-  if(WNR){const ans=Object.values(WANS);const mine=USER?WANS[USER.id]:null;html+=`<div class="card"><h3>❓ ${WNR.q}</h3>`;if(!WNR.revealed){html+=`<p style="font-size:.82rem;color:var(--muted)">${LANG==='ar'?`عبّى ${ans.length} · مخبّى لين حمزة يكشف`:`${ans.length} yazdı`}</p><input class="input" id="wans" placeholder="${LX('اكتب اقتراحك…','Öneri…','Type your suggested vote question…')}" value="${mine?mine.text.replace(/"/g,'&quot;'):''}"><button class="lnk gold" onclick="submitWnr()">${mine?(LX('عدّل','Güncelle','Edit')):(LX('أرسل','Gönder','Send request 📨'))}</button>`;}else{html+=ans.length?ans.map(a=>`<div class="answ"><b>${a.em} ${a.nm}:</b> ${a.text}</div>`).join(''):`<p>${LX('ما حدا عبّى 🤷','Boş','Nobody filled in yet 🤷')}</p>`;if(ans.length){const w=ans[Math.floor(Math.random()*ans.length)];html+=`<div class="goodline">🎲 ${LX('القرعة اختارت','Çark','The wheel picked')}: <b>${w.em} ${w.nm}</b> — ${w.text}</div>`;}}html+=`</div>`;}
+  if(ad)html+=`<div class="card"><h3>👑 ${LX('افتح جولة','Tur aç','Open a round')}</h3><input class="input" id="wq" aria-label="${LX('سؤال وين نروح','Nereye gidelim sorusu','Where-to-go question')}" placeholder="${LX('وين نروح بكرة؟','Soru…','The question…')}"><div class="btnrow"><button class="lnk gold" onclick="openWnr()">${LX('ابدأ','Başlat','Start')}</button>${WNR&&!WNR.revealed?`<button class="lnk" onclick="revealWnr()">${LX('🎭 اكشف الكل','🎭 Aç','🎭 Reveal all')}</button>`:''}</div></div>`;
+  if(WNR){const ans=Object.values(WANS);const mine=USER?WANS[USER.id]:null;html+=`<div class="card"><h3>❓ ${WNR.q}</h3>`;if(!WNR.revealed){html+=`<p style="font-size:.82rem;color:var(--muted)">${LANG==='ar'?`عبّى ${ans.length} · مخبّى لين حمزة يكشف`:`${ans.length} yazdı`}</p><input class="input" id="wans" aria-label="${LX('اقتراحك','Önerin','Your suggestion')}" placeholder="${LX('اكتب اقتراحك…','Öneri…','Type your suggested vote question…')}" value="${mine?mine.text.replace(/"/g,'&quot;'):''}"><button class="lnk gold" onclick="submitWnr()">${mine?(LX('عدّل','Güncelle','Edit')):(LX('أرسل','Gönder','Send request 📨'))}</button>`;}else{html+=ans.length?ans.map(a=>`<div class="answ"><b>${a.em} ${a.nm}:</b> ${a.text}</div>`).join(''):`<p>${LX('ما حدا عبّى 🤷','Boş','Nobody filled in yet 🤷')}</p>`;if(ans.length){const w=ans[Math.floor(Math.random()*ans.length)];html+=`<div class="goodline">🎲 ${LX('القرعة اختارت','Çark','The wheel picked')}: <b>${w.em} ${w.nm}</b> — ${w.text}</div>`;}}html+=`</div>`;}
   el.innerHTML=html;}
 async function createPoll(){if(!USER||!USER.admin)return;const q=document.getElementById('pq').value.trim();const opts=[0,1,2,3].map(i=>document.getElementById('po'+i).value.trim()).filter(Boolean);if(!q||opts.length<2){alert(LX('سؤال + خيارين','Soru+2','Question + 2 options'));return;}POLL={id:Date.now(),q,opts,closed:false};VOTES={};seenPollId=POLL.id;seenClosed[POLL.id]=false;await sset('fambam:poll',POLL);await sset('fambam:votes',VOTES);renderVote();renderHomeVote();confetti();notify(LX('تصويت جديد! 🗳️','Yeni oylama!','New vote! 🗳️'));}
 async function vote(i){if(!POLL||POLL.closed||!USER)return;VOTES=(await sget('fambam:votes'))||{};VOTES[USER.id]=i;await sset('fambam:votes',VOTES);renderVote();renderHomeVote();notify(LX('سجّلنا صوتك ✅','Oyun kaydedildi','Your vote is saved ✅'));}
@@ -1566,7 +1596,7 @@ function checkDiscount(id){
 function buildMapSection(){document.getElementById('s-map').innerHTML=`<h2>${svgIco('home',20,'#1d4f4a')} ${LX('أهلاً بالشلّة 👋','Hoş geldiniz 👋','Welcome, everyone 👋')}</h2><p class="lead">${LX('الخريطة + موقع كل واحد · افلتر أي شي ليطلع على الخريطة وبقائمة تحت مع المسافة عنكم · والتصويت بآخر الصفحة.','Harita + konumlar + mesafe + oylama.','The map + everyone’s location · filter anything to show it on the map + vote.')}</p><a class="expbanner" href="https://www.facebook.com/share/r/18GxNWCvgM/" target="_blank" rel="noopener"><span class="expicon">🎬</span><span class="exptxt"><b>${LX('في مكان للتجربة! 🌟','Deneyimlik bir yer var! 🌟','A spot to experience! 🌟')}</b><small>${LX('انقر لمشاهدة الفيديو 👆','Videoyu izlemek için dokun 👆','Tap to watch the video 👆')}</small></span><span class="exparrow">▶️</span></a><div class="card chatcard" id="chatcard"><div class="chathead"><b>💬 ${LX('شات الشلّة','Aile sohbeti','Family chat')}</b><button class="nfybtn" id="nfybtn" onclick="askNotify()">🔔 ${LX('التنبيهات','Bildirim','Alerts')}</button></div>
    <div id="chatmsgs" class="chatmsgs">${LX('عم أحمّل الرسائل…','Yükleniyor…','Loading…')}</div>
    <div class="chatchips"><button class="cchip star" onclick="sendChat('حسناً ولكننا سنتأخر قليلاً 😅')">⭐ ${LX('حسناً ولكننا سنتأخر قليلاً 😅','Tamam ama biraz gecikeceğiz 😅','OK but we\'ll be a bit late 😅')}</button><button class="cchip" onclick="sendChat(LX('وصلنا 📍','Geldik 📍','We arrived 📍'))">${LX('وصلنا 📍','Geldik 📍','Arrived 📍')}</button><button class="cchip" onclick="sendChat(LX('وينكم؟ 👀','Neredesiniz? 👀','Where are you? 👀'))">${LX('وينكم؟ 👀','Neredesiniz? 👀','Where r u? 👀')}</button><button class="cchip" onclick="sendChat(LX('يلّا نازلين 🚐','Hadi iniyoruz 🚐','Heading down 🚐'))">${LX('يلّا نازلين 🚐','İniyoruz 🚐','Heading down 🚐')}</button><button class="cchip" onclick="sendChat(LX('جوعانين 🍽️','Acıktık 🍽️','We\'re hungry 🍽️'))">${LX('جوعانين 🍽️','Acıktık 🍽️','Hungry 🍽️')}</button></div>
-   <div class="chatrow"><input id="chatin" type="text" maxlength="200" placeholder="${LX('اكتب رسالة…','Mesaj yaz…','Type a message…')}" onkeydown="if(event.key==='Enter')sendChatInput()" onblur="setTimeout(()=>{const b=document.getElementById('chatmsgs');if(b&&b.dataset.pending)renderChat(true);},100)"><button class="chatsend" onclick="sendChatInput()">➤</button></div></div><div class="statusbar"><span id="livedot" class="dot-live"></span><span id="livetext">${LX('اضغط «أين نحن» و«شارك موقعي» ليشوفوكم الشلّة','"Neredeyiz" + "Paylaş"','Tap “Where are we” and “Share my location” so the family can see you.')}</span></div><div class="searchwrap"><div class="searchbox"><span class="sicn">🔎</span><input id="psearch" autocomplete="off" oninput="searchPlaces()" placeholder="${LX('ابحث عن محل بالاسم… (عربي/تركي/إنجليزي)','İsimle ara…','Search a place by name…')}"><button class="sclr" onclick="clearSearch()" title="مسح">✕</button></div><div id="searchres" class="searchres"></div></div><div class="maptools" id="ftrow"><button class="mt on" data-f="all" onclick="filterMap('all')"><span class="fico">${svgIco('map',15)}</span> ${LX('الكل','Hepsi','All')}</button><button class="mt" data-f="food" onclick="filterMap('food')"><span class="fico">${svgIco('food',15)}</span> ${LX('مطاعم','Restoran','Food')}</button><button class="mt" data-f="coffee" onclick="filterMap('coffee')"><span class="fico">${svgIco('coffee',15)}</span> ${LX('قهوة','Kahve','Coffee')}</button><button class="mt" data-f="gf" onclick="filterMap('gf')"><span class="fico">${svgIco('gf',15)}</span> ${LX('جلوتين-فري','Glutensiz','Gluten-free')}</button><button class="mt" data-f="kids" onclick="filterMap('kids')"><span class="fico">${svgIco('kids',15)}</span> ${LX('أطفال','Çocuk','Kids')}</button><button class="mt" data-f="nature" onclick="filterMap('nature')"><span class="fico">${svgIco('nat',15)}</span> ${LX('طبيعة ورحلات','Doğa','Nature')}</button><button class="mt" data-f="mosque" onclick="filterMap('mosque')"><span class="fico">${svgIco('mosque',15)}</span> ${LX('جوامع','Cami','Mosques')}</button><button class="mt" data-f="family" onclick="filterMap('family')">🏠 ${LX('بيت العيلة','Aile evi','Family')}</button><button class="mt" data-f="mall" onclick="filterMap('mall')"><span class="fico">${svgIco('mall',15)}</span> ${LX('مولات','AVM','Malls')}</button><button class="mt" data-f="brands" onclick="filterMap('brands')"><span class="fico">${svgIco('brand',15)}</span> ${LX('تسوّق','Alışveriş','Shopping')}</button></div><div class="maptools" id="prrow"><button class="mt dah" data-f="dah" onclick="filterMap('dah')"><span class="fico">${svgIco('fine',14)}</span> ${LX('الفخمة','Lüks','Upscale')}</button><button class="mt mid" data-f="mid" onclick="filterMap('mid')"><span class="fico">${svgIco('smile',14)}</span> ${LX('المتوسطة','Orta','Mid-range')}</button><button class="mt kadih" data-f="kadih" onclick="filterMap('kadih')"><span class="fico">${svgIco('coins',14)}</span> ${LX('الاقتصادية','Ekonomik','Budget')}</button></div><div id="map"></div><div id="homelist" class="homelist"></div><div id="homevote" class="homevote"></div>`;renderHomeList(curFilter);renderHomeVote();}
+   <div class="chatrow"><input id="chatin" type="text" maxlength="200" aria-label="${LX('رسالة لشات الشلّة','Aile sohbeti mesajı','Message to family chat')}" placeholder="${LX('اكتب رسالة…','Mesaj yaz…','Type a message…')}" onkeydown="if(event.key==='Enter')sendChatInput()" onblur="setTimeout(()=>{const b=document.getElementById('chatmsgs');if(b&&b.dataset.pending)renderChat(true);},100)"><button class="chatsend" onclick="sendChatInput()">➤</button></div></div><div class="statusbar"><span id="livedot" class="dot-live"></span><span id="livetext">${LX('اضغط «أين نحن» و«شارك موقعي» ليشوفوكم الشلّة','"Neredeyiz" + "Paylaş"','Tap “Where are we” and “Share my location” so the family can see you.')}</span></div><div class="searchwrap"><div class="searchbox"><span class="sicn">🔎</span><input id="psearch" type="search" autocomplete="off" oninput="searchPlaces()" aria-label="${LX('ابحث عن مكان بالاسم','İsimle yer ara','Search a place by name')}" placeholder="${LX('ابحث عن محل بالاسم… (عربي/تركي/إنجليزي)','İsimle ara…','Search a place by name…')}"><button class="sclr" onclick="clearSearch()" title="مسح">✕</button></div><div id="searchres" class="searchres"></div></div><div class="maptools" id="ftrow"><button class="mt on" data-f="all" onclick="filterMap('all')"><span class="fico">${svgIco('map',15)}</span> ${LX('الكل','Hepsi','All')}</button><button class="mt" data-f="food" onclick="filterMap('food')"><span class="fico">${svgIco('food',15)}</span> ${LX('مطاعم','Restoran','Food')}</button><button class="mt" data-f="coffee" onclick="filterMap('coffee')"><span class="fico">${svgIco('coffee',15)}</span> ${LX('قهوة','Kahve','Coffee')}</button><button class="mt" data-f="gf" onclick="filterMap('gf')"><span class="fico">${svgIco('gf',15)}</span> ${LX('جلوتين-فري','Glutensiz','Gluten-free')}</button><button class="mt" data-f="kids" onclick="filterMap('kids')"><span class="fico">${svgIco('kids',15)}</span> ${LX('أطفال','Çocuk','Kids')}</button><button class="mt" data-f="nature" onclick="filterMap('nature')"><span class="fico">${svgIco('nat',15)}</span> ${LX('طبيعة ورحلات','Doğa','Nature')}</button><button class="mt" data-f="mosque" onclick="filterMap('mosque')"><span class="fico">${svgIco('mosque',15)}</span> ${LX('جوامع','Cami','Mosques')}</button><button class="mt" data-f="family" onclick="filterMap('family')">🏠 ${LX('بيت العيلة','Aile evi','Family')}</button><button class="mt" data-f="mall" onclick="filterMap('mall')"><span class="fico">${svgIco('mall',15)}</span> ${LX('مولات','AVM','Malls')}</button><button class="mt" data-f="brands" onclick="filterMap('brands')"><span class="fico">${svgIco('brand',15)}</span> ${LX('تسوّق','Alışveriş','Shopping')}</button></div><div class="maptools" id="prrow"><button class="mt dah" data-f="dah" onclick="filterMap('dah')"><span class="fico">${svgIco('fine',14)}</span> ${LX('الفخمة','Lüks','Upscale')}</button><button class="mt mid" data-f="mid" onclick="filterMap('mid')"><span class="fico">${svgIco('smile',14)}</span> ${LX('المتوسطة','Orta','Mid-range')}</button><button class="mt kadih" data-f="kadih" onclick="filterMap('kadih')"><span class="fico">${svgIco('coins',14)}</span> ${LX('الاقتصادية','Ekonomik','Budget')}</button></div><div id="map"></div><div id="homelist" class="homelist"></div><div id="homevote" class="homevote"></div>`;renderHomeList(curFilter);renderHomeVote();}
 
 /* confetti */
 function confetti(small){const cv=document.getElementById('conf');cv.style.display='block';const ctx=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;const cols=['#dd9a2f','#2f7f70','#b5402f','#2e8b57','#7b4fc0','#f3c46b'];const N=small?40:120;let parts=[];for(let i=0;i<N;i++)parts.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.3,r:4+Math.random()*6,c:cols[i%cols.length],vy:2+Math.random()*4,vx:-2+Math.random()*4,a:Math.random()*6});let t=0;(function fr(){ctx.clearRect(0,0,cv.width,cv.height);t++;parts.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a+=.1;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);ctx.restore();});if(t<110)requestAnimationFrame(fr);else cv.style.display='none';})();}
