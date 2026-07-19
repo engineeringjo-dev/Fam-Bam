@@ -220,7 +220,7 @@
   .srbtns{display:flex;gap:7px;margin-top:7px}
   .lnk.sm{padding:5px 11px;font-size:.82rem}
 .langdd{position:relative;display:inline-block}
-  .langmenu{position:absolute;top:110%;inset-inline-end:0;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.22);padding:5px;display:none;flex-direction:column;gap:2px;z-index:3000;min-width:128px}
+  .langmenu{position:fixed;top:60px;inset-inline-end:10px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.22);padding:5px;display:none;flex-direction:column;gap:2px;z-index:3000;min-width:128px}
   .langmenu.open{display:flex}
   .langmenu button{border:none;background:transparent;font-family:Tajawal,sans-serif;font-size:.86rem;font-weight:700;text-align:start;padding:9px 12px;border-radius:8px;cursor:pointer;color:#1d4f4a;white-space:nowrap}
   .langmenu button:hover{background:#f3ede0}
@@ -881,7 +881,7 @@ async function getOnline(){const keys=await slist('fambam:pres:');const now=Date
 async function renderPresence(){const bar=document.getElementById('presbar');if(!bar||!USER){if(bar)bar.innerHTML='';return;}const on=await getOnline();if(!on.length){bar.innerHTML='';return;}const others=on.filter(o=>o.id!==USER.id);const label=LANG==='ar'?`معنا الآن (${on.length})`:`Çevrimiçi (${on.length})`;bar.innerHTML=`<span class="pb-lbl">${label}</span>`+on.map(o=>`<span class="pb-who">${o.em} ${o.id===USER.id?(LX('أنت','sen','you')):o.nm}</span>`).join('');}
 function setUchip(){const nm=USER.tronly?'Sibel':(LANG==='ar'?USER.ar:USER.tr);document.getElementById('uchip').innerHTML=`${USER.em} ${nm} ${USER.admin?'👑':''} <span style="opacity:.6">↩</span>`;}
 const LANGLBL={ar:'العربية',tr:'Türkçe',en:'English'};
-function toggleLangMenu(e){if(e){e.stopPropagation();}const m=document.getElementById('langmenu');const open=m.classList.toggle('open');if(open){setTimeout(()=>document.addEventListener('click',closeLangMenu),0);}}
+function toggleLangMenu(e){if(e){e.stopPropagation();}const m=document.getElementById('langmenu');const open=m.classList.toggle('open');if(open){try{const b=document.getElementById('langbtn').getBoundingClientRect();m.style.top=(b.bottom+6)+'px';m.style.insetInlineEnd='';m.style.left='';m.style.right=(window.innerWidth-b.right)+'px';if(document.dir==='rtl'||document.documentElement.dir==='rtl'){m.style.right='';m.style.left=b.left+'px';}}catch(err){}setTimeout(()=>document.addEventListener('click',closeLangMenu),0);}}
 function closeLangMenu(){const m=document.getElementById('langmenu');if(m)m.classList.remove('open');document.removeEventListener('click',closeLangMenu);}
 function setLang(l){LANG=l;try{localStorage.setItem('fambam_lang',l);}catch(e){}closeLangMenu();applyLang();if(USER)renderAll();else buildRoster();}
 function toggleLang(){LANG=(LANG==='ar')?'tr':(LANG==='tr')?'en':'ar';try{localStorage.setItem('fambam_lang',LANG);}catch(e){}applyLang();if(USER)renderAll();else buildRoster();}
