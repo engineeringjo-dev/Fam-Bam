@@ -495,6 +495,12 @@ header :where(button,a,input):focus-visible{outline-color:#fff;outline-offset:2p
 
 .shsec{font-weight:900;color:var(--sea);font-size:.95rem;margin:14px 2px 8px;padding-bottom:5px;border-bottom:2px solid var(--gold-d)}
 .shtag{display:inline-block;background:#fff4e0;color:#9a6a1a;border:1px solid #ecd4a8;font-size:.72rem;font-weight:800;padding:4px 9px;border-radius:8px;margin:0 0 6px}
+
+.shscroll{overflow-y:auto;padding:4px 14px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.shscroll .hypesub{padding:0;margin:6px 2px 4px}
+.shgrid{display:flex;flex-direction:column;gap:10px;margin-bottom:4px}
+.shscroll .wccard{overflow:visible;animation:none}
+.shscroll .mroom{margin-top:10px}
 </style>
 </head>
 <body>
@@ -1323,7 +1329,7 @@ function openShop(){
   const locals=SHOPLOCAL.map(card).join('');
   const route=`<div class="mroom"><b>🗺️ مسار مقترح للعيلة (١٩ شخص + أطفال + توفير):</b><br>١) ابدؤوا بـ<b>Şimal</b> المكيّف (ملابس بالخصومات + ألعاب أطفال + غدا فود كورت). ٢) للأرخص عرّجوا على <b>Timya Outlet</b>. ٣) مسا زوروا <b>Çarşı</b> الملاصق للميدان (مقاهي). ٤) الشاي من <b>Çaykur الرسمي</b>. ٥) العسل من <b>تعاونية أنزر</b>. ٦) الهدايا من محلات قماش ريزه.</div><div class="mroom red"><b>⚠️ تحذير الأسعار:</b> في شكاوى مبالغة أسعار مع السياح العرب بمحلات الشارع/الذهب — <b>ساوموا واسألوا السعر قبل</b>. محلات السلاسل (Şimal) وÇaykur أسعارها ثابتة ومعلنة، أأمن.</div>`;
   const ov=document.createElement('div');ov.id='shOv';ov.className='hypeov';
-  ov.innerHTML=`<div class="hypebox"><div class="hypehead"><b>🛍️ ${LX('دليل تسوّق ريزة','Rize alışveriş','Rize shopping')}</b><button class="hypeclose" onclick="closeShop()" aria-label="${LX('إغلاق','Kapat','Close')}">✕</button></div><p class="hypesub">${LX(SHOPINFO.ar,SHOPINFO.tr,SHOPINFO.en)}</p><div class="shsec">🏬 ${LX('المولات ومراكز التسوّق','AVM\u2019ler','Malls')}</div><div class="hypelist">${malls}</div><div class="shsec">🎁 ${LX('منتجات محلية وهدايا','Yöresel ürünler','Local products')}</div><div class="hypelist">${locals}</div>${route}</div>`;
+  ov.innerHTML=`<div class="hypebox"><div class="hypehead"><b>🛍️ ${LX('دليل تسوّق ريزة','Rize alışveriş','Rize shopping')}</b><button class="hypeclose" onclick="closeShop()" aria-label="${LX('إغلاق','Kapat','Close')}">✕</button></div><div class="shscroll"><p class="hypesub">${LX(SHOPINFO.ar,SHOPINFO.tr,SHOPINFO.en)}</p><div class="shsec">🏬 ${LX('المولات ومراكز التسوّق','AVM\u2019ler','Malls')}</div><div class="shgrid">${malls}</div><div class="shsec">🎁 ${LX('منتجات محلية وهدايا','Yöresel ürünler','Local products')}</div><div class="shgrid">${locals}</div>${route}</div></div>`;
   ov.onclick=(e)=>{if(e.target===ov)closeShop();};
   document.body.appendChild(ov);document.body.style.overflow='hidden';
 }
