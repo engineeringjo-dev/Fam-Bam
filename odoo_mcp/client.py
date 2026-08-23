@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import http.client
+import re
 import socket
 import xmlrpc.client
 from typing import Any, Iterable, Sequence
@@ -72,17 +73,32 @@ class _PlainTimeoutTransport(xmlrpc.client.Transport):
         return connection
 
 
+# Server tracebacks end with "odoo.exceptions.UserError: the real message"
+# or plain "ValueError: ...". Either way the class name adds nothing.
+_EXCEPTION_PREFIX = re.compile(
+    r"^[A-Za-z_][\w.]*(?:Error|Exception|Warning|Denied|Fault)\s*:\s*"
+)
+_INVALID_FIELD = re.compile(r"Invalid field '([^']+)' on '([^']+)'")
+
+
 def _clean_fault(fault: xmlrpc.client.Fault) -> str:
     """Turn an Odoo server traceback into the one line that actually matters."""
     text = (fault.faultString or "").strip()
     lines = [line for line in text.splitlines() if line.strip()]
     if not lines:
         return f"Odoo fault {fault.faultCode}"
-    tail = lines[-1].strip()
-    # Server tracebacks end with "odoo.exceptions.UserError: the real message".
-    if ": " in tail and tail.split(": ", 1)[0].count(".") >= 1:
-        tail = tail.split(": ", 1)[1].strip() or tail
-    return tail
+
+    message = _EXCEPTION_PREFIX.sub("", lines[-1].strip()) or lines[-1].strip()
+
+    # Fields move between Odoo versions, so name the way out of a bad guess.
+    invalid_field = _INVALID_FIELD.search(message)
+    if invalid_field:
+        message += (
+            f". Call fields_get on {invalid_field.group(2)!r} to see the fields this "
+            "Odoo version actually has - several were removed in Odoo 19 "
+            "(res.partner.mobile among them)."
+        )
+    return message
 
 
 class OdooClient:

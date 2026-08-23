@@ -183,3 +183,41 @@ def test_live_bad_credentials_give_an_actionable_message(monkeypatch):
     result = server.odoo_status()
     assert result.startswith("ERROR:")
     assert "ODOO_API_KEY" in result or "database" in result.lower()
+
+
+# -- error message shaping ----------------------------------------------------
+
+
+def make_fault(text: str):
+    import xmlrpc.client
+
+    return xmlrpc.client.Fault(1, text)
+
+
+def test_fault_strips_the_exception_class_name():
+    from odoo_mcp.client import _clean_fault
+
+    fault = make_fault(
+        "Traceback (most recent call last):\n"
+        "  File ...\n"
+        "odoo.exceptions.UserError: You cannot delete a posted entry."
+    )
+    assert _clean_fault(fault) == "You cannot delete a posted entry."
+
+    plain = make_fault("ValueError: something went wrong")
+    assert _clean_fault(plain) == "something went wrong"
+
+
+def test_invalid_field_error_points_at_fields_get():
+    from odoo_mcp.client import _clean_fault
+
+    fault = make_fault("ValueError: Invalid field 'mobile' on 'res.partner'")
+    message = _clean_fault(fault)
+    assert message.startswith("Invalid field 'mobile' on 'res.partner'")
+    assert "fields_get" in message and "res.partner" in message
+
+
+def test_empty_fault_still_produces_a_message():
+    from odoo_mcp.client import _clean_fault
+
+    assert "Odoo fault" in _clean_fault(make_fault(""))
