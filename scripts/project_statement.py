@@ -57,6 +57,34 @@ def fetch(c: OdooClient, pid: int, dfrom: str | None, dto: str | None) -> dict:
         ["date", "move_name", "name", "quantity", "price_unit", "price_total"],
         limit=1000, order="date,id",
     )
+    # Point-of-sale tickets settled on account never become invoices, so their
+    # goods detail lives only here — without this the statement shows a balance
+    # with nothing behind it.
+    pos_lines = c.search_read(
+        "pos.order.line",
+        [("order_id.partner_id", "=", pid), ("order_id.state", "in", ["paid", "done", "invoiced"])],
+        ["order_id", "full_product_name", "qty", "price_unit", "price_subtotal_incl"],
+        limit=1000, order="id",
+    )
+    pos_dates = {}
+    order_ids = list({l["order_id"][0] for l in pos_lines})
+    if order_ids:
+        for o in c.read("pos.order", order_ids, ["date_order", "name", "account_move"]):
+            pos_dates[o["id"]] = (o["date_order"][:10], o["name"])
+    for line in pos_lines:
+        oid = line["order_id"][0]
+        stamp, ticket = pos_dates.get(oid, ("", line["order_id"][1]))
+        row = {"date": stamp, "move_name": ticket, "name": line["full_product_name"],
+               "quantity": abs(line["qty"]), "price_unit": line["price_unit"],
+               "price_total": abs(line["price_subtotal_incl"])}
+        if dfrom and stamp < dfrom:
+            continue
+        if dto and stamp > dto:
+            continue
+        (returns if line["qty"] < 0 else goods).append(row)
+    goods.sort(key=lambda r: (r["date"], r["move_name"]))
+    returns.sort(key=lambda r: (r["date"], r["move_name"]))
+
     payments = c.search_read(
         "account.payment",
         [("partner_id", "=", pid), ("state", "not in", ["draft", "canceled", "rejected"])]
