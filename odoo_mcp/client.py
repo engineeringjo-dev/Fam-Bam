@@ -200,6 +200,13 @@ class OdooClient:
                 payload_kwargs,
             )
         except xmlrpc.client.Fault as fault:
+            # Odoo commits the transaction BEFORE marshalling the XML-RPC
+            # response, and its marshaller rejects None. So a void method
+            # (action_cancel, set_param, ...) executes fully server-side and
+            # then faults on the empty reply. Treat that specific fault as a
+            # successful call with no return value.
+            if "cannot marshal None" in (fault.faultString or ""):
+                return None
             raise OdooCallError(
                 f"{model}.{method} failed: {_clean_fault(fault)}"
             ) from fault

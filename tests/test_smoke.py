@@ -221,3 +221,22 @@ def test_empty_fault_still_produces_a_message():
     from odoo_mcp.client import _clean_fault
 
     assert "Odoo fault" in _clean_fault(make_fault(""))
+
+
+def test_void_method_fault_is_treated_as_success(monkeypatch):
+    """Odoo commits before marshalling; a None return faults after the work is done."""
+    import xmlrpc.client
+
+    from odoo_mcp.client import OdooClient
+    from odoo_mcp.config import OdooConfig
+
+    configure(monkeypatch)
+    client = OdooClient(OdooConfig.from_env())
+    client._uid = 2
+
+    class FakeModels:
+        def execute_kw(self, *args):
+            raise xmlrpc.client.Fault(1, "cannot marshal None unless allow_none is enabled")
+
+    client._models = FakeModels()
+    assert client.execute_kw("account.move", "button_cancel", [[1]]) is None
