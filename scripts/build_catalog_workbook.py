@@ -92,6 +92,8 @@ def style_header(ws, labels, row=1):
 def sheet_entry(wb, data):
     """The sheet the shop types into and then imports straight back into Odoo."""
     ws = wb.create_sheet("أصناف جديدة")
+    last = len(data["rows"]) + 1        # bound the lookup: a whole-column
+                                        # COUNTIF scans a million rows per line
     ws.sheet_view.rightToLeft = True
 
     style_header(ws, [f for f, *_ in COLS] + ["تدقيق — لا تستورد هذا العمود"])
@@ -121,7 +123,7 @@ def sheet_entry(wb, data):
         for col in (9, 10, 11, 12):
             ws.cell(row=r, column=col, value=f'={filled},TRUE)')
         ws.cell(row=r, column=CHECK_COL,
-                value=f'={filled},IF(COUNTIF(\'الكتالوج\'!$C:$C,{a})>0,'
+                value=f'={filled},IF(COUNTIF(\'الكتالوج\'!$C$2:$C${last},{a})>0,'
                       f'"⚠ الاسم موجود مسبقًا","جديد ✔"))')
 
         for col in range(1, CHECK_COL + 1):
