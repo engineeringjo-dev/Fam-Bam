@@ -126,6 +126,9 @@ def render(partner, orders, lines):
   td.out {{ background:var(--out); }}
   td.owed {{ background:var(--owed); font-weight:bold; }}
   td.ret {{ background:var(--ret); font-weight:bold; }}
+  tr.caption th {{ background:#fff; border-bottom:none; font-weight:normal;
+                   font-size:10px; color:var(--soft); padding:2px 5px; }}
+  tr.caption th.blank {{ border:none; }}
   tfoot td {{ background:var(--tint); font-weight:bold; text-align:center; }}
   tfoot td.d {{ text-align:left; }}
   .rule {{ margin-top:8px; font-size:10.5px; color:var(--soft);
@@ -146,7 +149,12 @@ def render(partner, orders, lines):
 </div>
 
 <table>
-  <thead><tr>
+  <thead>
+  <tr class="caption">
+    <th colspan="6" class="blank"></th>
+    <th colspan="2">(خارج − مرتجع)</th>
+  </tr>
+  <tr>
     <th>#</th><th>الطلبية</th><th>مطلوب</th><th>خارج</th>
     <th>متبقي</th><th>التاريخ</th><th>مرتجع</th><th>الفاتورة</th>
   </tr></thead>
@@ -162,7 +170,7 @@ def render(partner, orders, lines):
 </table>
 
 <div class="rule">
-  صافي المستلم = (خارج − مرتجع) = <b>{num(totals['net'], '0')}</b> &nbsp;·&nbsp;
+  صافي المستلم = <b>{num(totals['net'], '0')}</b> &nbsp;·&nbsp;
   قيمة الطلبية: <b>{totals['val']:,.2f}</b> د.ا &nbsp;·&nbsp;
   متبقي للتسليم: <b>{num(totals['left'], '0')}</b>
 </div>
