@@ -6,3 +6,9 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+
+# Generated reports — they carry live customer data, so they stay local
+statement_*.html
+*.pdf
+كتالوج_*.xlsx
+طلبية_*.html

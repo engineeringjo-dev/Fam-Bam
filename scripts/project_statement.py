@@ -156,7 +156,12 @@ def html_report(data: dict, dfrom: str | None, dto: str | None) -> str:
     return f"""<meta charset="utf-8">
 <title>كشف حساب — {p['name']}</title>
 <style>
- body {{ font-family: sans-serif; direction: rtl; margin: 2em; color: #222; }}
+ @page {{ size: A4; margin: 14mm; }}
+ body {{ font-family: "Noto Naskh Arabic","Noto Sans Arabic","Segoe UI",Tahoma,sans-serif;
+         direction: rtl; margin: 0; color: #222; font-size: 12px; }}
+ table {{ font-variant-numeric: tabular-nums; }}
+ thead {{ display: table-header-group; }}
+ tr {{ break-inside: avoid; }}
  h1 {{ font-size: 1.4em; }} h2 {{ font-size: 1.1em; margin-top: 1.4em; }}
  table {{ border-collapse: collapse; width: 100%; font-size: 0.9em; }}
  th, td {{ border: 1px solid #999; padding: 4px 8px; text-align: right; }}
