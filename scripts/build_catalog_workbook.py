@@ -116,7 +116,7 @@ def sheet_entry(wb, data):
         ws.cell(row=r, column=1).fill = PatternFill("solid", fgColor=INPUT_BG)
         ws.cell(row=r, column=2, value=f'={filled},$C{r})')
         ws.cell(row=r, column=3,
-                value=f'={filled},TEXT({base}+COUNTIF($A$2:{a},"?*"),"000000"))')
+                value=f'={filled},TEXT({base}+COUNTA($A$2:{a}),"000000"))')
         ws.cell(row=r, column=6).fill = PatternFill("solid", fgColor=INPUT_BG)
         ws.cell(row=r, column=7, value=f'={filled},"حبة")')
         ws.cell(row=r, column=8, value=f'={filled},"0%")')
