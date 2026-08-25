@@ -162,7 +162,9 @@ def html_report(data: dict, dfrom: str | None, dto: str | None) -> str:
         kind = l.get("kind", "invoice")
         inv = f"{l['debit']:.2f}" if kind == "invoice" and l["debit"] else ""
         ret = f"{l['credit']:.2f}" if kind == "return" and l["credit"] else ""
-        pay = f"{l['credit']:.2f}" if kind == "payment" and l["credit"] else ""
+        # الدفعة بالسالب وبخط عريض حتى تنفرز عن أسطر الفواتير
+        pay = (f"<strong>-{l['credit']:.2f}</strong>"
+               if kind == "payment" and l["credit"] else "")
         led_inv += l["debit"] if kind == "invoice" else 0.0
         led_ret += l["credit"] if kind == "return" else 0.0
         led_pay += l["credit"] if kind == "payment" else 0.0
@@ -217,7 +219,7 @@ def html_report(data: dict, dfrom: str | None, dto: str | None) -> str:
 <th>دفعات المقاول</th><th>الرصيد</th></tr>
 {''.join(ledger_rows) or "<tr><td colspan='6'>لا يوجد</td></tr>"}
 <tr class="totals"><td colspan="2">المجموع</td><td>{led_inv:.2f}</td><td>{led_ret:.2f}</td>
-<td>{led_pay:.2f}</td><td>{data['balance']:.2f}</td></tr></table>
+<td><strong>-{led_pay:.2f}</strong></td><td>{data['balance']:.2f}</td></tr></table>
 
 <h2>٥. أعمار الذمم (على المتبقي)</h2>
 <table><tr><th>٠-٣٠ يوم</th><th>٣١-٦٠</th><th>٦١-٩٠</th><th>أكثر من ٩٠</th><th>الرصيد المستحق</th></tr>
