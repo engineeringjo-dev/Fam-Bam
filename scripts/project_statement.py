@@ -98,11 +98,25 @@ def fetch(c: OdooClient, pid: int, dfrom: str | None, dto: str | None) -> dict:
         "account.move.line",
         [("partner_id", "=", pid), ("account_id.account_type", "=", "asset_receivable"),
          ("parent_state", "=", "posted")],
-        ["date", "move_name", "debit", "credit", "amount_residual"],
+        ["date", "move_name", "move_id", "debit", "credit", "amount_residual"],
         limit=2000, order="date,id",
     )
+    # كل سطر يروح لعموده: فاتورة، مرتجع، أو دفعة من المقاول — بدل ما تنحط
+    # الدفعة بالسالب داخل عمود واحد.
+    move_types = {}
+    move_ids = list({l["move_id"][0] for l in ledger if l["move_id"]})
+    for i in range(0, len(move_ids), 200):
+        for mv in c.read("account.move", move_ids[i:i + 200], ["move_type"]):
+            move_types[mv["id"]] = mv["move_type"]
     running = 0.0
     for line in ledger:
+        mtype = move_types.get(line["move_id"][0] if line["move_id"] else 0, "entry")
+        if not line["credit"]:
+            line["kind"] = "invoice"
+        elif mtype == "out_refund":
+            line["kind"] = "return"
+        else:
+            line["kind"] = "payment"
         running += line["debit"] - line["credit"]
         line["balance_running"] = running
 
@@ -143,10 +157,20 @@ def html_report(data: dict, dfrom: str | None, dto: str | None) -> str:
             f"<td>{l['amount']:.2f}{flag}</td></tr>"
         )
     ledger_rows = []
+    led_inv = led_ret = led_pay = 0.0
     for l in data["ledger"]:
+        kind = l.get("kind", "invoice")
+        inv = f"{l['debit']:.2f}" if kind == "invoice" and l["debit"] else ""
+        ret = f"{l['credit']:.2f}" if kind == "return" and l["credit"] else ""
+        pay = f"{l['credit']:.2f}" if kind == "payment" and l["credit"] else ""
+        led_inv += l["debit"] if kind == "invoice" else 0.0
+        led_ret += l["credit"] if kind == "return" else 0.0
+        led_pay += l["credit"] if kind == "payment" else 0.0
+        cls = ' class="pay"' if kind == "payment" else ""
         ledger_rows.append(
-            f"<tr><td>{l['date']}</td><td>{l['move_name']}</td><td>{l['debit']:.2f}</td>"
-            f"<td>{l['credit']:.2f}</td><td>{l['balance_running']:.2f}</td></tr>"
+            f"<tr{cls}><td>{l['date']}</td><td>{l['move_name']}</td>"
+            f"<td>{inv}</td><td>{ret}</td><td>{pay}</td>"
+            f"<td>{l['balance_running']:.2f}</td></tr>"
         )
     aging = data["aging"]
     total_goods = sum(l["price_total"] for l in data["goods"])
@@ -167,6 +191,7 @@ def html_report(data: dict, dfrom: str | None, dto: str | None) -> str:
  th, td {{ border: 1px solid #999; padding: 4px 8px; text-align: right; }}
  th {{ background: #eee; }}
  .totals td {{ font-weight: bold; background: #f6f6f6; }}
+ .pay td {{ background: #eef7ee; }}
 </style>
 <h1>كشف حساب مشروع — {p['name']}</h1>
 <p>محلات العون لمواد البناء · الفترة: {period}
@@ -188,8 +213,11 @@ def html_report(data: dict, dfrom: str | None, dto: str | None) -> str:
 <tr class="totals"><td colspan="3">مجموع الدفعات</td><td>{total_pay:.2f}</td></tr></table>
 
 <h2>٤. الحركة والرصيد الجاري</h2>
-<table><tr><th>التاريخ</th><th>المستند</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr>
-{''.join(ledger_rows) or "<tr><td colspan='5'>لا يوجد</td></tr>"}</table>
+<table><tr><th>التاريخ</th><th>المستند</th><th>فواتير (عليه)</th><th>مرتجعات</th>
+<th>دفعات المقاول</th><th>الرصيد</th></tr>
+{''.join(ledger_rows) or "<tr><td colspan='6'>لا يوجد</td></tr>"}
+<tr class="totals"><td colspan="2">المجموع</td><td>{led_inv:.2f}</td><td>{led_ret:.2f}</td>
+<td>{led_pay:.2f}</td><td>{data['balance']:.2f}</td></tr></table>
 
 <h2>٥. أعمار الذمم (على المتبقي)</h2>
 <table><tr><th>٠-٣٠ يوم</th><th>٣١-٦٠</th><th>٦١-٩٠</th><th>أكثر من ٩٠</th><th>الرصيد المستحق</th></tr>
