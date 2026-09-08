@@ -9,14 +9,16 @@
 
   <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
     <tr>
-      <td style="border:0;text-align:right;vertical-align:top;width:65%">
-        <div style="font-size:17px;font-weight:bold">محلات العون لمواد البناء</div>
-        <div style="margin-top:3px">هاتف: <span style="direction:ltr;display:inline-block;white-space:nowrap">0799123618</span> — م.عمر</div>
-        <div>هاتف المحل: <span style="direction:ltr;display:inline-block;white-space:nowrap">+962 7 9017 7761</span></div>
+      <td style="border:0;width:25%;text-align:right;vertical-align:top"/>
+      <td style="border:0;width:50%;text-align:center;vertical-align:top">
+        <div style="font-size:18px;font-weight:bold">محلات العون لمواد البناء</div>
+        <div style="margin-top:4px">هاتف :</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0799123618</span> - م.عمر</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0790177761</span> - هاتف المحل</div>
       </td>
-      <td style="border:0;text-align:left;vertical-align:top;width:35%">
+      <td style="border:0;width:25%;text-align:left;vertical-align:top">
         <div style="font-weight:bold" t-out="days[datetime.date.today().weekday()]"/>
-        <div t-out="datetime.date.today().strftime('%d/%m/%Y')"/>
+        <div style="direction:ltr;text-align:left" t-out="datetime.date.today().strftime('%d/%m/%Y')"/>
       </td>
     </tr>
   </table>
@@ -34,12 +36,12 @@
   <table style="width:100%;border-collapse:collapse;font-size:11.5px">
     <thead>
       <tr style="background:#eee">
-        <th style="border:1px solid #999;padding:4px">التاريخ</th>
-        <th style="border:1px solid #999;padding:4px">المستند</th>
-        <th style="border:1px solid #999;padding:4px">البيان</th>
-        <th style="border:1px solid #999;padding:4px">مدين (الفاتورة)</th>
-        <th style="border:1px solid #999;padding:4px">دائن (الدفعات)</th>
-        <th style="border:1px solid #999;padding:4px">الرصيد</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">التاريخ</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">المستند</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">البيان</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">مدين (الفاتورة)</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">دائن (الدفعات)</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">الرصيد</th>
       </tr>
     </thead>
     <tbody>
@@ -83,11 +85,11 @@
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
       <tr style="background:#f8f8f8">
-        <th style="border:1px solid #bbb;padding:3px;width:6%">#</th>
-        <th style="border:1px solid #bbb;padding:3px">الصنف</th>
-        <th style="border:1px solid #bbb;padding:3px;width:10%">الكمية</th>
-        <th style="border:1px solid #bbb;padding:3px;width:14%">الإفرادي</th>
-        <th style="border:1px solid #bbb;padding:3px;width:14%">الإجمالي</th>
+        <th style="border:1px solid #bbb;padding:3px;width:6%;text-align:center;font-weight:bold">#</th>
+        <th style="border:1px solid #bbb;padding:3px;text-align:center;font-weight:bold">الصنف</th>
+        <th style="border:1px solid #bbb;padding:3px;width:10%;text-align:center;font-weight:bold">الكمية</th>
+        <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإفرادي</th>
+        <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
       </tr>
       <t t-foreach="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')" t-as="il">
         <tr>
