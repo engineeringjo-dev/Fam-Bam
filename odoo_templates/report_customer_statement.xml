@@ -5,6 +5,7 @@
 <div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
   <t t-set="lines" t-value="o.env['account.move.line'].search([('partner_id','=',o.id),('account_id.account_type','=','asset_receivable'),('parent_state','=','posted')], order='date asc, id asc')"/>
   <t t-set="moves" t-value="o.env['account.move'].search([('partner_id','=',o.id),('move_type','=','out_invoice'),('state','=','posted')], order='invoice_date asc, name asc')"/>
+  <t t-set="refs" t-value="o.env['account.move'].search([('partner_id','=',o.id),('move_type','=','out_refund'),('state','=','posted')], order='invoice_date asc, name asc')"/>
   <t t-set="days" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
 
   <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
@@ -41,6 +42,7 @@
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">المستند</th>
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">البيان</th>
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">مدين (الفاتورة)</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">مرتجعات</th>
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">دائن (الدفعات)</th>
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">الرصيد</th>
       </tr>
@@ -49,19 +51,24 @@
       <t t-set="bal" t-value="0"/>
       <t t-foreach="lines" t-as="l">
         <t t-set="bal" t-value="bal + l.debit - l.credit"/>
-        <tr t-attf-style="{{ 'background:#eef7ee;' if l.credit else '' }}">
+        <t t-set="isref" t-value="l.move_id.move_type == 'out_refund'"/>
+        <tr t-attf-style="{{ 'background:#fdf1e0;' if isref else ('background:#eef7ee;' if l.credit else '') }}">
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.move_id.name"/>
-          <td style="border:1px solid #999;padding:3px" t-out="l.move_id.ref if (l.move_id.ref or '').startswith('فاتورة يدوية') else ('فاتورة بضاعة' if l.debit else ' '.join((l.name or '').split()))"/>
+          <td style="border:1px solid #999;padding:3px" t-out="(l.move_id.ref or 'مرتجع بضاعة') if isref else (l.move_id.ref if (l.move_id.ref or '').startswith('فاتورة يدوية') else ('فاتورة بضاعة' if l.debit else ' '.join((l.name or '').split())))"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.debit and '%.3f' % l.debit or ''"/>
-          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="l.credit and '%.3f' % l.credit or ''"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="(l.credit and '%.3f' % l.credit or '') if isref else ''"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="'' if isref else (l.credit and '%.3f' % l.credit or '')"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % bal"/>
         </tr>
       </t>
+      <t t-set="refl" t-value="lines.filtered(lambda z: z.move_id.move_type == 'out_refund')"/>
+      <t t-set="payl" t-value="lines.filtered(lambda z: z.move_id.move_type != 'out_refund')"/>
       <tr style="background:#f2f2f2;font-weight:bold">
         <td colspan="3" style="border:1px solid #999;padding:4px">الإجمالي</td>
         <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(lines.mapped('debit'))"/>
-        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(lines.mapped('credit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(refl.mapped('credit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(payl.mapped('credit'))"/>
         <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (sum(lines.mapped('debit')) - sum(lines.mapped('credit')))"/>
       </tr>
     </tbody>
@@ -100,6 +107,38 @@
         </tr>
       </t>
     </table>
+  </t>
+  <t t-if="refs">
+  <p style="page-break-before:always"/>
+  <h3 style="font-size:15px;margin:4px 0 8px 0">تفاصيل المرتجعات</h3>
+  <t t-foreach="refs" t-as="m">
+    <div style="margin-top:8px;font-weight:bold;background:#f2f2f2;border:1px solid #999;padding:4px">
+      <span t-out="m.name"/>
+      <span> · </span>
+      <span t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
+      <t t-if="m.ref">
+        <span> · </span>
+        <span t-out="m.ref"/>
+      </t>
+      <span style="float:left" t-out="'%.3f' % m.amount_total"/>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
+      <tr style="background:#f8f8f8">
+        <th style="border:1px solid #bbb;padding:3px;width:6%;text-align:center;font-weight:bold">#</th>
+        <th style="border:1px solid #bbb;padding:3px;text-align:center;font-weight:bold">الصنف</th>
+        <th style="border:1px solid #bbb;padding:3px;width:10%;text-align:center;font-weight:bold">الكمية</th>
+        <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
+      </tr>
+      <t t-foreach="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')" t-as="il">
+        <tr>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
+        <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
+        </tr>
+      </t>
+    </table>
+  </t>
   </t>
 </div>
 </t>
