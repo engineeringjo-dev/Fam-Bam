@@ -1,0 +1,105 @@
+<t t-name="alawn.report_customer_statement">
+<t t-call="web.html_container">
+<t t-foreach="docs" t-as="o">
+<div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
+  <t t-set="lines" t-value="o.env['account.move.line'].search([('partner_id','=',o.id),('account_id.account_type','=','asset_receivable'),('parent_state','=','posted')], order='date asc, id asc')"/>
+  <t t-set="moves" t-value="o.env['account.move'].search([('partner_id','=',o.id),('move_type','=','out_invoice'),('state','=','posted')], order='invoice_date asc, name asc')"/>
+  <t t-set="days" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
+
+  <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
+    <tr>
+      <td style="border:0;text-align:right;vertical-align:top;width:65%">
+        <div style="font-size:17px;font-weight:bold">محلات العون لمواد البناء</div>
+        <div style="margin-top:3px">هاتف: <span style="direction:ltr;display:inline-block">079123618</span> — م.عمر</div>
+        <div>هاتف المحل: <span style="direction:ltr;display:inline-block">+962 7 9017 7761</span></div>
+      </td>
+      <td style="border:0;text-align:left;vertical-align:top;width:35%">
+        <div style="font-weight:bold" t-out="days[datetime.date.today().weekday()]"/>
+        <div t-out="datetime.date.today().strftime('%d/%m/%Y')"/>
+      </td>
+    </tr>
+  </table>
+  <div style="border-bottom:2px solid #333;margin-bottom:8px"/>
+
+  <h2 style="text-align:center;font-size:19px;margin:6px 0">كشف حساب العميل</h2>
+  <div style="text-align:center;font-size:14px;font-weight:bold;margin-bottom:2px" t-out="o.name"/>
+  <div style="text-align:center;margin-bottom:10px">
+    الفترة الزمنية:
+    <span style="direction:ltr;display:inline-block" t-out="lines and lines[0].date.strftime('%d/%m/%Y') or '-'"/>
+    <span> — </span>
+    <span style="direction:ltr;display:inline-block" t-out="lines and lines[-1].date.strftime('%d/%m/%Y') or '-'"/>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+    <thead>
+      <tr style="background:#eee">
+        <th style="border:1px solid #999;padding:4px">التاريخ</th>
+        <th style="border:1px solid #999;padding:4px">المستند</th>
+        <th style="border:1px solid #999;padding:4px">البيان</th>
+        <th style="border:1px solid #999;padding:4px">مدين (الفاتورة)</th>
+        <th style="border:1px solid #999;padding:4px">دائن (الدفعات)</th>
+        <th style="border:1px solid #999;padding:4px">الرصيد</th>
+      </tr>
+    </thead>
+    <tbody>
+      <t t-set="bal" t-value="0"/>
+      <t t-foreach="lines" t-as="l">
+        <t t-set="bal" t-value="bal + l.debit - l.credit"/>
+        <tr t-attf-style="{{ 'background:#eef7ee;' if l.credit else '' }}">
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.move_id.name"/>
+          <td style="border:1px solid #999;padding:3px" t-out="l.move_id.ref if (l.move_id.ref or '').startswith('فاتورة يدوية') else ('فاتورة بضاعة' if l.debit else ' '.join((l.name or '').split()))"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.debit and '%.3f' % l.debit or ''"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="l.credit and '%.3f' % l.credit or ''"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % bal"/>
+        </tr>
+      </t>
+      <tr style="background:#f2f2f2;font-weight:bold">
+        <td colspan="3" style="border:1px solid #999;padding:4px">الإجمالي</td>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(lines.mapped('debit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(lines.mapped('credit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (sum(lines.mapped('debit')) - sum(lines.mapped('credit')))"/>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:10px;font-size:14px;font-weight:bold;text-align:left">
+    الرصيد المستحق: <span t-out="'%.3f' % (sum(lines.mapped('debit')) - sum(lines.mapped('credit')))"/> د.أ
+  </div>
+
+  <p style="page-break-before:always"/>
+  <h3 style="font-size:15px;margin:4px 0 8px 0">تفاصيل الفواتير</h3>
+  <t t-foreach="moves" t-as="m">
+    <div style="margin-top:8px;font-weight:bold;background:#f2f2f2;border:1px solid #999;padding:4px">
+      <span t-out="m.name"/>
+      <span> · </span>
+      <span t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
+      <t t-if="(m.ref or '').startswith('فاتورة يدوية')">
+        <span> · </span>
+        <span t-out="m.ref"/>
+      </t>
+      <span style="float:left" t-out="'%.3f' % m.amount_total"/>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
+      <tr style="background:#f8f8f8">
+        <th style="border:1px solid #bbb;padding:3px;width:6%">#</th>
+        <th style="border:1px solid #bbb;padding:3px">الصنف</th>
+        <th style="border:1px solid #bbb;padding:3px;width:10%">الكمية</th>
+        <th style="border:1px solid #bbb;padding:3px;width:14%">الإفرادي</th>
+        <th style="border:1px solid #bbb;padding:3px;width:14%">الإجمالي</th>
+      </tr>
+      <t t-foreach="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')" t-as="il">
+        <tr>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
+        <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_unit"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
+        </tr>
+      </t>
+    </table>
+  </t>
+</div>
+</t>
+</t>
+</t>
