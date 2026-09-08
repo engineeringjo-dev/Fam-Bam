@@ -9,14 +9,15 @@
 
   <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
     <tr>
-      <td style="border:0;width:25%;text-align:right;vertical-align:top"/>
-      <td style="border:0;width:50%;text-align:center;vertical-align:top">
-        <div style="font-size:18px;font-weight:bold">محلات العون لمواد البناء</div>
-        <div style="margin-top:4px">هاتف :</div>
+      <td style="border:0;width:27%;text-align:right;vertical-align:top">
+        <div>هاتف :</div>
         <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0799123618</span> - م.عمر</div>
         <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0790177761</span> - هاتف المحل</div>
       </td>
-      <td style="border:0;width:25%;text-align:left;vertical-align:top">
+      <td style="border:0;width:46%;text-align:center;vertical-align:middle">
+        <div style="font-size:18px;font-weight:bold">محلات العون لمواد البناء</div>
+      </td>
+      <td style="border:0;width:27%;text-align:left;vertical-align:top">
         <div style="font-weight:bold" t-out="days[datetime.date.today().weekday()]"/>
         <div style="direction:ltr;text-align:left" t-out="datetime.date.today().strftime('%d/%m/%Y')"/>
       </td>
@@ -88,7 +89,6 @@
         <th style="border:1px solid #bbb;padding:3px;width:6%;text-align:center;font-weight:bold">#</th>
         <th style="border:1px solid #bbb;padding:3px;text-align:center;font-weight:bold">الصنف</th>
         <th style="border:1px solid #bbb;padding:3px;width:10%;text-align:center;font-weight:bold">الكمية</th>
-        <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإفرادي</th>
         <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
       </tr>
       <t t-foreach="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')" t-as="il">
@@ -96,7 +96,6 @@
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
         <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
-        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_unit"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
         </tr>
       </t>
