@@ -1,6 +1,7 @@
 <t t-name="alawn.report_customer_statement">
 <t t-call="web.html_container">
 <t t-foreach="docs" t-as="o">
+<t t-call="web.basic_layout">
 <div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
   <t t-set="lines" t-value="o.env['account.move.line'].search([('partner_id','=',o.id),('account_id.account_type','=','asset_receivable'),('parent_state','=','posted')], order='date asc, id asc')"/>
   <t t-set="moves" t-value="o.env['account.move'].search([('partner_id','=',o.id),('move_type','=','out_invoice'),('state','=','posted')], order='invoice_date asc, name asc')"/>
@@ -10,8 +11,8 @@
     <tr>
       <td style="border:0;text-align:right;vertical-align:top;width:65%">
         <div style="font-size:17px;font-weight:bold">محلات العون لمواد البناء</div>
-        <div style="margin-top:3px">هاتف: <span style="direction:ltr;display:inline-block">079123618</span> — م.عمر</div>
-        <div>هاتف المحل: <span style="direction:ltr;display:inline-block">+962 7 9017 7761</span></div>
+        <div style="margin-top:3px">هاتف: <span style="direction:ltr;display:inline-block;white-space:nowrap">0799123618</span> — م.عمر</div>
+        <div>هاتف المحل: <span style="direction:ltr;display:inline-block;white-space:nowrap">+962 7 9017 7761</span></div>
       </td>
       <td style="border:0;text-align:left;vertical-align:top;width:35%">
         <div style="font-weight:bold" t-out="days[datetime.date.today().weekday()]"/>
@@ -100,6 +101,7 @@
     </table>
   </t>
 </div>
+</t>
 </t>
 </t>
 </t>
