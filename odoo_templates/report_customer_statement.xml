@@ -52,10 +52,12 @@
       <t t-foreach="lines" t-as="l">
         <t t-set="bal" t-value="bal + l.debit - l.credit"/>
         <t t-set="isref" t-value="l.move_id.move_type == 'out_refund'"/>
-        <tr t-attf-style="{{ 'background:#fdf1e0;' if isref else ('background:#eef7ee;' if l.credit else '') }}">
+        <t t-set="isinv" t-value="l.move_id.move_type == 'out_invoice'"/>
+        <t t-set="isout" t-value="l.debit and not isinv"/>
+        <tr t-attf-style="{{ 'background:#fdf1e0;' if isref else ('background:#fdf8e0;' if isout else ('background:#eef7ee;' if l.credit else '')) }}">
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.move_id.name"/>
-          <td style="border:1px solid #999;padding:3px" t-out="(l.move_id.ref or 'مرتجع بضاعة') if isref else (l.move_id.ref if (l.move_id.ref or '').startswith('فاتورة يدوية') else ('فاتورة بضاعة' if l.debit else ' '.join((l.name or '').split())))"/>
+          <td style="border:1px solid #999;padding:3px" t-out="(l.move_id.ref or 'مرتجع بضاعة') if isref else ((l.move_id.ref if (l.move_id.ref or '').startswith('فاتورة يدوية') else 'فاتورة بضاعة') if isinv else ' '.join((l.name or '').split()))"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.debit and '%.3f' % l.debit or ''"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="(l.credit and '%.3f' % l.credit or '') if isref else ''"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="'' if isref else (l.credit and '%.3f' % l.credit or '')"/>
