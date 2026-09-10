@@ -5,8 +5,10 @@
 <div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
   <t t-set="days" t-value="['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']"/>
   <t t-set="wd" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
-  <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type == 'product')"/>
+  <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type in ('product', 'line_note', 'line_section'))"/>
   <t t-set="paid" t-value="o.amount_total - o.amount_residual"/>
+  <t t-set="pays" t-value="o.reconciled_payment_ids.sorted(lambda z: (z.date, z.id))"/>
+  <t t-set="psum" t-value="sum(pays.mapped('amount'))"/>
 
   <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
     <tr>
@@ -46,12 +48,21 @@
       </tr>
     </thead>
     <tbody>
+      <t t-set="n" t-value="0"/>
       <t t-foreach="lines" t-as="l">
-        <tr>
-          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l_index + 1"/>
+        <tr t-if="l.display_type == 'product'">
+          <t t-set="n" t-value="n + 1"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="n"/>
           <td style="border:1px solid #999;padding:3px" t-out="' '.join((l.name or '').split())"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%g' % l.quantity"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % l.price_subtotal"/>
+        </tr>
+        <tr t-if="l.display_type == 'line_section'" style="background:#f2f2f2;font-weight:bold">
+          <td colspan="4" style="border:1px solid #999;padding:3px" t-out="' '.join((l.name or '').split())"/>
+        </tr>
+        <tr t-if="l.display_type == 'line_note'" style="background:#fbfbf3">
+          <td style="border:1px solid #999;padding:3px"/>
+          <td colspan="3" style="border:1px solid #999;padding:3px;font-size:10.5px;color:#555" t-out="' '.join((l.name or '').split())"/>
         </tr>
       </t>
     </tbody>
@@ -63,9 +74,18 @@
       <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr;width:40%" t-out="'%.3f' % o.amount_total"/>
     </tr>
     <t t-if="paid &gt; 0.0005">
-      <tr style="background:#eef7ee">
-        <td style="border:1px solid #999;padding:5px;text-align:right">المدفوع</td>
-        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % paid"/>
+      <t t-foreach="pays" t-as="p">
+        <tr style="background:#eef7ee">
+          <td style="border:1px solid #999;padding:5px;text-align:right">
+            <span>مدفوع</span>
+            <t t-if="p.memo"><span> — </span><span t-out="' '.join(p.memo.split())"/></t>
+          </td>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
+        </tr>
+      </t>
+      <tr t-if="paid - psum &gt; 0.0005" style="background:#eef7ee">
+        <td style="border:1px solid #999;padding:5px;text-align:right">مدفوع</td>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % (paid - psum)"/>
       </tr>
       <tr style="background:#f2f2f2;font-weight:bold;font-size:14px">
         <td style="border:1px solid #999;padding:5px;text-align:right">المبلغ المستحق</td>
