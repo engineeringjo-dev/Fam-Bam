@@ -18,7 +18,7 @@
   <t t-set="gross" t-value="o.amount_total - sum(deds.mapped('price_subtotal'))"/>
   <t t-set="special" t-value="bool(deds) or bool(donp)"/>
   <t t-set="items" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &gt;= 0)"/>
-  <t t-set="donitems" t-value="['(%d) %s' % (i + 1, ' '.join((z.name or '').replace('(تبرّع من فاعل خير)', '').split())) for i, z in enumerate(items) if 'فاعل خير' in (z.name or '')]"/>
+  <t t-set="donitems" t-value="['(%d) %s' % (i + 1, ' '.join((z.name or '').replace('(تبرّع من فاعل خير)', '').split('] ')[-1].split())) for i, z in enumerate(items) if 'فاعل خير' in (z.name or '')]"/>
 
   <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
     <tr>
