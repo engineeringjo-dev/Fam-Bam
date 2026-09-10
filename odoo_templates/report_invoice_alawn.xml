@@ -5,10 +5,12 @@
 <div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
   <t t-set="days" t-value="['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']"/>
   <t t-set="wd" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
-  <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type in ('product', 'line_note', 'line_section'))"/>
+  <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type in ('line_note', 'line_section') or (z.display_type == 'product' and z.price_subtotal &gt;= 0))"/>
+  <t t-set="deds" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0)"/>
   <t t-set="paid" t-value="o.amount_total - o.amount_residual"/>
   <t t-set="pays" t-value="o.reconciled_payment_ids.sorted(lambda z: (z.date, z.id))"/>
   <t t-set="psum" t-value="sum(pays.mapped('amount'))"/>
+  <t t-set="gross" t-value="o.amount_total - sum(deds.mapped('price_subtotal'))"/>
 
   <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
     <tr>
@@ -68,30 +70,31 @@
     </tbody>
   </table>
 
-  <table style="width:52%;border-collapse:collapse;margin-top:10px;margin-right:auto;font-size:12.5px">
+  <table style="width:60%;border-collapse:collapse;margin-top:10px;margin-right:auto;font-size:12.5px">
     <tr>
       <td style="border:1px solid #999;padding:5px;text-align:right">الإجمالي</td>
-      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr;width:40%" t-out="'%.3f' % o.amount_total"/>
+      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr;width:32%" t-out="'%.3f' % gross"/>
     </tr>
-    <t t-if="paid &gt; 0.0005">
-      <t t-foreach="pays" t-as="p">
-        <tr style="background:#eef7ee">
-          <td style="border:1px solid #999;padding:5px;text-align:right">
-            <span>مدفوع</span>
-            <t t-if="p.memo"><span> — </span><span t-out="' '.join(p.memo.split())"/></t>
-          </td>
-          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
-        </tr>
-      </t>
-      <tr t-if="paid - psum &gt; 0.0005" style="background:#eef7ee">
-        <td style="border:1px solid #999;padding:5px;text-align:right">مدفوع</td>
-        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % (paid - psum)"/>
-      </tr>
-      <tr style="background:#f2f2f2;font-weight:bold;font-size:14px">
-        <td style="border:1px solid #999;padding:5px;text-align:right">المبلغ المستحق</td>
-        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % o.amount_residual"/>
+    <t t-foreach="pays" t-as="p">
+      <tr style="background:#eef7ee">
+        <td style="border:1px solid #999;padding:5px;text-align:right" t-out="' '.join(p.memo.split()) if p.memo else 'مدفوع'"/>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
       </tr>
     </t>
+    <tr t-if="paid - psum &gt; 0.0005" style="background:#eef7ee">
+      <td style="border:1px solid #999;padding:5px;text-align:right">مدفوع</td>
+      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % (paid - psum)"/>
+    </tr>
+    <t t-foreach="deds" t-as="d">
+      <tr style="background:#fdf8e0">
+        <td style="border:1px solid #999;padding:5px;text-align:right" t-out="' '.join((d.name or '').split())"/>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % d.price_subtotal"/>
+      </tr>
+    </t>
+    <tr style="background:#f2f2f2;font-weight:bold;font-size:14px">
+      <td style="border:1px solid #999;padding:5px;text-align:right" t-out="'الإجمالي بعد الخصم' if deds else 'المبلغ المستحق'"/>
+      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % o.amount_residual"/>
+    </tr>
   </table>
 </div>
 </t>

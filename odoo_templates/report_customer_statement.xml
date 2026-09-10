@@ -101,7 +101,7 @@
         <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
       </tr>
       <t t-foreach="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')" t-as="il">
-        <tr>
+        <tr t-attf-style="{{ 'background:#fdf8e0;' if il.price_subtotal &lt; 0 else '' }}">
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
         <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
@@ -132,7 +132,7 @@
         <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
       </tr>
       <t t-foreach="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')" t-as="il">
-        <tr>
+        <tr t-attf-style="{{ 'background:#fdf8e0;' if il.price_subtotal &lt; 0 else '' }}">
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
         <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
