@@ -44,7 +44,6 @@
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">البيان</th>
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">مدين (الفاتورة)</th>
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">مرتجعات</th>
-        <th t-if="dontot &gt; 0.0005" style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">تبرعات</th>
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">دائن (الدفعات)</th>
         <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">الرصيد</th>
       </tr>
@@ -52,11 +51,11 @@
     <tbody>
       <t t-set="bal" t-value="0"/>
       <t t-foreach="lines" t-as="l">
-        <t t-set="bal" t-value="bal + l.debit - l.credit"/>
         <t t-set="isref" t-value="l.move_id.move_type == 'out_refund'"/>
         <t t-set="isinv" t-value="l.move_id.move_type == 'out_invoice'"/>
         <t t-set="isout" t-value="l.debit and not isinv"/>
         <t t-set="dn" t-value="(-sum(l.move_id.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0).mapped('price_subtotal'))) if isinv else 0"/>
+        <t t-set="bal" t-value="bal + l.debit - l.credit + dn"/>
         <t t-set="isdon" t-value="(not isinv) and (not isref) and l.credit and ('تبرع' in (l.name or '').replace('ّ', ''))"/>
         <tr t-attf-style="{{ 'background:#fdf1e0;' if isref else ('background:#fdf8e0;' if isout else ('background:#eef7ee;' if l.credit else '')) }}">
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
@@ -65,7 +64,6 @@
             <t t-if="isref"><span t-out="l.move_id.ref or 'مرتجع بضاعة'"/></t>
             <t t-if="isinv">
               <div t-out="l.move_id.ref if (l.move_id.ref or '').startswith('فاتورة يدوية') else 'فاتورة بضاعة'"/>
-              <div t-if="dn &gt; 0.0005" style="font-size:10px;color:#666" t-out="' + '.join([' '.join((z.name or '').split()) for z in l.move_id.invoice_line_ids.filtered(lambda q: q.display_type == 'product' and q.price_subtotal &lt; 0)])"/>
             </t>
             <t t-if="not isref and not isinv">
               <t t-if="isdon">
@@ -79,10 +77,23 @@
           </td>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.debit and '%.3f' % (l.debit + dn) or ''"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="(l.credit and '%.3f' % l.credit or '') if isref else ''"/>
-          <td t-if="dontot &gt; 0.0005" style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="('%.3f' % dn) if dn &gt; 0.0005 else ''"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="'' if isref else (l.credit and '%.3f' % l.credit or '')"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % bal"/>
         </tr>
+        <t t-if="dn &gt; 0.0005">
+          <t t-foreach="l.move_id.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0)" t-as="d">
+            <t t-set="bal" t-value="bal + d.price_subtotal"/>
+            <tr style="background:#eef7ee">
+              <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
+              <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.move_id.name"/>
+              <td style="border:1px solid #999;padding:3px" t-out="' '.join((d.name or '').split())"/>
+              <td style="border:1px solid #999;padding:3px"/>
+              <td style="border:1px solid #999;padding:3px"/>
+              <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="'%.3f' % -d.price_subtotal"/>
+              <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % bal"/>
+            </tr>
+          </t>
+        </t>
       </t>
       <t t-set="refl" t-value="lines.filtered(lambda z: z.move_id.move_type == 'out_refund')"/>
       <t t-set="payl" t-value="lines.filtered(lambda z: z.move_id.move_type != 'out_refund')"/>
@@ -90,8 +101,7 @@
         <td colspan="3" style="border:1px solid #999;padding:4px">الإجمالي</td>
         <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (sum(lines.mapped('debit')) + dontot)"/>
         <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(refl.mapped('credit'))"/>
-        <td t-if="dontot &gt; 0.0005" style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % dontot"/>
-        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(payl.mapped('credit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (sum(payl.mapped('credit')) + dontot)"/>
         <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (sum(lines.mapped('debit')) - sum(lines.mapped('credit')))"/>
       </tr>
     </tbody>
