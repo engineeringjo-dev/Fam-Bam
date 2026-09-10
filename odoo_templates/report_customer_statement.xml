@@ -86,7 +86,9 @@
     <t t-set="ils" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product' and x.price_subtotal &gt;= 0)"/>
     <t t-set="mded" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product' and x.price_subtotal &lt; 0)"/>
     <t t-set="mgross" t-value="m.amount_total - sum(mded.mapped('price_subtotal'))"/>
-    <div t-attf-style="margin-top:8px;{{ 'page-break-inside:avoid;' if len(ils) + len(mded) &lt;= 22 else '' }}">
+    <t t-set="mdon" t-value="m.line_ids.filtered(lambda x: x.account_id.account_type == 'asset_receivable').mapped('matched_credit_ids').filtered(lambda z: 'تبرع' in (z.credit_move_id.name or '').replace('ّ', '')).sorted(lambda z: (z.credit_move_id.date, z.id))"/>
+    <t t-set="mdonitems" t-value="['(%d) %s' % (i + 1, ' '.join((z.name or '').replace('(تبرّع من فاعل خير)', '').split('] ')[-1].split())) for i, z in enumerate(ils) if 'فاعل خير' in (z.name or '')]"/>
+    <div t-attf-style="margin-top:8px;{{ 'page-break-inside:avoid;' if len(ils) + len(mded) + len(mdon) &lt;= 22 else '' }}">
     <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
       <thead>
       <tr>
@@ -116,24 +118,36 @@
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
         </tr>
       </t>
-      <t t-if="mded">
+      <t t-if="mded or mdon">
         <tr style="background:#f8f8f8;font-weight:bold">
           <td colspan="3" style="border:1px solid #bbb;padding:3px;text-align:right">الإجمالي</td>
           <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % mgross"/>
         </tr>
+        <t t-foreach="mdon" t-as="q">
+          <tr style="background:#eef7ee">
+            <td colspan="3" style="border:1px solid #bbb;padding:3px;text-align:right">
+              <div>
+                <span>تبرّع (فاعل خير)</span>
+                <t t-if="mdonitems"><span> — بند </span><span t-out="' و '.join(mdonitems)"/></t>
+                <t t-if="not mdonitems"><span> — </span><span t-out="' '.join((q.credit_move_id.name or '').split())"/></t>
+              </div>
+              <div style="font-size:10px;color:#666;direction:ltr;text-align:right" t-out="q.credit_move_id.date.strftime('%d/%m/%Y')"/>
+            </td>
+            <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'-%.3f' % q.amount"/>
+          </tr>
+        </t>
         <t t-foreach="mded" t-as="d">
           <tr style="background:#fdf8e0">
             <td colspan="3" style="border:1px solid #bbb;padding:3px;text-align:right">
-              <span t-out="' '.join((d.name or '').split())"/>
-              <span style="color:#666"> · </span>
-              <span style="direction:ltr;display:inline-block;color:#666" t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
+              <div t-out="' '.join((d.name or '').split())"/>
+              <div style="font-size:10px;color:#666;direction:ltr;text-align:right" t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
             </td>
             <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % d.price_subtotal"/>
           </tr>
         </t>
         <tr style="background:#f2f2f2;font-weight:bold">
-          <td colspan="3" style="border:1px solid #bbb;padding:3px;text-align:right">إجمالي الفاتورة</td>
-          <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % m.amount_total"/>
+          <td colspan="3" style="border:1px solid #bbb;padding:3px;text-align:right">الإجمالي المستحق (الصافي)</td>
+          <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % (m.amount_total - sum(mdon.mapped('amount')))"/>
         </tr>
       </t>
       </tbody>
