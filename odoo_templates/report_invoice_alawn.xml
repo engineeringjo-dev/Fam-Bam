@@ -8,9 +8,15 @@
   <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type in ('line_note', 'line_section') or (z.display_type == 'product' and z.price_subtotal &gt;= 0))"/>
   <t t-set="deds" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0)"/>
   <t t-set="paid" t-value="o.amount_total - o.amount_residual"/>
-  <t t-set="pays" t-value="o.reconciled_payment_ids.sorted(lambda z: (z.date, z.id))"/>
-  <t t-set="psum" t-value="sum(pays.mapped('amount'))"/>
+  <t t-set="rls" t-value="o.line_ids.filtered(lambda z: z.account_id.account_type == 'asset_receivable')"/>
+  <t t-set="parts" t-value="rls.mapped('matched_credit_ids').sorted(lambda z: (z.credit_move_id.date, z.id))"/>
+  <t t-set="donp" t-value="parts.filtered(lambda z: 'تبرع' in (z.credit_move_id.name or '').replace('ّ', ''))"/>
+  <t t-set="oth" t-value="parts - donp"/>
+  <t t-set="donpaid" t-value="sum(donp.mapped('amount'))"/>
+  <t t-set="othpaid" t-value="paid - donpaid"/>
+  <t t-set="othlisted" t-value="sum(oth.mapped('amount'))"/>
   <t t-set="gross" t-value="o.amount_total - sum(deds.mapped('price_subtotal'))"/>
+  <t t-set="special" t-value="bool(deds) or bool(donp)"/>
 
   <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
     <tr>
@@ -75,24 +81,50 @@
       <td style="border:1px solid #999;padding:5px;text-align:right">الإجمالي</td>
       <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr;width:32%" t-out="'%.3f' % gross"/>
     </tr>
-    <t t-foreach="pays" t-as="p">
-      <tr style="background:#eef7ee">
-        <td style="border:1px solid #999;padding:5px;text-align:right" t-out="' '.join(p.memo.split()) if p.memo else 'مدفوع'"/>
-        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
+
+    <t t-if="special">
+      <t t-foreach="donp" t-as="p">
+        <tr style="background:#eef7ee">
+          <td style="border:1px solid #999;padding:5px;text-align:right">
+            <span t-out="' '.join((p.credit_move_id.name or 'تبرّع').split())"/>
+            <span style="color:#666"> · </span>
+            <span style="direction:ltr;display:inline-block;color:#666" t-out="p.credit_move_id.date.strftime('%d/%m/%Y')"/>
+          </td>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
+        </tr>
+      </t>
+      <t t-foreach="deds" t-as="d">
+        <tr style="background:#fdf8e0">
+          <td style="border:1px solid #999;padding:5px;text-align:right" t-out="' '.join((d.name or '').split())"/>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % d.price_subtotal"/>
+        </tr>
+      </t>
+      <tr style="background:#f2f2f2;font-weight:bold">
+        <td style="border:1px solid #999;padding:5px;text-align:right">الإجمالي بعد الخصم</td>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % (o.amount_total - donpaid)"/>
       </tr>
     </t>
-    <tr t-if="paid - psum &gt; 0.0005" style="background:#eef7ee">
-      <td style="border:1px solid #999;padding:5px;text-align:right">مدفوع</td>
-      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % (paid - psum)"/>
-    </tr>
-    <t t-foreach="deds" t-as="d">
-      <tr style="background:#fdf8e0">
-        <td style="border:1px solid #999;padding:5px;text-align:right" t-out="' '.join((d.name or '').split())"/>
-        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % d.price_subtotal"/>
+
+    <t t-if="othpaid &gt; 0.0005">
+      <t t-foreach="oth" t-as="p">
+        <tr style="background:#eef7ee">
+          <td style="border:1px solid #999;padding:5px;text-align:right">
+            <span>مدفوع</span>
+            <t t-if="p.credit_move_id.name"><span> — </span><span t-out="' '.join(p.credit_move_id.name.split())"/></t>
+            <span style="color:#666"> · </span>
+            <span style="direction:ltr;display:inline-block;color:#666" t-out="p.credit_move_id.date.strftime('%d/%m/%Y')"/>
+          </td>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
+        </tr>
+      </t>
+      <tr t-if="othpaid - othlisted &gt; 0.0005" style="background:#eef7ee">
+        <td style="border:1px solid #999;padding:5px;text-align:right">مدفوع</td>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % (othpaid - othlisted)"/>
       </tr>
     </t>
-    <tr style="background:#f2f2f2;font-weight:bold;font-size:14px">
-      <td style="border:1px solid #999;padding:5px;text-align:right" t-out="'الإجمالي بعد الخصم' if deds else 'المبلغ المستحق'"/>
+
+    <tr t-if="othpaid &gt; 0.0005" style="background:#f2f2f2;font-weight:bold;font-size:14px">
+      <td style="border:1px solid #999;padding:5px;text-align:right">المبلغ المستحق</td>
       <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % o.amount_residual"/>
     </tr>
   </table>

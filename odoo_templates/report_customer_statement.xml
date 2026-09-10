@@ -83,24 +83,30 @@
   <p style="page-break-before:always"/>
   <h3 style="font-size:15px;margin:4px 0 8px 0">تفاصيل الفواتير</h3>
   <t t-foreach="moves" t-as="m">
-    <div style="margin-top:8px;font-weight:bold;background:#f2f2f2;border:1px solid #999;padding:4px">
-      <span t-out="m.name"/>
-      <span> · </span>
-      <span t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
-      <t t-if="(m.ref or '').startswith('فاتورة يدوية')">
-        <span> · </span>
-        <span t-out="m.ref"/>
-      </t>
-      <span style="float:left" t-out="'%.3f' % m.amount_total"/>
-    </div>
+    <t t-set="ils" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')"/>
+    <div t-attf-style="margin-top:8px;{{ 'page-break-inside:avoid;' if len(ils) &lt;= 22 else '' }}">
     <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
+      <thead>
+      <tr>
+        <th colspan="4" style="border:1px solid #999;background:#f2f2f2;padding:4px;text-align:right;font-weight:bold">
+          <span t-out="m.name"/>
+          <span> · </span>
+          <span t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
+        <t t-if="(m.ref or '').startswith('فاتورة يدوية')">
+          <span> · </span><span t-out="m.ref"/>
+        </t>
+          <span style="float:left" t-out="'%.3f' % m.amount_total"/>
+        </th>
+      </tr>
       <tr style="background:#f8f8f8">
         <th style="border:1px solid #bbb;padding:3px;width:6%;text-align:center;font-weight:bold">#</th>
         <th style="border:1px solid #bbb;padding:3px;text-align:center;font-weight:bold">الصنف</th>
         <th style="border:1px solid #bbb;padding:3px;width:10%;text-align:center;font-weight:bold">الكمية</th>
         <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
       </tr>
-      <t t-foreach="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')" t-as="il">
+      </thead>
+      <tbody>
+      <t t-foreach="ils" t-as="il">
         <tr t-attf-style="{{ 'background:#fdf8e0;' if il.price_subtotal &lt; 0 else '' }}">
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
         <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
@@ -108,30 +114,38 @@
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
         </tr>
       </t>
+      </tbody>
     </table>
+    </div>
   </t>
   <t t-if="refs">
   <p style="page-break-before:always"/>
   <h3 style="font-size:15px;margin:4px 0 8px 0">تفاصيل المرتجعات</h3>
   <t t-foreach="refs" t-as="m">
-    <div style="margin-top:8px;font-weight:bold;background:#f2f2f2;border:1px solid #999;padding:4px">
-      <span t-out="m.name"/>
-      <span> · </span>
-      <span t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
-      <t t-if="m.ref">
-        <span> · </span>
-        <span t-out="m.ref"/>
-      </t>
-      <span style="float:left" t-out="'%.3f' % m.amount_total"/>
-    </div>
+    <t t-set="ils" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')"/>
+    <div t-attf-style="margin-top:8px;{{ 'page-break-inside:avoid;' if len(ils) &lt;= 22 else '' }}">
     <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
+      <thead>
+      <tr>
+        <th colspan="4" style="border:1px solid #999;background:#f2f2f2;padding:4px;text-align:right;font-weight:bold">
+          <span t-out="m.name"/>
+          <span> · </span>
+          <span t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
+        <t t-if="m.ref">
+          <span> · </span><span t-out="m.ref"/>
+        </t>
+          <span style="float:left" t-out="'%.3f' % m.amount_total"/>
+        </th>
+      </tr>
       <tr style="background:#f8f8f8">
         <th style="border:1px solid #bbb;padding:3px;width:6%;text-align:center;font-weight:bold">#</th>
         <th style="border:1px solid #bbb;padding:3px;text-align:center;font-weight:bold">الصنف</th>
         <th style="border:1px solid #bbb;padding:3px;width:10%;text-align:center;font-weight:bold">الكمية</th>
         <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
       </tr>
-      <t t-foreach="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')" t-as="il">
+      </thead>
+      <tbody>
+      <t t-foreach="ils" t-as="il">
         <tr t-attf-style="{{ 'background:#fdf8e0;' if il.price_subtotal &lt; 0 else '' }}">
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
         <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
@@ -139,7 +153,9 @@
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
         </tr>
       </t>
+      </tbody>
     </table>
+    </div>
   </t>
   </t>
 </div>
