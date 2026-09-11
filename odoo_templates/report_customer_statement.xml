@@ -117,11 +117,12 @@
   <h3 style="font-size:15px;margin:4px 0 8px 0">تفاصيل الفواتير</h3>
   <t t-foreach="moves" t-as="m">
     <t t-set="ils" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product' and x.price_subtotal &gt;= 0)"/>
+    <t t-set="irows" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'line_note' or x.display_type == 'line_section' or (x.display_type == 'product' and x.price_subtotal &gt;= 0)).sorted(lambda x: (x.sequence, x.id))"/>
     <t t-set="mded" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product' and x.price_subtotal &lt; 0)"/>
     <t t-set="mgross" t-value="m.amount_total - sum(mded.mapped('price_subtotal'))"/>
     <t t-set="mdon" t-value="m.line_ids.filtered(lambda x: x.account_id.account_type == 'asset_receivable').mapped('matched_credit_ids').filtered(lambda z: 'تبرع' in (z.credit_move_id.name or '').replace('ّ', '')).sorted(lambda z: (z.credit_move_id.date, z.id))"/>
     <t t-set="mdonitems" t-value="['(%d) %s' % (i + 1, ' '.join((z.name or '').replace('(تبرّع من فاعل خير)', '').split('] ')[-1].split())) for i, z in enumerate(ils) if 'فاعل خير' in (z.name or '')]"/>
-    <div t-attf-style="margin-top:8px;{{ 'page-break-inside:avoid;' if len(ils) + len(mded) + len(mdon) &lt;= 22 else '' }}">
+    <div t-attf-style="margin-top:8px;{{ 'page-break-inside:avoid;' if len(irows) + len(mded) + len(mdon) &lt;= 22 else '' }}">
     <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
       <thead>
       <tr>
@@ -147,12 +148,21 @@
       </tr>
       </thead>
       <tbody>
-      <t t-foreach="ils" t-as="il">
-        <tr>
-        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
+      <t t-set="k" t-value="0"/>
+      <t t-foreach="irows" t-as="il">
+        <tr t-if="il.display_type == 'product'">
+        <t t-set="k" t-value="k + 1"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="k"/>
         <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
+        </tr>
+        <tr t-if="il.display_type == 'line_section'" style="background:#f2f2f2;font-weight:bold">
+          <td colspan="4" style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
+        </tr>
+        <tr t-if="il.display_type == 'line_note'" style="background:#fbfbf3">
+          <td style="border:1px solid #bbb;padding:3px"/>
+          <td colspan="3" style="border:1px solid #bbb;padding:3px;font-size:10px;color:#555" t-out="' '.join((il.name or '').split())"/>
         </tr>
       </t>
       <t t-if="mded or mdon">
