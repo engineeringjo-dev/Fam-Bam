@@ -66,6 +66,8 @@
             <t t-if="isref"><span t-out="l.move_id.ref or 'مرتجع بضاعة'"/></t>
             <t t-if="isinv">
               <div t-out="l.move_id.ref if (l.move_id.ref or '').startswith('فاتورة يدوية') else 'فاتورة بضاعة'"/>
+              <div t-if="l.move_id.ref and not (l.move_id.ref or '').startswith('فاتورة يدوية') and ' ' in (l.move_id.ref or '')"
+                   style="font-size:10px;color:#666" t-out="' '.join(l.move_id.ref.split())"/>
             </t>
             <t t-if="not isref and not isinv">
               <t t-if="isdon">

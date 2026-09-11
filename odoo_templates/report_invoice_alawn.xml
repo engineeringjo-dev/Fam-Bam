@@ -3,7 +3,7 @@
 <t t-foreach="docs" t-as="o">
 <t t-call="web.basic_layout">
 <div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
-  <t t-set="days" t-value="['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']"/>
+  <t t-set="days" t-value="['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول']"/>
   <t t-set="wd" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
   <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type in ('line_note', 'line_section') or (z.display_type == 'product' and z.price_subtotal &gt;= 0)).sorted(lambda z: (z.sequence, z.id))"/>
   <t t-set="deds" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0)"/>
@@ -41,11 +41,13 @@
   <h2 style="text-align:center;font-size:19px;margin:6px 0">فاتورة</h2>
   <div style="text-align:center;font-size:14px;font-weight:bold;margin-bottom:2px" t-out="o.partner_id.name"/>
   <div style="text-align:center;margin-bottom:10px">
-    <span t-out="o.name"/>
+    <span>رقم ( </span><span style="direction:ltr;display:inline-block" t-out="o.name"/><span> )</span>
     <span> · </span>
-    <span style="direction:ltr;display:inline-block">
+    <span>تاريخ ( </span>
+    <span style="direction:rtl;display:inline-block">
       <span t-out="o.invoice_date.day"/><span> </span><span t-out="days[o.invoice_date.month-1]"/><span> </span><span t-out="o.invoice_date.year"/>
     </span>
+    <span> )</span>
   </div>
 
   <table style="width:100%;border-collapse:collapse;font-size:11.5px">
