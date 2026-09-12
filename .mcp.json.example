@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "odoo": {
+      "command": "uv",
+      "args": ["run", "--directory", "/absolute/path/to/this/repo", "odoo-mcp"],
+      "env": {
+        "ODOO_URL": "https://alawn.odoo.com",
+        "ODOO_DB": "alawn",
+        "ODOO_USERNAME": "you@example.com",
+        "ODOO_API_KEY": "paste-your-api-key-here"
+      }
+    }
+  }
+}
