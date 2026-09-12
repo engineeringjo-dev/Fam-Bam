@@ -65,8 +65,8 @@
           <td style="border:1px solid #999;padding:3px">
             <t t-if="isref"><span t-out="l.move_id.ref or 'مرتجع بضاعة'"/></t>
             <t t-if="isinv">
-              <div t-out="l.move_id.ref if (l.move_id.ref or '').startswith('فاتورة يدوية') else 'فاتورة بضاعة'"/>
-              <div t-if="l.move_id.ref and not (l.move_id.ref or '').startswith('فاتورة يدوية') and ' ' in (l.move_id.ref or '')"
+              <div t-out="l.move_id.ref if ((l.move_id.ref or '').startswith('فاتورة يدوية') or (l.move_id.ref or '').startswith('فاتورة ورقية')) else 'فاتورة بضاعة'"/>
+              <div t-if="l.move_id.ref and not ((l.move_id.ref or '').startswith('فاتورة يدوية') or (l.move_id.ref or '').startswith('فاتورة ورقية')) and ' ' in (l.move_id.ref or '')"
                    style="font-size:10px;color:#666" t-out="' '.join(l.move_id.ref.split())"/>
             </t>
             <t t-if="not isref and not isinv">
@@ -136,7 +136,7 @@
           <span> ) · تاريخ ( </span>
           <span style="direction:ltr;display:inline-block" t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
           <span> )</span>
-        <t t-if="(m.ref or '').startswith('فاتورة يدوية')">
+        <t t-if="((m.ref or '').startswith('فاتورة يدوية') or (m.ref or '').startswith('فاتورة ورقية'))">
           <span> · </span><span t-out="m.ref"/>
         </t>
           <span style="float:left" t-out="'%.3f' % m.amount_total"/>
