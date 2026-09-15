@@ -63,11 +63,12 @@
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.move_id.name"/>
           <td style="border:1px solid #999;padding:3px">
-            <t t-if="isref"><span t-out="l.move_id.ref or 'مرتجع بضاعة'"/></t>
+            <t t-set="rf" t-value="(l.move_id.ref or '').split('✓')[0].strip().rstrip('|').strip()"/>
+            <t t-if="isref"><span t-out="rf or 'مرتجع بضاعة'"/></t>
             <t t-if="isinv">
-              <div t-out="l.move_id.ref if ((l.move_id.ref or '').startswith('فاتورة يدوية') or (l.move_id.ref or '').startswith('فاتورة ورقية')) else 'فاتورة بضاعة'"/>
-              <div t-if="l.move_id.ref and not ((l.move_id.ref or '').startswith('فاتورة يدوية') or (l.move_id.ref or '').startswith('فاتورة ورقية')) and ' ' in (l.move_id.ref or '')"
-                   style="font-size:10px;color:#666" t-out="' '.join(l.move_id.ref.split())"/>
+              <div t-out="rf if (rf.startswith('فاتورة يدوية') or rf.startswith('فاتورة ورقية')) else 'فاتورة بضاعة'"/>
+              <div t-if="rf and not (rf.startswith('فاتورة يدوية') or rf.startswith('فاتورة ورقية')) and ' ' in rf"
+                   style="font-size:10px;color:#666" t-out="' '.join(rf.split())"/>
             </t>
             <t t-if="not isref and not isinv">
               <t t-if="isdon">
