@@ -17,7 +17,7 @@ def render(report_name, res_id, out_path):
     if isinstance(sid,list): sid = sid[0]
     try:
         x('ir.actions.server','run',[sid],
-          context={'active_model':'res.partner','active_id':res_id,'active_ids':[res_id]})
+          context={'active_model':'res.partner','active_id':1,'active_ids':[1]})
         v = x('ir.config_parameter','search_read',[('key','=','alawn.b')],['value'])
         val = v[0]['value'] if v else ''
         if not val.startswith('__'):
