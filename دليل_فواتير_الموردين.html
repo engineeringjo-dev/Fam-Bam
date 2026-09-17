@@ -140,6 +140,17 @@ kbd{
 .fields td{color:var(--ink2)}
 .tblbox{border:1px solid var(--line); border-radius:4px; overflow:hidden; overflow-x:auto}
 
+/* وضعي الإدخال */
+.modes{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0 4px}
+@media(max-width:600px){.modes{grid-template-columns:1fr}}
+.mode{background:var(--sheet2); border:1px solid var(--line); border-radius:4px; padding:14px}
+.mode.full{border-top:3px solid var(--accent)}
+.mode.short{border-top:3px solid var(--steel)}
+.mode>b{display:block; font-size:14.5px; margin-bottom:6px; font-family:"Cairo",sans-serif}
+.mode p{font-size:13.5px; margin:0 0 8px}
+.mode p:last-child{margin-bottom:0}
+.tag.n{background:var(--steel-soft); color:var(--steel)}
+
 /* ملاحظة جانبية */
 .why{
   border-inline-start:3px solid var(--line); padding-inline-start:12px;
@@ -213,7 +224,7 @@ footer b{color:var(--ink2); font-weight:600}
 <header>
   <p class="eyebrow">محلات العون لمواد البناء</p>
   <h1>دليل فواتير الموردين اليومية</h1>
-  <p class="lede">كل فاتورة بضاعة توصل المحل — من موزّع بالإيد أو من شركة رسمية — تنزّل بأودو <b>بنفس اليوم</b>، وصورتها بترفق فيها، والورقة بتنحفظ بملف الشهر.</p>
+  <p class="lede">كل فاتورة بضاعة توصل المحل — من موزّع بالإيد أو من شركة رسمية — تنزّل بأودو <b>بنفس اليوم</b>، وصورتها بترفق فيها، والورقة بتنحفظ بملف الشهر. <b>ما في ضريبة على أي فاتورة</b> — المحل لسا مش مسجّل بضريبة المبيعات.</p>
   <p class="meta">
     <span><b>لمين:</b> كل موظف بيستلم بضاعة</span>
     <span><b>الوقت المطلوب:</b> ٣ دقايق للفاتورة</span>
@@ -265,10 +276,24 @@ footer b{color:var(--ink2); font-weight:600}
   <article class="step">
     <div class="num">٣</div>
     <div>
-      <h3>عبّي البنود — صنف صنف</h3>
-      <p>لكل سطر بالورقة: <b>الصنف</b> · <b>الكمية</b> · <b>سعر الشراء</b> (السعر اللي دفعناه، مش سعر البيع).</p>
-      <p>ابحث عن الصنف بالاسم أو بالكود. جرّب أكثر من إملاء قبل ما تقول «مش موجود» — «فولتراب» و«فلتراب»، «شطاف» و«شطافة».</p>
-      <div class="why"><b>ليش صنف صنف:</b> هيك أودو بيعرف كلفة كل صنف لحاله، وبيقدر يقارن سعر نفس الصنف بين الموزّعين مع الوقت.</div>
+      <h3>عبّي البنود — وفي طريقتين</h3>
+      <p>المسؤول بيحدّدلك <b>قائمة المورّدين الكبار</b>. حسب المورّد بتختار:</p>
+      <div class="modes">
+        <div class="mode full">
+          <span class="tag a">مورّد كبير</span>
+          <b>بالتفصيل — صنف صنف</b>
+          <p>لكل سطر بالورقة: <b>الصنف</b> · <b>الكمية</b> · <b>سعر الشراء</b> (اللي دفعناه، مش سعر البيع).</p>
+          <p>ابحث بالاسم أو بالكود، وجرّب أكثر من إملاء قبل ما تقول «مش موجود» — «فولتراب» و«فلتراب»، «شطاف» و«شطافة».</p>
+        </div>
+        <div class="mode short">
+          <span class="tag n">باقي المورّدين</span>
+          <b>مختصر — سطر واحد</b>
+          <p>سطر واحد بس:</p>
+          <p class="path">الوصف<span class="sep">:</span> مشتريات بضاعة — فاتورة رقم ٤٤٧١<br>الكمية<span class="sep">:</span> ١<span class="sep">·</span>السعر<span class="sep">:</span> المبلغ الكلي</p>
+          <p>الحساب: <code>500101</code> كلفة البضاعة المباعة.</p>
+        </div>
+      </div>
+      <div class="why"><b>الفرق:</b> بالتفصيل أودو بيعرف كلفة كل صنف لحاله وبيقارن الأسعار بين الموزّعين. بالمختصر بتضل تعرف <b>قديش عليك لكل مورّد</b> وبتلاقي الفاتورة وصورتها — بس بلا كلفة أصناف.</div>
     </div>
   </article>
 
@@ -310,9 +335,9 @@ footer b{color:var(--ink2); font-weight:600}
       <p class="sub">عليها ترويسة الشركة ورقم ضريبي، وغالباً باركود QR</p>
       <ul>
         <li>نزّلها بنفس الخطوات الست</li>
-        <li>خلّي <b>الضريبة 16%</b> على البنود</li>
-        <li><b>الورقة الأصلية ما بتنرمى أبداً</b> — لازمة للضريبة</li>
-        <li>لو الفاتورة وصلت بالإيميل PDF — ارفق الـPDF بدل الصورة، أوضح</li>
+        <li><b>بلا ضريبة</b> — المحل لسا مش مسجّل بضريبة المبيعات</li>
+        <li><b>الورقة الأصلية ما بتنرمى أبداً</b> — لازمة لضريبة الدخل</li>
+        <li>وصلت بالإيميل PDF؟ ارفق الـPDF بدل الصورة، أوضح</li>
       </ul>
     </div>
     <div class="kind hand">
@@ -322,10 +347,26 @@ footer b{color:var(--ink2); font-weight:600}
       <ul>
         <li>نزّلها بنفس الخطوات الست</li>
         <li><b>بلا ضريبة</b> — السعر المكتوب هو الكلفة كاملة</li>
+        <li>غالباً بتنزّل <b>مختصرة</b> — سطر واحد بالمبلغ الكلي</li>
         <li>صوّرها كويس — هاي أسهل وحدة تضيع</li>
         <li>الخط مش واضح؟ اكتب سطر واحد بالمبلغ الكلي وعلّم عليها للمراجعة</li>
       </ul>
     </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="sec-title">فاتورة قديمة لقيتها بالدرج</h2>
+  <div class="ask">
+    <table>
+      <thead><tr><th>السؤال</th><th>الجواب</th></tr></thead>
+      <tbody>
+        <tr><th>أي تاريخ أحط؟</th><td><b>تاريخ الورقة</b> — حتى لو من سنة ٢٠٢٥. أودو بيقبل أي تاريخ.</td></tr>
+        <tr><th>الفاتورة مدفوعة من زمان</th><td>🔴 <b>لازم تسجّل الدفعة كمان</b> — وإلا رح يظهر إنه علينا مبلغ وإحنا دفعناه.</td></tr>
+        <tr><th>ما بعرف إذا مدفوعة</th><td>خلّيها <span class="go">مسودة</span> واسأل المسؤول. لا تأكّدها.</td></tr>
+        <tr><th>بنود ولا مختصر؟</th><td><b>مختصر دايماً</b> — الفواتير القديمة للأرشيف بس.</td></tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
