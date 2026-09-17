@@ -182,6 +182,26 @@ kbd{
 }
 .ministeps{margin:0 0 10px; padding-inline-start:20px; display:flex; flex-direction:column; gap:5px; font-size:14px; color:var(--ink2)}
 
+/* رسم سطر المحادثة */
+.bar{
+  display:flex; flex-wrap:wrap; align-items:center; gap:6px;
+  background:var(--sheet2); border:1px solid var(--line); border-radius:4px;
+  padding:9px 11px; margin:10px 0 12px
+}
+.bar-btn{
+  background:var(--sheet); border:1px solid var(--line); border-radius:3px;
+  padding:4px 10px; font-size:12.5px; font-weight:600; color:var(--ink2)
+}
+.bar-gap{flex:1; text-align:center; font-size:11px; color:var(--muted); min-width:120px; letter-spacing:.02em}
+.bar-ic{
+  border:1px dashed var(--line); border-radius:3px; padding:4px 9px;
+  font-size:12px; color:var(--muted)
+}
+.bar-ic.hit{
+  border:2px solid var(--accent); border-style:solid; color:var(--accent-ink);
+  font-weight:700; background:var(--accent-soft)
+}
+
 /* المورّد الجديد */
 .secnote{font-size:14px; color:var(--ink2); margin:-6px 0 16px}
 .vend{display:grid; gap:10px; margin-bottom:16px}
@@ -370,17 +390,21 @@ footer b{color:var(--ink2); font-weight:600}
       <h3>ارفق الصورة بالفاتورة نفسها</h3>
       <div class="warnbox">
         <b>احفظ الفاتورة أول</b> — اكبس أيقونة <b>الغيمة ☁</b> بأعلى الشاشة.
-        قبل الحفظ ما بتقدر ترفق ولا إشي.
+        قبل الحفظ منطقة المحادثة كلها <b>معطّلة</b> والمشبك ما بيشتغل.
       </div>
-      <p>بعد الحفظ، انزل لتحت الفاتورة لمنطقة <b>المحادثة</b>:</p>
-      <ol class="ministeps">
-        <li>اكبس <kbd>ملاحظة</kbd></li>
-        <li>بيفتح صندوق كتابة — جوّاته <b>أيقونة مشبك الورق</b></li>
-        <li>اكبس المشبك → اختار الصورة من الجوال (أو صوّر مباشرة)</li>
-        <li>اكبس <kbd>تسجيل</kbd></li>
-      </ol>
-      <p>لو صوّرت صورتين ارفقهم الاتنين. بعد الرفع لازم تشوف <b>اسم الملف ظاهر</b> تحت الفاتورة.</p>
-      <div class="why"><b>على الكمبيوتر أسرع:</b> اسحب الصورة من سطح المكتب وأفلتها فوق منطقة المحادثة مباشرة.</div>
+      <p>بعد الحفظ، شوف سطر المحادثة تحت الفاتورة. <b>المشبك بنفس السطر</b> — على الطرف الثاني منه:</p>
+      <div class="bar">
+        <span class="bar-btn">إرسال رسالة</span>
+        <span class="bar-btn">ملاحظة</span>
+        <span class="bar-btn">النشاط</span>
+        <span class="bar-gap">← الطرف الثاني من نفس السطر →</span>
+        <span class="bar-ic">بحث</span>
+        <span class="bar-ic hit">مشبك</span>
+        <span class="bar-ic">متابعون</span>
+      </div>
+      <p>اكبس <b>المشبك</b> → اختار الصورة من الجوال (أو صوّر مباشرة). لو صوّرت صورتين ارفقهم الاتنين.</p>
+      <p>بعد الرفع بيظهر <b>رقم صغير جنب المشبك</b> بعدد الصور — وهاد تأكيدك إنها انرفعت.</p>
+      <div class="why"><b>مش شايف المشبك؟</b> سطر المحادثة بيتزحلق لما تكون الشاشة ضيقة. مرّر عليه بالماوس واسحبه للجنب، أو كبّر نافذة المتصفح. <b>وهو مش جوّا صندوق «ملاحظة»</b> — هو بالسطر نفسه.</div>
       <div class="why"><b>ليش هون بالضبط:</b> الصورة بتضل ملزوقة بالفاتورة للأبد. ما في مجلد منفصل ولا تطبيق ثاني — بتلاقيها بالبحث عن المورّد أو التاريخ أو المبلغ.</div>
     </div>
   </article>
