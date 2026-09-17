@@ -140,6 +140,30 @@ kbd{
 .fields td{color:var(--ink2)}
 .tblbox{border:1px solid var(--line); border-radius:4px; overflow:hidden; overflow-x:auto}
 
+/* قائمة المورّدين الكبار */
+.bigs{
+  background:var(--accent-soft); border:1px solid var(--accent); border-radius:4px;
+  padding:16px 18px; margin:14px 0 4px
+}
+.bigs-head{
+  font-family:"Cairo",sans-serif; font-weight:800; font-size:14px;
+  color:var(--accent-ink); margin-bottom:12px
+}
+.bigs-list{
+  margin:0; padding:0; list-style:none; counter-reset:v;
+  display:grid; grid-template-columns:1fr 1fr; gap:7px 20px
+}
+@media(max-width:560px){.bigs-list{grid-template-columns:1fr}}
+.bigs-list li{
+  counter-increment:v; display:grid; grid-template-columns:auto 1fr; gap:9px;
+  font-size:14.5px; font-weight:600; color:var(--ink); align-items:baseline
+}
+.bigs-list li::before{
+  content:counter(v); font-family:"IBM Plex Mono",monospace; font-size:11.5px;
+  font-weight:600; color:var(--accent-ink); opacity:.65
+}
+.bigs-note{font-size:13px; color:var(--ink2); margin:14px 0 0}
+
 /* وضعي الإدخال */
 .modes{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0 4px}
 @media(max-width:600px){.modes{grid-template-columns:1fr}}
@@ -277,16 +301,29 @@ footer b{color:var(--ink2); font-weight:600}
     <div class="num">٣</div>
     <div>
       <h3>عبّي البنود — وفي طريقتين</h3>
-      <p>المسؤول بيحدّدلك <b>قائمة المورّدين الكبار</b>. حسب المورّد بتختار:</p>
+      <p>شوف اسم المورّد بالقائمة تحت. إذا موجود بالقائمة ← <b>بالتفصيل</b>. مش موجود ← <b>مختصر</b>.</p>
+      <div class="bigs">
+        <div class="bigs-head">المورّدون الكبار — فواتيرهم بالتفصيل صنف صنف</div>
+        <ol class="bigs-list">
+          <li>شركة سليم كتانة واولاده</li>
+          <li>شركة ربوع زيتا</li>
+          <li>جباليكو للمعدات الصناعية</li>
+          <li>همام ابو رزق للادوات الصحية</li>
+          <li>مصباح ابو سيدو للادوات الصحية</li>
+          <li>علي ابو شخصة كهرباء</li>
+          <li>ابو زيد كهرباء</li>
+        </ol>
+        <p class="bigs-note">بأودو بتلاقيهم موسومين <b>«مورّد رئيسي»</b>. أي اسم مش بالقائمة = فاتورته مختصرة.</p>
+      </div>
       <div class="modes">
         <div class="mode full">
-          <span class="tag a">مورّد كبير</span>
+          <span class="tag a">اسمه بالقائمة</span>
           <b>بالتفصيل — صنف صنف</b>
           <p>لكل سطر بالورقة: <b>الصنف</b> · <b>الكمية</b> · <b>سعر الشراء</b> (اللي دفعناه، مش سعر البيع).</p>
           <p>ابحث بالاسم أو بالكود، وجرّب أكثر من إملاء قبل ما تقول «مش موجود» — «فولتراب» و«فلتراب»، «شطاف» و«شطافة».</p>
         </div>
         <div class="mode short">
-          <span class="tag n">باقي المورّدين</span>
+          <span class="tag n">اسمه مش بالقائمة</span>
           <b>مختصر — سطر واحد</b>
           <p>سطر واحد بس:</p>
           <p class="path">الوصف<span class="sep">:</span> مشتريات بضاعة — فاتورة رقم ٤٤٧١<br>الكمية<span class="sep">:</span> ١<span class="sep">·</span>السعر<span class="sep">:</span> المبلغ الكلي</p>
