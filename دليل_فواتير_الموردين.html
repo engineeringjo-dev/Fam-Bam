@@ -175,6 +175,36 @@ kbd{
 .mode p:last-child{margin-bottom:0}
 .tag.n{background:var(--steel-soft); color:var(--steel)}
 
+/* صندوق تنبيه */
+.warnbox{
+  background:var(--steel-soft); border-inline-start:3px solid var(--steel);
+  border-radius:3px; padding:11px 14px; margin:2px 0 12px; font-size:13.5px; color:var(--ink)
+}
+.ministeps{margin:0 0 10px; padding-inline-start:20px; display:flex; flex-direction:column; gap:5px; font-size:14px; color:var(--ink2)}
+
+/* المورّد الجديد */
+.secnote{font-size:14px; color:var(--ink2); margin:-6px 0 16px}
+.vend{display:grid; gap:10px; margin-bottom:16px}
+.vend-step{
+  display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start;
+  background:var(--sheet); border:1px solid var(--line); border-radius:4px;
+  padding:14px 16px; box-shadow:var(--shadow)
+}
+.vend-step .vn{
+  font-family:"Cairo",sans-serif; font-weight:800; font-size:13px; color:var(--accent-ink);
+  background:var(--accent-soft); width:26px; height:26px; border-radius:50%;
+  display:grid; place-items:center
+}
+.vend-step b{font-size:15px}
+.vend-step .note{display:block; color:var(--ink2); font-size:13.5px; margin-top:3px}
+.rule{background:var(--sheet2); border:1px solid var(--line); border-radius:4px; padding:15px 17px; font-size:14px}
+.rule>b{font-family:"Cairo",sans-serif; font-size:14.5px}
+.rule p{margin:10px 0 0; font-size:14px}
+.rule .mk{font-family:"IBM Plex Mono",monospace; font-weight:700; margin-inline-end:7px}
+.rule .ok .mk{color:var(--go)}
+.rule .no .mk{color:var(--stop)}
+.rule .no{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line)}
+
 /* ملاحظة جانبية */
 .why{
   border-inline-start:3px solid var(--line); padding-inline-start:12px;
@@ -338,8 +368,19 @@ footer b{color:var(--ink2); font-weight:600}
     <div class="num">٤</div>
     <div>
       <h3>ارفق الصورة بالفاتورة نفسها</h3>
-      <p>انزل لتحت الفاتورة لمنطقة <b>المحادثة</b> → اكبس على <b>مشبك الورق</b> → اختار الصورة من الجوال.</p>
-      <p>لو صوّرت صورتين ارفقهم الاتنين. بعد الرفع لازم تشوف اسم الملف ظاهر تحت الفاتورة.</p>
+      <div class="warnbox">
+        <b>احفظ الفاتورة أول</b> — اكبس أيقونة <b>الغيمة ☁</b> بأعلى الشاشة.
+        قبل الحفظ ما بتقدر ترفق ولا إشي.
+      </div>
+      <p>بعد الحفظ، انزل لتحت الفاتورة لمنطقة <b>المحادثة</b>:</p>
+      <ol class="ministeps">
+        <li>اكبس <kbd>ملاحظة</kbd></li>
+        <li>بيفتح صندوق كتابة — جوّاته <b>أيقونة مشبك الورق</b></li>
+        <li>اكبس المشبك → اختار الصورة من الجوال (أو صوّر مباشرة)</li>
+        <li>اكبس <kbd>تسجيل</kbd></li>
+      </ol>
+      <p>لو صوّرت صورتين ارفقهم الاتنين. بعد الرفع لازم تشوف <b>اسم الملف ظاهر</b> تحت الفاتورة.</p>
+      <div class="why"><b>على الكمبيوتر أسرع:</b> اسحب الصورة من سطح المكتب وأفلتها فوق منطقة المحادثة مباشرة.</div>
       <div class="why"><b>ليش هون بالضبط:</b> الصورة بتضل ملزوقة بالفاتورة للأبد. ما في مجلد منفصل ولا تطبيق ثاني — بتلاقيها بالبحث عن المورّد أو التاريخ أو المبلغ.</div>
     </div>
   </article>
@@ -393,6 +434,35 @@ footer b{color:var(--ink2); font-weight:600}
 </section>
 
 <section>
+  <h2 class="sec-title">كل فاتورة لازم إلها مورّد</h2>
+  <p class="secnote">ما في فاتورة بلا مورّد — <b>حتى الموزّع اللي بيمرّ مرة كل شهرين</b>. هيك بتعرف بعدين قديش اشتريت منه ومتى.</p>
+
+  <div class="vend">
+    <div class="vend-step">
+      <span class="vn">١</span>
+      <div><b>دوّر عليه أول</b>
+        <span class="note">اكتب أول كلمتين من اسمه بخانة المورّد. جرّب أكثر من إملاء: «ابو زيد» · «أبو زيد» · «زيد».</span></div>
+    </div>
+    <div class="vend-step">
+      <span class="vn">٢</span>
+      <div><b>مش طالع؟ دوّر بالمؤرشفين</b>
+        <span class="note">جهات الاتصال ← الفلاتر ← <b>«مؤرشف»</b>. ممكن يكون مسجّل من زمان وانأرشف. لو لقيته — رجّعه، ولا تنشئ واحد جديد.</span></div>
+    </div>
+    <div class="vend-step">
+      <span class="vn">٣</span>
+      <div><b>فعلاً جديد؟ أنشئه</b>
+        <span class="note">اكتب اسمه كامل بخانة المورّد ← اكبس <kbd>إنشاء وتحرير</kbd> ← احفظ.</span></div>
+    </div>
+  </div>
+
+  <div class="rule">
+    <b>قاعدة التسمية</b> — الاسم المعروف + التخصص، بلا ألقاب ولا اختصارات:
+    <p class="ok"><span class="mk">✓</span> ابو زيد كهرباء &nbsp;·&nbsp; همام ابو رزق للادوات الصحية &nbsp;·&nbsp; شركة ربوع زيتا</p>
+    <p class="no"><span class="mk">✕</span> ابو زيد &nbsp;·&nbsp; الحج همام &nbsp;·&nbsp; ربوع</p>
+  </div>
+</section>
+
+<section>
   <h2 class="sec-title">فاتورة قديمة لقيتها بالدرج</h2>
   <div class="ask">
     <table>
@@ -417,8 +487,6 @@ footer b{color:var(--ink2); font-weight:600}
         <span class="note">بيشغّل القارئ الآلي — بيسحب من رصيد مدفوع وما بيقرأ الخط العربي أصلاً. اضغط «جديد» وعبّي بإيدك.</span></div></li>
       <li><span class="x">✕</span><div><b>لا تنشئ صنف جديد من عندك</b>
         <span class="note">دوّر عليه بكل الإملاءات الممكنة. لسا مش لاقيه؟ وقف واسأل المسؤول.</span></div></li>
-      <li><span class="x">✕</span><div><b>لا تنشئ مورّد جديد من عندك</b>
-        <span class="note">نفس السبب — بينتج مورّدين مكررين والرصيد بينقسم على اتنين.</span></div></li>
       <li><span class="x">✕</span><div><b>لا تأكّد فاتورة ناقصة</b>
         <span class="note">ناقصك سعر أو صنف؟ خلّيها <b>مسودة</b> واسأل. المسودة ما بتأثر على أي حساب.</span></div></li>
     </ul>
@@ -432,7 +500,7 @@ footer b{color:var(--ink2); font-weight:600}
       <thead><tr><th>الحالة</th><th>شو تعمل</th></tr></thead>
       <tbody>
         <tr><th>الصنف مش موجود بأودو</th><td>احفظ الفاتورة <span class="go">مسودة</span> واسأل المسؤول. لا تنشئ صنف.</td></tr>
-        <tr><th>المورّد مش موجود</th><td>احفظ <span class="go">مسودة</span> واسأل. لا تنشئ مورّد.</td></tr>
+        <tr><th>المورّد مش موجود</th><td>دوّر بالمؤرشفين أول. فعلاً جديد؟ <span class="go">أنشئه</span> حسب قاعدة التسمية.</td></tr>
         <tr><th>السعر على الورقة مش واضح</th><td>صوّر الورقة وخلّيها <span class="go">مسودة</span> — لا تخمّن السعر.</td></tr>
         <tr><th>الفاتورة فيها بضاعة رجّعناها</th><td>نزّلها كاملة زي ما هي، وخبّر المسؤول بالمرتجع.</td></tr>
         <tr><th>نفس الفاتورة انزّلت مرتين</th><td>خبّر المسؤول فوراً. <b>لا تحذف</b> ولا وحدة بنفسك.</td></tr>
