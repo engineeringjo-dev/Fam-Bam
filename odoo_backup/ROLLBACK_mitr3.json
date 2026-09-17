@@ -1,0 +1,84 @@
+{
+ "repriced": [
+  {
+   "code": "700329",
+   "id": 48573,
+   "list_price": 4.5
+  },
+  {
+   "code": "100044",
+   "id": 47023,
+   "list_price": 2.0
+  },
+  {
+   "code": "100045",
+   "id": 47024,
+   "list_price": 3.5
+  }
+ ],
+ "renamed": [
+  {
+   "code": "2300135",
+   "id": 56718,
+   "name": "حذاء سيفتي نمرة 42 ROCKLANDER"
+  }
+ ],
+ "deleted": [
+  {
+   "id": 48923,
+   "name": "متر طول 3م قياس 16مل Wadfow",
+   "list_price": 2.0,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "700684",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 47026,
+   "name": "متر ديجيتال 60م XCORT 607-1060",
+   "list_price": 30.0,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "100047",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  }
+ ],
+ "created": [
+  {
+   "id": 57167,
+   "code": "702624",
+   "name": "حذاء سيفتي نمرة 38"
+  },
+  {
+   "id": 57168,
+   "code": "702625",
+   "name": "حذاء سيفتي نمرة 39"
+  },
+  {
+   "id": 57169,
+   "code": "702626",
+   "name": "حذاء سيفتي نمرة 40"
+  },
+  {
+   "id": 57170,
+   "code": "702627",
+   "name": "حذاء سيفتي نمرة 41"
+  },
+  {
+   "id": 57171,
+   "code": "702628",
+   "name": "حذاء سيفتي نمرة 43"
+  },
+  {
+   "id": 57172,
+   "code": "702629",
+   "name": "حذاء سيفتي نمرة 44"
+  }
+ ]
+}
