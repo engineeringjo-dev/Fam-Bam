@@ -1,0 +1,372 @@
+<title>دليل فواتير الموردين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --ground:#EFF1EE; --sheet:#FFFFFF; --sheet2:#F7F8F6;
+  --ink:#17181C; --ink2:#43464A; --muted:#6C7069;
+  --line:#D8DBD6; --line2:#E9EBE7;
+  --accent:#78264A; --accent-soft:#F3E6EC; --accent-ink:#78264A;
+  --steel:#2F4A59; --steel-soft:#E4EBEF;
+  --stop:#9E2A1B; --stop-soft:#F8E6E3;
+  --go:#2A6144; --go-soft:#E3EFE8;
+  --shadow:0 1px 2px rgba(23,24,28,.05), 0 8px 24px -16px rgba(23,24,28,.28);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#131517; --sheet:#1C1F21; --sheet2:#232629;
+  --ink:#EDEEEA; --ink2:#C2C5BF; --muted:#8E938B;
+  --line:#33373A; --line2:#2A2E30;
+  --accent:#D98BAC; --accent-soft:#38202B; --accent-ink:#F0C2D5;
+  --steel:#8FB7C9; --steel-soft:#1E2B33;
+  --stop:#E8917F; --stop-soft:#37201B;
+  --go:#7FBE9C; --go-soft:#1C2E25;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --ground:#131517; --sheet:#1C1F21; --sheet2:#232629;
+  --ink:#EDEEEA; --ink2:#C2C5BF; --muted:#8E938B;
+  --line:#33373A; --line2:#2A2E30;
+  --accent:#D98BAC; --accent-soft:#38202B; --accent-ink:#F0C2D5;
+  --steel:#8FB7C9; --steel-soft:#1E2B33;
+  --stop:#E8917F; --stop-soft:#37201B;
+  --go:#7FBE9C; --go-soft:#1C2E25;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  direction:rtl; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;
+  font-size:15px; line-height:1.75; margin:0;
+}
+.wrap{max-width:860px; margin-inline:auto; padding-inline:18px; padding-block:0 56px}
+h1,h2,h3,.num,.eyebrow{font-family:"Cairo","IBM Plex Sans Arabic",system-ui,sans-serif}
+h2,h3{text-wrap:balance}
+code,.path,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace; direction:ltr; unicode-bidi:isolate}
+
+/* ── ترويسة ── */
+header{padding-block:40px 28px; border-bottom:3px solid var(--ink)}
+.eyebrow{
+  font-size:11.5px; font-weight:800; letter-spacing:.16em; color:var(--accent);
+  text-transform:uppercase; margin:0 0 10px
+}
+h1{font-size:clamp(28px,6.4vw,42px); font-weight:900; line-height:1.2; margin:0 0 12px; letter-spacing:-.01em}
+.lede{font-size:16px; color:var(--ink2); margin:0; max-width:56ch}
+.meta{
+  display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:20px;
+  font-size:12.5px; color:var(--muted)
+}
+.meta b{color:var(--ink2); font-weight:600}
+
+/* ── شريط الملخص ── */
+.tldr{
+  margin-block:28px; background:var(--sheet); border:1px solid var(--line);
+  border-radius:4px; box-shadow:var(--shadow); overflow:hidden
+}
+.tldr-head{
+  padding:14px 18px; border-bottom:1px solid var(--line2); background:var(--sheet2);
+  font-family:"Cairo",sans-serif; font-weight:800; font-size:14px; letter-spacing:.02em
+}
+.rail{display:grid; grid-template-columns:repeat(6,1fr); gap:0}
+.rail li{
+  list-style:none; padding:16px 12px; border-inline-start:1px solid var(--line2);
+  display:flex; flex-direction:column; gap:6px; align-items:flex-start
+}
+.rail li:first-child{border-inline-start:0}
+.rail .n{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
+  color:var(--accent); background:var(--accent-soft);
+  width:22px; height:22px; border-radius:50%; display:grid; place-items:center
+}
+.rail .t{font-size:13px; font-weight:600; line-height:1.45}
+@media(max-width:700px){
+  .rail{grid-template-columns:repeat(2,1fr)}
+  .rail li{border-inline-start:1px solid var(--line2); border-top:1px solid var(--line2)}
+  .rail li:nth-child(odd){border-inline-start:0}
+  .rail li:nth-child(-n+2){border-top:0}
+}
+
+/* ── الخطوات ── */
+section{margin-top:44px}
+.sec-title{
+  display:flex; align-items:baseline; gap:12px; margin:0 0 18px;
+  font-size:19px; font-weight:800
+}
+.sec-title::after{content:""; flex:1; height:1px; background:var(--line)}
+
+.step{
+  display:grid; grid-template-columns:52px 1fr; gap:0 18px;
+  background:var(--sheet); border:1px solid var(--line); border-radius:4px;
+  padding:20px; margin-bottom:12px; box-shadow:var(--shadow)
+}
+.step .num{
+  font-size:26px; font-weight:900; color:var(--accent); line-height:1;
+  font-variant-numeric:tabular-nums; padding-top:2px
+}
+.step h3{margin:0 0 8px; font-size:17px; font-weight:800}
+.step p{margin:0 0 10px; color:var(--ink2)}
+.step p:last-child{margin-bottom:0}
+@media(max-width:520px){
+  .step{grid-template-columns:36px 1fr; gap:0 12px; padding:16px}
+  .step .num{font-size:20px}
+}
+
+.path{
+  display:inline-block; background:var(--sheet2); border:1px solid var(--line);
+  border-radius:3px; padding:5px 10px; font-size:12.5px; font-weight:600;
+  color:var(--ink); direction:rtl; unicode-bidi:plaintext;
+  font-family:"IBM Plex Sans Arabic",sans-serif; letter-spacing:.01em
+}
+.path .sep{color:var(--muted); padding-inline:5px}
+code{
+  background:var(--sheet2); border:1px solid var(--line); border-radius:3px;
+  padding:1.5px 6px; font-size:12.5px; color:var(--ink)
+}
+kbd{
+  display:inline-block; background:var(--accent); color:var(--sheet); border-radius:3px;
+  padding:2px 9px; font-size:12.5px; font-weight:600;
+  font-family:"IBM Plex Sans Arabic",sans-serif
+}
+
+/* جدول الحقول */
+.fields{width:100%; border-collapse:collapse; margin:4px 0 12px; font-size:14px}
+.fields th,.fields td{text-align:start; padding:9px 12px; border-bottom:1px solid var(--line2); vertical-align:top}
+.fields th{
+  width:38%; font-weight:600; color:var(--ink);
+  background:var(--sheet2); border-inline-end:1px solid var(--line2)
+}
+.fields tr:last-child th,.fields tr:last-child td{border-bottom:0}
+.fields td{color:var(--ink2)}
+.tblbox{border:1px solid var(--line); border-radius:4px; overflow:hidden; overflow-x:auto}
+
+/* ملاحظة جانبية */
+.why{
+  border-inline-start:3px solid var(--line); padding-inline-start:12px;
+  font-size:13.5px; color:var(--muted); margin-top:12px
+}
+.why b{color:var(--ink2); font-weight:600}
+
+/* ── نوعي الفواتير ── */
+.split{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media(max-width:640px){.split{grid-template-columns:1fr}}
+.kind{
+  background:var(--sheet); border:1px solid var(--line); border-radius:4px;
+  padding:20px; box-shadow:var(--shadow)
+}
+.kind.official{border-top:4px solid var(--steel)}
+.kind.hand{border-top:4px solid var(--accent)}
+.kind h3{margin:0 0 4px; font-size:16.5px; font-weight:800}
+.kind .sub{font-size:12.5px; color:var(--muted); margin:0 0 14px}
+.kind ul{margin:0; padding-inline-start:18px; display:flex; flex-direction:column; gap:7px; font-size:14px; color:var(--ink2)}
+.tag{
+  display:inline-block; font-size:11.5px; font-weight:600; border-radius:3px;
+  padding:3px 9px; margin-bottom:10px
+}
+.tag.s{background:var(--steel-soft); color:var(--steel)}
+.tag.a{background:var(--accent-soft); color:var(--accent-ink)}
+
+/* ── ممنوع ── */
+.stop-box{
+  background:var(--stop-soft); border:1px solid var(--stop); border-radius:4px; padding:20px
+}
+.stop-box h2{margin:0 0 6px; font-size:18px; font-weight:800; color:var(--stop)}
+.stop-box .sub{margin:0 0 16px; font-size:13.5px; color:var(--ink2)}
+.stop-list{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:12px}
+.stop-list li{display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:start; font-size:14.5px}
+.x{
+  color:var(--stop); font-weight:800; font-size:16px; line-height:1.5;
+  font-family:"IBM Plex Mono",monospace
+}
+.stop-list b{font-weight:600}
+.stop-list span.note{display:block; color:var(--ink2); font-size:13px; margin-top:2px}
+
+/* ── وقف واسأل ── */
+.ask{background:var(--sheet); border:1px solid var(--line); border-radius:4px; overflow:hidden; box-shadow:var(--shadow)}
+.ask table{width:100%; border-collapse:collapse; font-size:14px}
+.ask th,.ask td{text-align:start; padding:12px 14px; border-bottom:1px solid var(--line2); vertical-align:top}
+.ask thead th{background:var(--sheet2); font-weight:700; font-size:13px; color:var(--ink)}
+.ask tbody th{font-weight:500; color:var(--ink); width:46%; border-inline-end:1px solid var(--line2)}
+.ask td{color:var(--ink2)}
+.ask tr:last-child th,.ask tr:last-child td{border-bottom:0}
+.go{color:var(--go); font-weight:600}
+
+/* ── تذييل ── */
+footer{
+  margin-top:48px; padding-top:20px; border-top:3px solid var(--ink);
+  display:flex; flex-wrap:wrap; gap:10px 28px; justify-content:space-between;
+  font-size:12.5px; color:var(--muted)
+}
+footer b{color:var(--ink2); font-weight:600}
+
+@media print{
+  :root{--ground:#fff; --sheet:#fff; --sheet2:#fafafa; --ink:#000; --ink2:#222;
+        --muted:#555; --line:#bbb; --line2:#ddd; --shadow:none}
+  body{font-size:11.5pt}
+  .step,.kind,.ask,.tldr{break-inside:avoid}
+  section{margin-top:22px}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">محلات العون لمواد البناء</p>
+  <h1>دليل فواتير الموردين اليومية</h1>
+  <p class="lede">كل فاتورة بضاعة توصل المحل — من موزّع بالإيد أو من شركة رسمية — تنزّل بأودو <b>بنفس اليوم</b>، وصورتها بترفق فيها، والورقة بتنحفظ بملف الشهر.</p>
+  <p class="meta">
+    <span><b>لمين:</b> كل موظف بيستلم بضاعة</span>
+    <span><b>الوقت المطلوب:</b> ٣ دقايق للفاتورة</span>
+    <span><b>علّق هالورقة:</b> عند الكاشير</span>
+  </p>
+</header>
+
+<div class="tldr">
+  <div class="tldr-head">الخلاصة بست خطوات</div>
+  <ol class="rail">
+    <li><span class="n">١</span><span class="t">صوّر الفاتورة</span></li>
+    <li><span class="n">٢</span><span class="t">افتح فاتورة مورّد جديدة</span></li>
+    <li><span class="n">٣</span><span class="t">عبّي البنود</span></li>
+    <li><span class="n">٤</span><span class="t">ارفق الصورة</span></li>
+    <li><span class="n">٥</span><span class="t">أكّد واكتب الرقم على الورقة</span></li>
+    <li><span class="n">٦</span><span class="t">الورقة بملف الشهر</span></li>
+  </ol>
+</div>
+
+<section>
+  <h2 class="sec-title">الخطوات بالتفصيل</h2>
+
+  <article class="step">
+    <div class="num">١</div>
+    <div>
+      <h3>صوّر الفاتورة قبل ما تتحرك من مكانك</h3>
+      <p>صورة وحدة واضحة بالجوال. لو الورقة طويلة أو فيها وجهين — صورتين. خلّي الورقة على سطح مستوي والإضاءة من فوق، وتأكد إن <b>المبلغ الكلي والتاريخ واضحين</b> بالصورة.</p>
+      <div class="why"><b>ليش قبل أي إشي:</b> الورقة بتضيع أو بتتوسخ بالمستودع. الصورة بتضل.</div>
+    </div>
+  </article>
+
+  <article class="step">
+    <div class="num">٢</div>
+    <div>
+      <h3>افتح فاتورة مورّد جديدة بأودو</h3>
+      <p class="path">المحاسبة<span class="sep">←</span>الموردين<span class="sep">←</span>الفواتير<span class="sep">←</span><b>جديد</b></p>
+      <p>انتبه: <b>«الموردين»</b> مش «العملاء». قائمة العملاء هي لفواتير المشاريع اللي إحنا بنبيعها.</p>
+      <div class="tblbox">
+        <table class="fields">
+          <tr><th>المورّد</th><td>اسم الموزّع أو الشركة زي ما هو مسجّل بأودو</td></tr>
+          <tr><th>تاريخ الفاتورة</th><td>التاريخ المكتوب على الورقة — <b>مش تاريخ اليوم</b> لو الفاتورة قديمة</td></tr>
+          <tr><th>الرقم المرجعي للفاتورة</th><td>رقم الورقة لو فيها رقم. ما فيها؟ اتركه فاضي</td></tr>
+        </table>
+      </div>
+      <div class="why"><b>ملاحظة:</b> حقل «الرقم المرجعي للفاتورة» بيظهر <b>بأعلى الشاشة</b> بفواتير الموردين.</div>
+    </div>
+  </article>
+
+  <article class="step">
+    <div class="num">٣</div>
+    <div>
+      <h3>عبّي البنود — صنف صنف</h3>
+      <p>لكل سطر بالورقة: <b>الصنف</b> · <b>الكمية</b> · <b>سعر الشراء</b> (السعر اللي دفعناه، مش سعر البيع).</p>
+      <p>ابحث عن الصنف بالاسم أو بالكود. جرّب أكثر من إملاء قبل ما تقول «مش موجود» — «فولتراب» و«فلتراب»، «شطاف» و«شطافة».</p>
+      <div class="why"><b>ليش صنف صنف:</b> هيك أودو بيعرف كلفة كل صنف لحاله، وبيقدر يقارن سعر نفس الصنف بين الموزّعين مع الوقت.</div>
+    </div>
+  </article>
+
+  <article class="step">
+    <div class="num">٤</div>
+    <div>
+      <h3>ارفق الصورة بالفاتورة نفسها</h3>
+      <p>انزل لتحت الفاتورة لمنطقة <b>المحادثة</b> → اكبس على <b>مشبك الورق</b> → اختار الصورة من الجوال.</p>
+      <p>لو صوّرت صورتين ارفقهم الاتنين. بعد الرفع لازم تشوف اسم الملف ظاهر تحت الفاتورة.</p>
+      <div class="why"><b>ليش هون بالضبط:</b> الصورة بتضل ملزوقة بالفاتورة للأبد. ما في مجلد منفصل ولا تطبيق ثاني — بتلاقيها بالبحث عن المورّد أو التاريخ أو المبلغ.</div>
+    </div>
+  </article>
+
+  <article class="step">
+    <div class="num">٥</div>
+    <div>
+      <h3>اكبس <kbd>تأكيد</kbd> واكتب الرقم على الورقة</h3>
+      <p>أودو بيعطي الفاتورة رقم زي <code>BILL/2026/00001</code>. <b>اكتب هالرقم بالقلم على زاوية الورقة.</b></p>
+      <div class="why"><b>هاد الرقم هو الرابط.</b> بعد سنة لما تلاقي الفاتورة بأودو وبدك الأصل الورقي، الرقم بيدلّك على مكانها بالملف — وبالعكس.</div>
+    </div>
+  </article>
+
+  <article class="step">
+    <div class="num">٦</div>
+    <div>
+      <h3>الورقة بملف الشهر</h3>
+      <p>ملف واحد لكل شهر، والفواتير مرتّبة <b>بالرقم</b> مش بالتاريخ. فاتورة جديدة بتنحط فوق.</p>
+      <div class="why"><b>لا تعمل مجلدات ثانية</b> — لا على الجوال ولا على الكمبيوتر. مكان واحد للورق ومكان واحد للنظام.</div>
+    </div>
+  </article>
+</section>
+
+<section>
+  <h2 class="sec-title">نوعين فواتير — نفس المكان، فرق واحد</h2>
+  <div class="split">
+    <div class="kind official">
+      <span class="tag s">النوع الأول</span>
+      <h3>فاتورة رسمية من شركة</h3>
+      <p class="sub">عليها ترويسة الشركة ورقم ضريبي، وغالباً باركود QR</p>
+      <ul>
+        <li>نزّلها بنفس الخطوات الست</li>
+        <li>خلّي <b>الضريبة 16%</b> على البنود</li>
+        <li><b>الورقة الأصلية ما بتنرمى أبداً</b> — لازمة للضريبة</li>
+        <li>لو الفاتورة وصلت بالإيميل PDF — ارفق الـPDF بدل الصورة، أوضح</li>
+      </ul>
+    </div>
+    <div class="kind hand">
+      <span class="tag a">النوع الثاني</span>
+      <h3>فاتورة يدوية من موزّع</h3>
+      <p class="sub">مكتوبة بالقلم، بلا ترويسة ولا رقم ضريبي</p>
+      <ul>
+        <li>نزّلها بنفس الخطوات الست</li>
+        <li><b>بلا ضريبة</b> — السعر المكتوب هو الكلفة كاملة</li>
+        <li>صوّرها كويس — هاي أسهل وحدة تضيع</li>
+        <li>الخط مش واضح؟ اكتب سطر واحد بالمبلغ الكلي وعلّم عليها للمراجعة</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="sec-title">ممنوع</h2>
+  <div class="stop-box">
+    <h2>أربع أشياء ما تعملها</h2>
+    <p class="sub">كل وحدة منهم بتكلّف فلوس أو بتخرّب البيانات</p>
+    <ul class="stop-list">
+      <li><span class="x">✕</span><div><b>لا تستعمل زر «رفع»</b> بقائمة فواتير الموردين
+        <span class="note">بيشغّل القارئ الآلي — بيسحب من رصيد مدفوع وما بيقرأ الخط العربي أصلاً. اضغط «جديد» وعبّي بإيدك.</span></div></li>
+      <li><span class="x">✕</span><div><b>لا تنشئ صنف جديد من عندك</b>
+        <span class="note">دوّر عليه بكل الإملاءات الممكنة. لسا مش لاقيه؟ وقف واسأل المسؤول.</span></div></li>
+      <li><span class="x">✕</span><div><b>لا تنشئ مورّد جديد من عندك</b>
+        <span class="note">نفس السبب — بينتج مورّدين مكررين والرصيد بينقسم على اتنين.</span></div></li>
+      <li><span class="x">✕</span><div><b>لا تأكّد فاتورة ناقصة</b>
+        <span class="note">ناقصك سعر أو صنف؟ خلّيها <b>مسودة</b> واسأل. المسودة ما بتأثر على أي حساب.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2 class="sec-title">وقف واسأل — مش اجتهد</h2>
+  <div class="ask">
+    <table>
+      <thead><tr><th>الحالة</th><th>شو تعمل</th></tr></thead>
+      <tbody>
+        <tr><th>الصنف مش موجود بأودو</th><td>احفظ الفاتورة <span class="go">مسودة</span> واسأل المسؤول. لا تنشئ صنف.</td></tr>
+        <tr><th>المورّد مش موجود</th><td>احفظ <span class="go">مسودة</span> واسأل. لا تنشئ مورّد.</td></tr>
+        <tr><th>السعر على الورقة مش واضح</th><td>صوّر الورقة وخلّيها <span class="go">مسودة</span> — لا تخمّن السعر.</td></tr>
+        <tr><th>الفاتورة فيها بضاعة رجّعناها</th><td>نزّلها كاملة زي ما هي، وخبّر المسؤول بالمرتجع.</td></tr>
+        <tr><th>نفس الفاتورة انزّلت مرتين</th><td>خبّر المسؤول فوراً. <b>لا تحذف</b> ولا وحدة بنفسك.</td></tr>
+        <tr><th>الفاتورة قديمة من شهر ماضي</th><td>نزّلها بتاريخها المكتوب على الورقة، مش بتاريخ اليوم.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <span><b>القاعدة الوحيدة اللي ما بتنكسر:</b> فاتورة بضاعة دخلت المحل = فاتورة بأودو + صورة مرفقة + ورقة بملف الشهر.</span>
+  <span>محلات العون لمواد البناء<b> · </b>الإصدار الأول</span>
+</footer>
+
+</div>
