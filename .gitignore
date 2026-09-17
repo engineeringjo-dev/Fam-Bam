@@ -10,5 +10,7 @@ build/
 # Generated reports — they carry live customer data, so they stay local
 statement_*.html
 *.pdf
+# استثناء: أدلة الموظفين ما فيها بيانات زبائن
+!دليل_*.pdf
 كتالوج_*.xlsx
 طلبية_*.html
