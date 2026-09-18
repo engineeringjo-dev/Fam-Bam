@@ -1,0 +1,35 @@
+[
+ {
+  "id": 49288,
+  "name": "اصنص سعودي صحراوي",
+  "list_price": 1.5,
+  "standard_price": 0.0,
+  "categ_id": [
+   25,
+   "خردوات"
+  ],
+  "active": false
+ },
+ {
+  "id": 48392,
+  "name": "ريشة حجر 8 ملم KATCO",
+  "list_price": 1.25,
+  "standard_price": 0.0,
+  "categ_id": [
+   25,
+   "خردوات"
+  ],
+  "active": true
+ },
+ {
+  "id": 48393,
+  "name": "ريشة حجر 10 ملم KATCO",
+  "list_price": 1.5,
+  "standard_price": 0.0,
+  "categ_id": [
+   25,
+   "خردوات"
+  ],
+  "active": true
+ }
+]
