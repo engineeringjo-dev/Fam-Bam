@@ -1,27 +1,20 @@
 # -*- coding: utf-8 -*-
-"""نموذج طلبية ورشة — محلات العون لمواد البناء
-نموذج موحّد لكل الورشات، بضوابط تدقيق مدمجة تمنع سهو البنود.
-"""
+"""نموذج طلبية ورشة — محلات العون لمواد البناء (نسخة مبسّطة)"""
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protection
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.formatting.rule import FormulaRule
-from openpyxl.utils import get_column_letter
 
 OUT = '/home/user/Fam-Bam/نموذج_طلبية_ورشة.xlsx'
+R0, R1 = 9, 43                       # صفوف البيانات (35 سطر)
+المدققون = 'عمر المصري,ابو علي'
 
-R0, R1 = 12, 46            # أول وآخر صف بيانات
-NROWS = R1 - R0 + 1
-
-NAVY   = '1F4E6B'
-TEAL   = '0F6E6E'
-EDIT   = 'FFF6CC'          # أصفر = خانة إدخال
-AUTO   = 'EDEDED'          # رمادي = محسوبة تلقائياً — لا تُعدّل
-GREEN  = 'D6F0D6'
-RED    = 'FBD5D5'
-LINE   = Side(style='thin', color='9AA5AD')
-THICK  = Side(style='medium', color=NAVY)
-BOX    = Border(left=LINE, right=LINE, top=LINE, bottom=LINE)
+NAVY, TEAL = '1F4E6B', '0F6E6E'
+EDIT, AUTO = 'FFF6CC', 'EDEDED'
+GREEN, RED = 'D6F0D6', 'FBD5D5'
+LINE  = Side(style='thin', color='9AA5AD')
+THICK = Side(style='medium', color=NAVY)
+BOX   = Border(left=LINE, right=LINE, top=LINE, bottom=LINE)
 
 def F(sz=11, b=False, c='000000'):
     return Font(name='Arial', size=sz, bold=b, color=c)
@@ -29,264 +22,192 @@ def C(h='center'):
     return Alignment(horizontal=h, vertical='center', wrap_text=True)
 
 wb = openpyxl.Workbook()
-
-# ══════════════════════ ورقة الطلبية ══════════════════════
 ws = wb.active
 ws.title = 'طلبية'
 ws.sheet_view.rightToLeft = True
 ws.sheet_view.showGridLines = False
 
-WID = {'A': 5, 'B': 40, 'C': 8.5, 'D': 10, 'E': 12, 'F': 12, 'G': 12, 'H': 8, 'I': 22}
-for k, v in WID.items():
+for k, v in {'A': 5, 'B': 42, 'C': 9, 'D': 14, 'E': 13, 'F': 16, 'G': 24}.items():
     ws.column_dimensions[k].width = v
 
-# ── العنوان ──
-ws.merge_cells('A1:I1')
-ws['A1'] = 'نموذج طلبية ورشة — محلات العون لمواد البناء'
-ws['A1'].font = F(16, True, 'FFFFFF'); ws['A1'].alignment = C()
-ws['A1'].fill = PatternFill('solid', fgColor=NAVY)
-ws.row_dimensions[1].height = 30
-
-ws.merge_cells('A2:I2')
-ws['A2'] = 'تُملأ من ورقة الطلبية الأصلية / رسالة الواتساب — والأصل يُحفظ بنفس رقم الطلبية'
-ws['A2'].font = F(9, False, '555555'); ws['A2'].alignment = C()
-ws.row_dimensions[2].height = 16
-
-# ── ترويسة البيانات ──
-def lab(cell, txt):
-    ws[cell] = txt; ws[cell].font = F(10, True); ws[cell].alignment = C('right')
-    ws[cell].fill = PatternFill('solid', fgColor='E8EDF0'); ws[cell].border = BOX
-def cells(sheet, rng):
-    v = sheet[rng]
+def cells(rng):
+    v = ws[rng]
     if hasattr(v, 'value'):
         return [v]
     out = []
     for row in v:
-        if hasattr(row, 'value'):
-            out.append(row)
-        else:
-            out.extend(row)
+        out.extend([row] if hasattr(row, 'value') else list(row))
     return out
 
+def lab(cell, txt):
+    ws[cell] = txt
+    ws[cell].font = F(10, True); ws[cell].alignment = C('right')
+    ws[cell].fill = PatternFill('solid', fgColor='E8EDF0'); ws[cell].border = BOX
+
 def inp(rng):
+    if ':' in rng:
+        ws.merge_cells(rng)
     first = rng.split(':')[0]
-    if ':' in rng: ws.merge_cells(rng)
     ws[first].fill = PatternFill('solid', fgColor=EDIT)
     ws[first].font = F(11, True); ws[first].alignment = C()
-    for c in cells(ws, rng): c.border = BOX
-
-for r in (3, 4):
-    ws.row_dimensions[r].height = 22
-lab('A3', 'اسم الورشة / المشروع'); inp('B3:D3')
-lab('E3', 'رقم الطلبية');          inp('F3')
-lab('G3', 'تاريخ الطلبية');        inp('H3:I3')
-lab('A4', 'المهندس / المستلِم');   inp('B4:D4')
-lab('E4', 'مصدر الطلبية');         inp('F4')
-lab('G4', 'صورة الأصل محفوظة؟');   inp('H4:I4')
-
-# الطلبية الطويلة تنقسم ورقتين — كل ورقة تحمل ضوابطها هي
-ws.row_dimensions[5].height = 22
-lab('A5', 'الورقة رقم');  inp('B5')
-lab('C5', 'من أصل');      inp('D5')
-ws.merge_cells('E5:I5')
-ws['E5'] = 'الطلبية الطويلة تنقسم ورقتين — وكل ورقة بتحمل عدد بنودها هي، لا عدد الطلبية كلها'
-ws['E5'].font = F(9, False, '555555'); ws['E5'].alignment = C()
-ws['E5'].border = BOX
-
-# ── شريط ضوابط التدقيق ──
-ws.merge_cells('A6:I6')
-ws['A6'] = '◆ ضوابط التدقيق — تُملأ من الورقة الأصلية قبل البدء بالإدخال ◆'
-ws['A6'].font = F(11, True, 'FFFFFF'); ws['A6'].alignment = C()
-ws['A6'].fill = PatternFill('solid', fgColor=TEAL)
-ws.row_dimensions[6].height = 24
+    for c in cells(rng):
+        c.border = BOX
 
 def auto(cell):
     ws[cell].fill = PatternFill('solid', fgColor=AUTO)
     ws[cell].font = F(11, True); ws[cell].alignment = C(); ws[cell].border = BOX
 
-ws.row_dimensions[7].height = 26
+# ── العنوان ──
+ws.merge_cells('A1:G1')
+ws['A1'] = 'طلبية ورشة — محلات العون لمواد البناء'
+ws['A1'].font = F(16, True, 'FFFFFF'); ws['A1'].alignment = C()
+ws['A1'].fill = PatternFill('solid', fgColor=NAVY)
+ws.row_dimensions[1].height = 30
 
-lab('A7', 'عدد البنود المُدخلة')
-ws['B7'] = '=COUNTA(B{}:B{})'.format(R0, R1); auto('B7')
-lab('C7', 'المدقَّقة ✔')
-ws['D7'] = '=COUNTIF(H{}:H{},"✔")'.format(R0, R1); auto('D7')
-ws.merge_cells('E7:I7'); auto('E7')
-ws['E7'] = ('=IF(B7=0,"⛔ ما في بنود مُدخلة",'
-            'IF(D7<B7,"⛔ باقي "&(B7-D7)&" بند بدون تدقيق — دقّقهن من الورقة الأصلية",'
-            '"✅ كل البنود مدقَّقة — جاهزة للترحيل"))')
-ws['E7'].font = F(12, True)
+# ── الترويسة ──
+for r in (2, 3):
+    ws.row_dimensions[r].height = 23
+lab('A2', 'الورشة / المشروع');   inp('B2')
+lab('C2', 'رقم الطلبية');         inp('D2')
+lab('E2', 'التاريخ');             inp('F2:G2')
+lab('A3', 'المهندس / المستلِم');  inp('B3')
+lab('C3', 'صورة الأصل محفوظة؟');  inp('D3')
+lab('E3', 'الورقة');              inp('F3:G3')
+
+# ── شريط التدقيق ──
+ws.row_dimensions[5].height = 26
+lab('A5', 'البنود المُدخلة')
+ws['B5'] = '=COUNTA(B{}:B{})'.format(R0, R1); auto('B5')
+lab('C5', 'المدقَّقة')
+ws['D5'] = '=COUNTA(F{}:F{})'.format(R0, R1); auto('D5')
+ws.merge_cells('E5:G5'); auto('E5')
+ws['E5'] = ('=IF(B5=0,"⛔ ما في بنود مُدخلة",'
+            'IF(D5<B5,"⛔ باقي "&(B5-D5)&" بند بدون تدقيق",'
+            '"✅ كل البنود مدقَّقة"))')
+ws['E5'].font = F(12, True)
 
 # ── رأس الجدول ──
-HDR = ['#', 'البند (كما طلع من المحل)', 'الكمية', 'الوحدة',
-       'السعر الإفرادي', 'المجموع', 'تاريخ الإخراج', '✔ تدقيق', 'ملاحظات']
-ws.row_dimensions[11].height = 34
+HDR = ['#', 'البند', 'الكمية', 'السعر الإفرادي', 'التاريخ', 'دقّقها', 'ملاحظات']
+ws.row_dimensions[8].height = 28
 for i, h in enumerate(HDR, start=1):
-    c = ws.cell(11, i, h)
-    c.font = F(10, True, 'FFFFFF'); c.alignment = C()
+    c = ws.cell(8, i, h)
+    c.font = F(11, True, 'FFFFFF'); c.alignment = C()
     c.fill = PatternFill('solid', fgColor=NAVY)
     c.border = Border(left=LINE, right=LINE, top=THICK, bottom=THICK)
 
-# ── صفوف البيانات ──
+# ── الصفوف ──
 for r in range(R0, R1 + 1):
-    ws.row_dimensions[r].height = 19
-    ws.cell(r, 1, '=IF(B{0}="","",ROW()-{1})'.format(r, R0 - 1))
-    ws.cell(r, 6, '=IF(OR(C{0}="",E{0}=""),"",C{0}*E{0})'.format(r))
-    for col in range(1, 10):
+    ws.row_dimensions[r].height = 20
+    ws.cell(r, 1, '=IF(B{}="","",ROW()-{})'.format(r, R0 - 1))
+    for col in range(1, 8):
         c = ws.cell(r, col)
         c.border = BOX; c.font = F(11)
-        c.alignment = C('right' if col in (2, 9) else 'center')
-        if col in (1, 6):                       # محسوبة
-            c.fill = PatternFill('solid', fgColor=AUTO)
-        else:
-            c.fill = PatternFill('solid', fgColor='FFFFFF')
+        c.alignment = C('right' if col in (2, 7) else 'center')
+        c.fill = PatternFill('solid', fgColor=AUTO if col == 1 else 'FFFFFF')
     ws.cell(r, 3).number_format = '0.###'
-    ws.cell(r, 5).number_format = '0.000'
-    ws.cell(r, 6).number_format = '0.000'
-    ws.cell(r, 7).number_format = 'DD/MM/YYYY'
-
-# ── المجموع ──
-TR = R1 + 1
-ws.row_dimensions[TR].height = 26
-ws.merge_cells('A{0}:E{0}'.format(TR))
-ws['A{}'.format(TR)] = 'المجموع الكلي للبنود المسعَّرة (د.أ)'
-ws['A{}'.format(TR)].font = F(11, True); ws['A{}'.format(TR)].alignment = C('right')
-ws['A{}'.format(TR)].fill = PatternFill('solid', fgColor='E8EDF0')
-ws['F{}'.format(TR)] = '=SUM(F{}:F{})'.format(R0, R1)
-ws['F{}'.format(TR)].font = F(12, True); ws['F{}'.format(TR)].alignment = C()
-ws['F{}'.format(TR)].number_format = '0.000'
-ws['F{}'.format(TR)].fill = PatternFill('solid', fgColor=AUTO)
-ws.merge_cells('G{0}:I{0}'.format(TR))
-ws['G{}'.format(TR)] = 'البنود بدون سعر تُسعَّر من الكتالوج'
-ws['G{}'.format(TR)].font = F(9, False, '555555'); ws['G{}'.format(TR)].alignment = C()
-for col in range(1, 10):
-    ws.cell(TR, col).border = Border(left=LINE, right=LINE, top=THICK, bottom=THICK)
+    ws.cell(r, 4).number_format = '0.000'
+    ws.cell(r, 5).number_format = 'DD/MM/YYYY'
 
 # ── التواقيع ──
-SR = TR + 2
-ws.merge_cells('A{0}:I{0}'.format(SR))
-ws['A{}'.format(SR)] = 'لا تُرسَل الطلبية إلا والحالة النهائية خضراء ✅'
-ws['A{}'.format(SR)].font = F(10, True, 'FFFFFF'); ws['A{}'.format(SR)].alignment = C()
-ws['A{}'.format(SR)].fill = PatternFill('solid', fgColor=TEAL)
-ws.row_dimensions[SR].height = 22
+S = R1 + 2
+ws.merge_cells('A{0}:G{0}'.format(S))
+ws['A{}'.format(S)] = 'لا تُرسَل الطلبية إلا وكل بند مؤشَّر عليه مدقِّقه'
+ws['A{}'.format(S)].font = F(10, True, 'FFFFFF'); ws['A{}'.format(S)].alignment = C()
+ws['A{}'.format(S)].fill = PatternFill('solid', fgColor=TEAL)
+ws.row_dimensions[S].height = 22
 
-for j, (t1, t2) in enumerate([('أدخلها (الموظف)', 'قرأ الورقة وأدخلها بند بند'),
-                              ('دقّقها (أبو علي)', 'قارَنها بالورقة الأصلية بنداً وكميةً')]):
-    r = SR + 1 + j
-    ws.row_dimensions[r].height = 26
-    lab('A{}'.format(r), t1); inp('B{}:C{}'.format(r, r))
-    lab('D{}'.format(r), 'التاريخ'); inp('E{}'.format(r))
-    lab('F{}'.format(r), 'التوقيع'); inp('G{}'.format(r))
-    ws.merge_cells('H{0}:I{0}'.format(r))
-    ws['H{}'.format(r)] = t2
-    ws['H{}'.format(r)].font = F(8, False, '555555'); ws['H{}'.format(r)].alignment = C()
-    ws['H{}'.format(r)].border = BOX
+for j, (who, hint) in enumerate([('أدخلها', 'نقلها من الورقة الأصلية بند بند'),
+                                 ('دقّقها', 'قارَنها بالورقة الأصلية: البند صح والعدد صح')]):
+    r = S + 1 + j
+    ws.row_dimensions[r].height = 25
+    lab('A{}'.format(r), who);         inp('B{}'.format(r))
+    lab('C{}'.format(r), 'التاريخ');   inp('D{}'.format(r))
+    ws.merge_cells('E{0}:G{0}'.format(r))
+    ws['E{}'.format(r)] = hint
+    ws['E{}'.format(r)].font = F(9, False, '555555'); ws['E{}'.format(r)].alignment = C()
+    ws['E{}'.format(r)].border = BOX
+AUDITOR_SIG = 'B{}'.format(S + 2)
 
-# ── قوائم منسدلة ──
-def dv(formula, cells, msg=None):
+# ── القوائم المنسدلة ──
+def dv(formula, target):
     d = DataValidation(type='list', formula1=formula, allow_blank=True, showDropDown=False)
-    ws.add_data_validation(d)
-    d.add(cells)
-    return d
+    ws.add_data_validation(d); d.add(target)
 
-dv('"حبة,ربطة,جوز,لفة,باكيت,شوال,درم,جالون,طقم,عبوة,متر,كغم,لتر,طن"',
-   'D{}:D{}'.format(R0, R1))
-dv('"✔"', 'H{}:H{}'.format(R0, R1))
-dv('"ورقة مكتوبة,واتساب,هاتف"', 'F4')
-dv('"نعم,لا"', 'H4')
+dv('"%s"' % المدققون, 'F{}:F{}'.format(R0, R1))
+dv('"%s"' % المدققون, AUDITOR_SIG)
+dv('"نعم,لا"', 'D3')
 
-num = DataValidation(type='decimal', operator='greaterThan', formula1='0',
-                     allow_blank=True, showErrorMessage=True,
-                     error='الكمية لازم تكون رقم فقط. الوحدة (ربطة/جوز/متر) تُكتب بخانة الوحدة.',
-                     errorTitle='كمية غير صحيحة')
+num = DataValidation(type='decimal', operator='greaterThan', formula1='0', allow_blank=True,
+                     showErrorMessage=True, errorTitle='كمية غير صحيحة',
+                     error='الكمية رقم فقط. «ربطة» و«جوز» و«لفة» تُكتب بخانة الملاحظات.')
 ws.add_data_validation(num); num.add('C{}:C{}'.format(R0, R1))
 
-# ── تنسيق شرطي ──
-rng_status = ['E7']
-for cell in rng_status:
-    ws.conditional_formatting.add(cell, FormulaRule(
-        formula=['LEFT({},1)="✅"'.format(cell)],
-        fill=PatternFill('solid', bgColor=GREEN), font=F(11, True, '17632A')))
-    ws.conditional_formatting.add(cell, FormulaRule(
-        formula=['LEFT({},1)="⛔"'.format(cell)],
-        fill=PatternFill('solid', bgColor=RED), font=F(11, True, 'A11212')))
+# ── التنسيق الشرطي ──
+ws.conditional_formatting.add('E5', FormulaRule(
+    formula=['LEFT(E5,1)="✅"'], fill=PatternFill('solid', bgColor=GREEN), font=F(12, True, '17632A')))
+ws.conditional_formatting.add('E5', FormulaRule(
+    formula=['LEFT(E5,1)="⛔"'], fill=PatternFill('solid', bgColor=RED), font=F(12, True, 'A11212')))
+for col in ('C', 'E'):
+    ws.conditional_formatting.add('{0}{1}:{0}{2}'.format(col, R0, R1), FormulaRule(
+        formula=['AND($B{0}<>"",${1}{0}="")'.format(R0, col)],
+        fill=PatternFill('solid', bgColor=RED)))
+ws.conditional_formatting.add('A{}:G{}'.format(R0, R1), FormulaRule(
+    formula=['$F{}<>""'.format(R0)], fill=PatternFill('solid', bgColor='F0F8F0')))
 
-body = 'A{}:I{}'.format(R0, R1)
-# بند بدون كمية
-ws.conditional_formatting.add('C{}:C{}'.format(R0, R1), FormulaRule(
-    formula=['AND($B{}<>"",$C{}="")'.format(R0, R0)],
-    fill=PatternFill('solid', bgColor=RED)))
-# بند بدون تاريخ
-ws.conditional_formatting.add('G{}:G{}'.format(R0, R1), FormulaRule(
-    formula=['AND($B{}<>"",$G{}="")'.format(R0, R0)],
-    fill=PatternFill('solid', bgColor=RED)))
-# سطر مدقَّق = أخضر خفيف
-ws.conditional_formatting.add(body, FormulaRule(
-    formula=['$H{}="✔"'.format(R0)],
-    fill=PatternFill('solid', bgColor='F0F8F0')))
-
-# ── الطباعة ──
-ws.print_area = 'A1:I{}'.format(SR + 2)
+# ── الطباعة والحماية ──
+ws.print_area = 'A1:G{}'.format(S + 2)
 ws.page_setup.orientation = 'landscape'
 ws.page_setup.paperSize = ws.PAPERSIZE_A4
-ws.page_setup.fitToWidth = 1
-ws.page_setup.fitToHeight = 1
+ws.page_setup.fitToWidth = ws.page_setup.fitToHeight = 1
 ws.sheet_properties.pageSetUpPr.fitToPage = True
 ws.page_margins.left = ws.page_margins.right = 0.3
 ws.page_margins.top = ws.page_margins.bottom = 0.4
-ws.print_title_rows = '11:11'
-ws.freeze_panes = 'A12'
+ws.print_title_rows = '8:8'
+ws.freeze_panes = 'A9'
 
-# ── حماية: الخانات المحسوبة فقط مقفلة ──
-from openpyxl.styles import Protection
-for row in ws.iter_rows(min_row=1, max_row=SR + 2, max_col=9):
+for row in ws.iter_rows(min_row=1, max_row=S + 2, max_col=7):
     for c in row:
         c.protection = Protection(locked=True)
-for rng in ['B3:D3', 'F3', 'H3:I3', 'B4:D4', 'F4', 'H4:I4', 'B5', 'D5',
-            'B{}:E{}'.format(R0, R1), 'G{}:I{}'.format(R0, R1),
-            'B{}:C{}'.format(SR + 1, SR + 1), 'E{}'.format(SR + 1), 'G{}'.format(SR + 1),
-            'B{}:C{}'.format(SR + 2, SR + 2), 'E{}'.format(SR + 2), 'G{}'.format(SR + 2)]:
-    for c in cells(ws, rng):
+for rng in ['B2', 'D2', 'F2:G2', 'B3', 'D3', 'F3:G3',
+            'B{}:G{}'.format(R0, R1),
+            'B{}'.format(S + 1), 'D{}'.format(S + 1), AUDITOR_SIG, 'D{}'.format(S + 2)]:
+    for c in cells(rng):
         c.protection = Protection(locked=False)
 ws.protection.sheet = True
 ws.protection.formatCells = False
 ws.protection.selectLockedCells = False
 
-# ══════════════════════ ورقة التعليمات ══════════════════════
+# ══════════ التعليمات ══════════
 wi = wb.create_sheet('التعليمات')
 wi.sheet_view.rightToLeft = True
 wi.sheet_view.showGridLines = False
 wi.column_dimensions['A'].width = 4
-wi.column_dimensions['B'].width = 95
+wi.column_dimensions['B'].width = 92
 
 wi.merge_cells('A1:B1')
-wi['A1'] = 'طريقة العمل — نموذج طلبية الورشة'
+wi['A1'] = 'طريقة العمل'
 wi['A1'].font = F(16, True, 'FFFFFF'); wi['A1'].alignment = C()
 wi['A1'].fill = PatternFill('solid', fgColor=NAVY)
-wi.row_dimensions[1].height = 32
+wi.row_dimensions[1].height = 30
 
 STEPS = [
-    ('sec', 'أولاً — الموظف اللي بطلّع البضاعة'),
-    ('1', 'كل طلبية إلها رقم متسلسل. اكتب الرقم **على الورقة نفسها** قبل أي شي، وافتح ورقة جديدة بالإكسل بنفس الرقم.'),
-    ('2', 'أدخل البنود بند بند. وكل بند بتدخله — **اشطبه بالقلم على الورقة**. أي بند بضل بدون شطب = بند نسيته.'),
-    ('3', 'الكمية رقم فقط. «2 ربطة» تُكتب: الكمية 2 والوحدة «ربطة». لا تكتب الوحدة جوا خانة الكمية.'),
-    ('4', 'تاريخ الإخراج إلزامي لكل بند — كل تاريخ بصير فاتورة لحاله بالنظام.'),
-    ('5', 'الطلبية الطويلة (فوق 35 بند) تنقسم ورقتين بنفس رقم الطلبية: «الورقة 1 من 2» و«الورقة 2 من 2». '
-          'كل ورقة بتحمل عدد بنودها هي — مثلاً 35 بالأولى و15 بالثانية — مش عدد الطلبية كلها.'),
-    ('6', 'السعر الإفرادي: إذا المهندس اتفق مع المقاول على سعر، اكتبه هون مباشرة. إذا تركته فاضي بنسعّره من الكتالوج.'),
-    ('7', 'صوّر الورقة الأصلية واحفظها بنفس رقم الطلبية، وحطّ «نعم» بخانة «صورة الأصل محفوظة».'),
-    ('sec', 'ثانياً — التدقيق (أبو علي)'),
-    ('8', 'التدقيق بصير **من الورقة الأصلية، مش من الشاشة**. امسك الورقة واقرأ منها، وقارن كل سطر بالإكسل.'),
-    ('9', 'لكل بند تتأكد منه (الاسم صح + الكمية صح) حُطّ ✔ بخانة التدقيق.'),
-    ('10', 'العدّاد فوق بيعدّ لحالو. ما بتصير الحالة خضراء إلا لما كل بند مُدخل يتأشّر ✔.'),
-    ('11', 'وقّع بخانة «دقّقها» وبعدين ابعث الملف + صورة الورقة للأستاذ.'),
-    ('sec', 'الضوابط المدمجة بالنموذج'),
-    ('•', 'بند مكتوب بدون كمية أو بدون تاريخ ← الخانة بتصير حمرا.'),
-    ('•', 'الخانات الرمادية محسوبة تلقائياً ومقفلة — لا تحاول تعدّلها.'),
+    ('sec', 'الموظف اللي بطلّع البضاعة'),
+    ('1', 'ورقة وحدة لكل طلبية، ولها رقم متسلسل. اكتب الرقم على ورقة الطلبية الأصلية كمان.'),
+    ('2', 'أدخل البنود بند بند. وكل بند بتدخله — اشطبه بالقلم على الورقة الأصلية. '
+          'أي بند بضل بدون شطب = بند نسيته. هاي أهم خطوة بكل النموذج.'),
+    ('3', 'الكمية رقم فقط. «ربطة» و«جوز» و«لفة» تُكتب بخانة الملاحظات.'),
+    ('4', 'التاريخ إلزامي لكل بند — كل تاريخ بصير فاتورة لحاله بالنظام.'),
+    ('5', 'السعر الإفرادي: إذا المهندس اتفق مع المقاول على سعر، اكتبه. وإلا اتركه فاضي.'),
+    ('6', 'صوّر الورقة الأصلية واحفظها بنفس رقم الطلبية.'),
+    ('sec', 'المدقِّق — عمر المصري أو أبو علي'),
+    ('7', 'التدقيق من الورقة الأصلية، مش من الشاشة. امسك الورقة واقرأ منها.'),
+    ('8', 'كل بند تتأكد منه (البند صح والعدد صح) — اختر اسمك بخانة «دقّقها» لهذا البند.'),
+    ('9', 'العدّاد فوق ما بيصير أخضر إلا لما كل بند مُدخل يكون عليه اسم مدقِّق.'),
+    ('10', 'وقّع بأسفل الورقة وابعث الملف + صورة الورقة الأصلية للأستاذ.'),
     ('sec', 'الفكرة باختصار'),
-    ('◆', 'البند المنسي ما بيترك أثر على الإكسل — عشان هيك التدقيق لازم يكون مقابل الورقة الأصلية، '
-          'مش مقابل الشاشة: شطب بالقلم على الورقة وقت الإدخال، وشخص تاني بقرأ من الورقة ويأشّر ✔ بند بند.'),
+    ('◆', 'البند المنسي ما بيترك أثر على الإكسل — عشان هيك التدقيق لازم يكون مقابل الورقة '
+          'الأصلية لا مقابل الشاشة، ومعه شطب بالقلم على الورقة وقت الإدخال.'),
 ]
-
 r = 3
 for kind, txt in STEPS:
     if kind == 'sec':
@@ -296,20 +217,18 @@ for kind, txt in STEPS:
         wi['A{}'.format(r)].fill = PatternFill('solid', fgColor=TEAL)
         wi['A{}'.format(r)].alignment = C()
         wi.row_dimensions[r].height = 24
-        r += 1
-        continue
-    wi['A{}'.format(r)] = kind
-    wi['A{}'.format(r)].font = F(11, True, NAVY); wi['A{}'.format(r)].alignment = C()
-    wi['B{}'.format(r)] = txt.replace('**', '')
-    wi['B{}'.format(r)].font = F(11); wi['B{}'.format(r)].alignment = C('right')
-    wi.row_dimensions[r].height = 30 if len(txt) < 110 else 46
+    else:
+        wi['A{}'.format(r)] = kind
+        wi['A{}'.format(r)].font = F(11, True, NAVY); wi['A{}'.format(r)].alignment = C()
+        wi['B{}'.format(r)] = txt
+        wi['B{}'.format(r)].font = F(11); wi['B{}'.format(r)].alignment = C('right')
+        wi.row_dimensions[r].height = 30 if len(txt) < 100 else 44
     r += 1
 
 wi.print_area = 'A1:B{}'.format(r - 1)
 wi.page_setup.orientation = 'portrait'
 wi.page_setup.paperSize = wi.PAPERSIZE_A4
-wi.page_setup.fitToWidth = 1
-wi.page_setup.fitToHeight = 1
+wi.page_setup.fitToWidth = wi.page_setup.fitToHeight = 1
 wi.sheet_properties.pageSetUpPr.fitToPage = True
 
 wb.active = 0
