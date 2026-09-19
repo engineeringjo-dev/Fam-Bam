@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-"""نموذج طلبية ورشة — محلات العون لمواد البناء (مبسّط)"""
+"""نموذج ورشة — محلات العون لمواد البناء
+نموذج واحد ثابت لكل ورشة، من أول بند لآخر بند."""
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protection
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.formatting.rule import FormulaRule
 
 OUT = '/home/user/Fam-Bam/نموذج_طلبية_ورشة.xlsx'
-R0, R1 = 7, 41                       # 35 سطر بيانات
+R0, R1 = 7, 206                      # 200 سطر — الورشة كاملة من أولها لآخرها
 المدققون = 'عمر المصري,ابو علي'
 
 NAVY, TEAL = '1F4E6B', '0F6E6E'
@@ -23,11 +24,11 @@ def C(h='center'):
 
 wb = openpyxl.Workbook()
 ws = wb.active
-ws.title = 'طلبية'
+ws.title = 'الورشة'
 ws.sheet_view.rightToLeft = True
 ws.sheet_view.showGridLines = False
 
-for k, v in {'A': 5, 'B': 58, 'C': 12, 'D': 13, 'E': 14, 'F': 20}.items():
+for k, v in {'A': 5, 'B': 52, 'C': 11, 'D': 12, 'E': 13, 'F': 18, 'G': 18}.items():
     ws.column_dimensions[k].width = v
 
 def cells(rng):
@@ -53,33 +54,32 @@ def auto(cell):
     ws[cell].font = F(11, True); ws[cell].alignment = C(); ws[cell].border = BOX
 
 # ── العنوان ──
-ws.merge_cells('A1:F1')
-ws['A1'] = 'طلبية ورشة — محلات العون لمواد البناء'
+ws.merge_cells('A1:G1')
+ws['A1'] = 'ورشة — محلات العون لمواد البناء'
 ws['A1'].font = F(16, True, 'FFFFFF'); ws['A1'].alignment = C()
 ws['A1'].fill = PatternFill('solid', fgColor=NAVY)
 ws.row_dimensions[1].height = 30
 
 # ── الترويسة: ثلاث خانات فقط ──
-ws.row_dimensions[2].height = 24
-lab('A2', 'الطلبية');  inp('B2')
-lab('C2', 'التاريخ');  inp('D2')
-lab('E2', 'المستلِم'); inp('F2')
-ws['D2'].number_format = 'DD/MM/YYYY'
+ws.row_dimensions[2].height = 26
+lab('A2', 'الورشة')
+ws.merge_cells('B2:G2'); inp('B2')
+ws['B2'].font = F(13, True)
 
 # ── شريط التدقيق ──
 ws.row_dimensions[4].height = 26
 lab('A4', 'البنود المُدخلة')
 ws['B4'] = '=COUNTA(B{}:B{})'.format(R0, R1); auto('B4')
 lab('C4', 'المدقَّقة')
-ws['D4'] = '=COUNTA(F{}:F{})'.format(R0, R1); auto('D4')
-ws.merge_cells('E4:F4'); auto('E4')
+ws['D4'] = '=COUNTA(G{}:G{})'.format(R0, R1); auto('D4')
+ws.merge_cells('E4:G4'); auto('E4')
 ws['E4'] = ('=IF(B4=0,"⛔ ما في بنود مُدخلة",'
             'IF(D4<B4,"⛔ باقي "&(B4-D4)&" بند بدون تدقيق",'
             '"✅ كل البنود مدقَّقة"))')
 ws['E4'].font = F(12, True)
 
 # ── رأس الجدول ──
-for i, h in enumerate(['#', 'البند', 'الكمية', 'الإفرادي', 'التاريخ', 'المدقق'], start=1):
+for i, h in enumerate(['#', 'البند', 'الكمية', 'الإفرادي', 'التاريخ', 'المستلم', 'المدقق'], start=1):
     c = ws.cell(6, i, h)
     c.font = F(11, True, 'FFFFFF'); c.alignment = C()
     c.fill = PatternFill('solid', fgColor=NAVY)
@@ -90,7 +90,7 @@ ws.row_dimensions[6].height = 28
 for r in range(R0, R1 + 1):
     ws.row_dimensions[r].height = 21
     ws.cell(r, 1, '=IF(B{}="","",ROW()-{})'.format(r, R0 - 1))
-    for col in range(1, 7):
+    for col in range(1, 8):
         c = ws.cell(r, col)
         c.border = BOX; c.font = F(11)
         c.alignment = C('right' if col == 2 else 'center')
@@ -100,14 +100,14 @@ for r in range(R0, R1 + 1):
 
 # ── سطر التذكير ──
 W = R1 + 2
-ws.merge_cells('A{0}:F{0}'.format(W))
-ws['A{}'.format(W)] = 'لا تُرسَل الطلبية إلا وكل بند مكتوب عليه اسم مدقِّقه'
+ws.merge_cells('A{0}:G{0}'.format(W))
+ws['A{}'.format(W)] = 'لا يُرسَل الملف إلا وكل بند مكتوب عليه اسم مدقِّقه'
 ws['A{}'.format(W)].font = F(10, True, 'FFFFFF'); ws['A{}'.format(W)].alignment = C()
 ws['A{}'.format(W)].fill = PatternFill('solid', fgColor=TEAL)
 ws.row_dimensions[W].height = 22
 
 # ── القوائم المنسدلة ──
-for formula, target in (('"%s"' % المدققون, 'F{}:F{}'.format(R0, R1)),):
+for formula, target in (('"%s"' % المدققون, 'G{}:G{}'.format(R0, R1)),):
     d = DataValidation(type='list', formula1=formula, allow_blank=True, showDropDown=False)
     ws.add_data_validation(d); d.add(target)
 
@@ -120,24 +120,24 @@ for col in ('C', 'E'):
     ws.conditional_formatting.add('{0}{1}:{0}{2}'.format(col, R0, R1), FormulaRule(
         formula=['AND($B{0}<>"",${1}{0}="")'.format(R0, col)],
         fill=PatternFill('solid', bgColor=RED)))
-ws.conditional_formatting.add('A{}:F{}'.format(R0, R1), FormulaRule(
-    formula=['$F{}<>""'.format(R0)], fill=PatternFill('solid', bgColor='F0F8F0')))
+ws.conditional_formatting.add('A{}:G{}'.format(R0, R1), FormulaRule(
+    formula=['$G{}<>""'.format(R0)], fill=PatternFill('solid', bgColor='F0F8F0')))
 
 # ── الطباعة والحماية ──
-ws.print_area = 'A1:F{}'.format(W)
+ws.print_area = 'A1:G{}'.format(W)
 ws.page_setup.orientation = 'landscape'
 ws.page_setup.paperSize = ws.PAPERSIZE_A4
 ws.page_setup.fitToWidth = ws.page_setup.fitToHeight = 1
 ws.sheet_properties.pageSetUpPr.fitToPage = True
 ws.page_margins.left = ws.page_margins.right = 0.3
 ws.page_margins.top = ws.page_margins.bottom = 0.4
-ws.print_title_rows = '6:6'
+ws.print_title_rows = '1:6'
 ws.freeze_panes = 'A7'
 
-for row in ws.iter_rows(min_row=1, max_row=W, max_col=6):
+for row in ws.iter_rows(min_row=1, max_row=W, max_col=7):
     for c in row:
         c.protection = Protection(locked=True)
-for rng in ['B2', 'D2', 'F2', 'B{}:F{}'.format(R0, R1)]:
+for rng in ['B2', 'B{}:G{}'.format(R0, R1)]:
     for c in cells(rng):
         c.protection = Protection(locked=False)
 ws.protection.sheet = True
@@ -159,17 +159,19 @@ wi.row_dimensions[1].height = 30
 
 STEPS = [
     ('sec', 'الموظف اللي بطلّع البضاعة'),
-    ('1', 'ورقة وحدة لكل طلبية. والطلبية الطويلة تنقسم ورقتين.'),
+    ('1', 'ورقة وحدة لكل ورشة، من أول بند لآخر بند. اسم الورشة بيتكتب مرة وحدة فوق وبس.'),
     ('2', 'أدخل البنود بند بند. وكل بند بتدخله — اشطبه بالقلم على الورقة الأصلية. '
           'أي بند بضل بدون شطب = بند نسيته. هاي أهم خطوة بكل النموذج.'),
     ('3', 'التاريخ إلزامي لكل بند — كل تاريخ بصير فاتورة لحاله بالنظام.'),
     ('4', 'الإفرادي: إذا المهندس اتفق مع المقاول على سعر، اكتبه. وإلا اتركه فاضي.'),
+    ('5', 'المستلم: اكتب اسم اللي استلم البضاعة على كل بند.'),
     ('sec', 'المدقِّق — عمر المصري أو أبو علي'),
-    ('5', 'التدقيق من الورقة الأصلية، مش من الشاشة. امسك الورقة واقرأ منها.'),
-    ('6', 'كل بند تتأكد منه (البند صح والعدد صح) — اختر اسمك بخانة «المدقق» لهذا البند.'),
-    ('7', 'العدّاد فوق ما بيصير أخضر إلا لما كل بند مُدخل يكون عليه اسم مدقِّق.'),
-    ('8', 'ابعث الملف + صورة الورقة الأصلية للأستاذ.'),
+    ('6', 'التدقيق من الورقة الأصلية، مش من الشاشة. امسك الورقة واقرأ منها.'),
+    ('7', 'كل بند تتأكد منه (البند صح والعدد صح) — اختر اسمك بخانة «المدقق» لهذا البند.'),
+    ('8', 'العدّاد فوق ما بيصير أخضر إلا لما كل بند مُدخل يكون عليه اسم مدقِّق.'),
+    ('9', 'ابعث الملف + صورة الورقة الأصلية للأستاذ.'),
     ('sec', 'الفكرة باختصار'),
+    ('10', 'وقت الطباعة: حدّد المدى المعبّى فقط، لأنه الورقة فيها 200 سطر فاضي جاهزين للورشة كلها.'),
     ('◆', 'البند المنسي ما بيترك أثر على الإكسل — عشان هيك التدقيق لازم يكون مقابل الورقة '
           'الأصلية لا مقابل الشاشة، ومعه شطب بالقلم على الورقة وقت الإدخال.'),
 ]
