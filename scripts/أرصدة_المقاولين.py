@@ -23,7 +23,7 @@ def main():
     grand, seen = 0.0, set()
     for t in tags:
         ps = x('res.partner', 'search_read',
-               [('category_id', '=', t['id']), ('category_id', '=', 11)],
+               [('category_id', '=', t['id']), ('customer_rank', '>', 0)],
                ['id', 'name', 'credit'], order='name')
         if not ps:
             continue
@@ -34,7 +34,7 @@ def main():
             seen.add(p['id'])
         print('     %-32s %10.3f' % ('— المجموع', tot))
     print('\n' + BAR)
-    all_p = x('res.partner', 'search_read', [('category_id', '=', 11)], ['id', 'name', 'credit'])
+    all_p = x('res.partner', 'search_read', [('customer_rank', '>', 0)], ['id', 'name', 'credit'])
     grand = sum(p['credit'] for p in all_p)
     print('  مجموع ذمم كل المشاريع (بلا تكرار): %.3f د.أ' % grand)
     missing = [p['name'] for p in all_p if p['id'] not in seen]
