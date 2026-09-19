@@ -1,0 +1,30 @@
+[
+ {
+  "move": 146,
+  "date": "2026-08-06",
+  "total": 109.85,
+  "expected": 109.85,
+  "lines": 17
+ },
+ {
+  "move": 147,
+  "date": "2026-08-09",
+  "total": 23.15,
+  "expected": 23.15,
+  "lines": 7
+ },
+ {
+  "move": 148,
+  "date": "2026-08-11",
+  "total": 135.0,
+  "expected": 135.0,
+  "lines": 2
+ },
+ {
+  "move": 149,
+  "date": "2026-08-12",
+  "total": 51.1,
+  "expected": 51.1,
+  "lines": 6
+ }
+]
