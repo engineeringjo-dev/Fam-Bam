@@ -73,6 +73,19 @@ def فحص(partner_id=None):
         out[l['partner_id'][1]].append(
             ('بلا صنف', l['date'], l['move_id'][1], (l['name'] or '')[:42], l['quantity']))
 
+    # سطر قيد شريكه جهة مؤرشفة — بيختفي من رصيد المشروع بصمت
+    # (لغم 19/09: commercial_partner_id بايت من زلّة parent_id القديمة)
+    for l in x('account.move.line', 'search_read',
+               [('parent_state', '=', 'posted'), ('partner_id.active', '=', False),
+                ('account_id.account_type', 'in', ['asset_receivable', 'liability_payable'])]
+               + ([('move_id.partner_id', '=', partner_id)] if partner_id else []),
+               ['move_id', 'partner_id', 'debit', 'credit', 'date']):
+        mv = x('account.move', 'read', [l['move_id'][0]], ['partner_id'])[0]
+        owner = mv['partner_id'][1] if mv['partner_id'] else '(بلا جهة)'
+        out[owner].append(
+            ('شريك مؤرشف', l['date'], l['move_id'][1],
+             'السطر على «%s»' % l['partner_id'][1], '%.3f' % (l['debit'] - l['credit'])))
+
     for m in x('account.move', 'search_read',
                [('state', '=', 'draft'), ('move_type', 'in', SALES + BILLS)] + pdom,
                ['name', 'partner_id', 'invoice_date', 'amount_total'], order='invoice_date'):
