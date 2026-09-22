@@ -1,0 +1,29 @@
+{
+ "move": {
+  "id": 161,
+  "name": "INV/2026/00067",
+  "partner_id": [
+   41,
+   "ورشة دايوق ميادة"
+  ],
+  "invoice_date": "2026-05-09",
+  "amount_total": 14.0,
+  "ref": "فاتورة يدوية سابقة رقم 0346 | محمد رامي شخصي"
+ },
+ "lines": [
+  {
+   "id": 1074,
+   "display_type": "product",
+   "name": "فاتورة يدوية سابقة (بدون بنود)",
+   "price_unit": 14.0,
+   "sequence": 100
+  },
+  {
+   "id": 1075,
+   "display_type": "payment_term",
+   "name": "فاتورة يدوية سابقة رقم 0346 | محمد رامي شخصي - INV/2026/00067",
+   "price_unit": 0.0,
+   "sequence": 12000
+  }
+ ]
+}

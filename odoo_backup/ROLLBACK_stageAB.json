@@ -1,0 +1,199 @@
+{
+ "merged": [
+  {
+   "code": "100420",
+   "id": 47398,
+   "name": "فرشاية دهان 1\" SK",
+   "list_price": 0.75,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100421",
+   "id": 47399,
+   "name": "فرشاية دهان 1.5\" SK",
+   "list_price": 1.0,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700627",
+   "id": 48866,
+   "name": "فرشاية دهان 2\" VIVA",
+   "list_price": 1.0,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100422",
+   "id": 47400,
+   "name": "فرشاية دهان 2.5\" SK",
+   "list_price": 1.25,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700522",
+   "id": 48763,
+   "name": "فرشاية دهان 3\"",
+   "list_price": 1.5,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700568",
+   "id": 48809,
+   "name": "فرشاية دهان يد بلاستيك 4\" WADFOW",
+   "list_price": 2.0,
+   "standard_price": 0.0
+  }
+ ],
+ "deleted": [
+  {
+   "id": 48868,
+   "name": "فرشاية دهان 1\" VIVA",
+   "list_price": 0.75,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "700629",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 47469,
+   "name": "فرشاية دهان 1.5\" DINGQI 126315",
+   "list_price": 0.75,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "100492",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 48867,
+   "name": "فرشاية دهان 1.5\" VIVA",
+   "list_price": 1.0,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "700628",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 49542,
+   "name": "فرشاية دهان 2\" SK",
+   "list_price": 1.25,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "701306",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 47470,
+   "name": "فرشاية دهان 2.5\" DINGQI 126325",
+   "list_price": 1.25,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "100493",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 47726,
+   "name": "فرشاية دهان 2.5\" HICO",
+   "list_price": 1.25,
+   "standard_price": 0.0,
+   "categ_id": 13,
+   "uom_id": 1,
+   "barcode": "200152",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 48865,
+   "name": "فرشاية دهان 2.5\" VIVA",
+   "list_price": 1.25,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "700626",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 47468,
+   "name": "فرشاية دهان 3\" DINGQI 126330",
+   "list_price": 2.0,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "100491",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  },
+  {
+   "id": 48995,
+   "name": "فرشاية دهان 4\" VIVA",
+   "list_price": 2.0,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "700757",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true
+  }
+ ],
+ "renamed": [
+  {
+   "code": "701756",
+   "id": 49990,
+   "name": "فلنجة كروم بيضوي",
+   "list_price": 0.35,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700009",
+   "id": 48262,
+   "name": "فلنجة كروم دائري 25ملم -قصير، 1 زوج",
+   "list_price": 0.75,
+   "standard_price": 0.0
+  }
+ ],
+ "created": [
+  {
+   "id": 57205,
+   "code": "702690",
+   "name": "فلنجة كروم جنب 25 ملي"
+  },
+  {
+   "id": 57206,
+   "code": "702691",
+   "name": "فلنجة كروم جنب 18 ملي"
+  },
+  {
+   "id": 57207,
+   "code": "702692",
+   "name": "فلنجة كروم جنب 12 ملي"
+  },
+  {
+   "id": 57208,
+   "code": "702693",
+   "name": "فلنجة كروم دائري ثقيل 25 ملي"
+  },
+  {
+   "id": 57209,
+   "code": "702694",
+   "name": "فلنجة كروم 18 ملي خفيف"
+  }
+ ]
+}

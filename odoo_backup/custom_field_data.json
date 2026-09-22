@@ -1,0 +1,16 @@
+{
+ "res.partner": [
+  {
+   "id": 19,
+   "name": "مشروع المدرسة",
+   "x_project_team": "م.حمزة · هشام",
+   "x_contractor_id": false
+  },
+  {
+   "id": 23,
+   "name": "مشروع فيلا ايلا",
+   "x_project_team": "م.حمزة · هشام · رامي",
+   "x_contractor_id": false
+  }
+ ]
+}
