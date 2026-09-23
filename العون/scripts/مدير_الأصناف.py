@@ -111,6 +111,22 @@ def اسرد(rows, عنوان):
     if not rows:
         print('  — العائلة فاضية —')
 
+def استخدام(fam, حد=8):
+    """سجلّ البيع الفعلي لكل مرشّح — الحكم عند تكافؤ المواصفة والسعر (قاعدة 23/09)."""
+    out = []
+    for p in fam[:حد]:
+        v = x('product.product', 'search_read', [('product_tmpl_id', '=', p['id'])], ['id'])
+        if not v:
+            continue
+        ls = x('account.move.line', 'search_read',
+               [('product_id', '=', v[0]['id']), ('parent_state', '=', 'posted'),
+                ('move_id.move_type', '=', 'out_invoice')],
+               ['partner_id', 'quantity'])
+        out.append((p, len(ls), sum(l['quantity'] for l in ls),
+                    len({l['partner_id'][0] for l in ls})))
+    return sorted(out, key=lambda z: (-z[2], -z[1]))
+
+
 def تدقيق(name, سعر=None, فئة=None, وحدة=None):
     """تحذيرات مبنية على أخطاء وقعنا فيها فعلاً — بتنطبع قبل أي إنشاء."""
     fam = عائلة(name)
@@ -178,6 +194,11 @@ def فحص(name, صامت=False):
             print('🔴 لا مطابق ولا عائلة. تأكّد من الاسم قبل الإنشاء.')
         for w in تدقيق(name):
             print('    ' + w)
+        if len(fam) > 1:
+            print('\n  ── سجلّ البيع (الأكثر استخداماً أولاً) ──')
+            for p, n, q, k in استخدام(fam):
+                print('    %-8s %-44s %d سطر · %g حبة · %d مشروع'
+                      % (p['default_code'] or '—', p['name'][:44], n, q, k))
     return (مطابق[0] if مطابق else None), fam
 
 def انشاء(name, سعر, فئة, وحدة=1, ضريبة=29, اكد=False):
