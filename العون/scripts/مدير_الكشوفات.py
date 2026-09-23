@@ -12,6 +12,7 @@
 
 قاعدة صاحب المحل (19/09): ممنوع تسليم كشف حساب فيه بند بسعر صفر
 أو بند بلا صنف أو مسودة معلّقة، بدون تنبيه صريح ومعالجة.
+وزيادة (23/09): يفحص كمان إذا الفاتورة **اندبلت وانرحّلت مرتين**.
 """
 import sys, os, io
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'odoo_templates'))
@@ -20,6 +21,7 @@ from collections import defaultdict
 
 SALES = ['out_invoice', 'out_refund']
 BILLS = ['in_invoice', 'in_refund']
+SERVICES_CATEG = 28          # فئة الخدمات — أصنافها بتتكرر بشكل مشروع
 
 # حالات فحصها صاحب المحل واعتمدها — تُعرض كملاحظة لا كمانع
 ALLOW = {
@@ -85,6 +87,27 @@ def فحص(partner_id=None):
         out[owner].append(
             ('شريك مؤرشف', l['date'], l['move_id'][1],
              'السطر على «%s»' % l['partner_id'][1], '%.3f' % (l['debit'] - l['credit'])))
+
+    # فاتورة مكرّرة — نفس الجهة ونفس اليوم ونفس الصنف بنفس الكمية على مستندين
+    # (لغم 23/09: نموذج الورشة بيغطي الورشة من أولها، فبنوده القديمة بتنفوتر مرتين)
+    # أصناف الخدمة العامة بتتكرر بشكل مشروع (فاتورة يدوية سابقة · هدية · خصم · تبرّع)
+    عام = {p['id'] for p in x('product.product', 'search_read',
+           [('categ_id', '=', SERVICES_CATEG)], ['id'])}
+    مفاتيح = defaultdict(list)
+    for l in x('account.move.line', 'search_read',
+               [('display_type', '=', 'product'), ('parent_state', '=', 'posted'),
+                ('move_id.move_type', 'in', SALES), ('product_id', '!=', False)] + pdom,
+               ['move_id', 'product_id', 'quantity', 'price_unit', 'partner_id', 'date']):
+        if l['product_id'][0] in عام:
+            continue
+        مفاتيح[(l['partner_id'][0], l['date'], l['product_id'][0],
+                l['quantity'], l['price_unit'])].append(l)
+    for (pid, d, prod, qty, pu), ls in مفاتيح.items():
+        مستندات = {i['move_id'][1] for i in ls}
+        if len(مستندات) > 1:
+            out[ls[0]['partner_id'][1]].append(
+                ('فاتورة مكرّرة', d, ' + '.join(sorted(مستندات)),
+                 ls[0]['product_id'][1][:42], qty))
 
     for m in x('account.move', 'search_read',
                [('state', '=', 'draft'), ('move_type', 'in', SALES + BILLS)] + pdom,
