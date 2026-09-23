@@ -1,0 +1,39 @@
+{
+ "ts": "2026-09-23T07:56:56.381666",
+ "changes": [
+  {
+   "move": "INV/2026/00021",
+   "line": 243,
+   "old": {
+    "id": 243,
+    "product_id": [
+     57054,
+     "[500822] وصلة فلتراب 5\" Rubber خليجي صغير ومرار"
+    ],
+    "name": "[500822] وصلة فلتراب 5\" Rubber خليجي صغير ومرار",
+    "quantity": 8.0,
+    "price_unit": 1.5,
+    "price_subtotal": 12.0
+   }
+  },
+  {
+   "move": "RINV/2026/00004",
+   "line": 1060,
+   "old": {
+    "id": 1060,
+    "quantity": 3.0,
+    "price_unit": 1.5
+   }
+  }
+ ],
+ "reconcile": [
+  {
+   "credit_line": 530,
+   "amount": 800.0
+  },
+  {
+   "credit_line": 516,
+   "amount": 230.0
+  }
+ ]
+}
