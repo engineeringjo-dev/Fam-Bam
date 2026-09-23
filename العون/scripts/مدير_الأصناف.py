@@ -8,6 +8,7 @@
   python3 scripts/مدير_الأصناف.py --عائلة "نقاصة نحاس"             # اسرد العائلة مرتّبة
   python3 scripts/مدير_الأصناف.py --رتب "نقاصة نحاس"               # أعد الترتيب بالمقاس
   python3 scripts/مدير_الأصناف.py --انشاء "…" --سعر 2 --فئة 5 --اكد
+  python3 scripts/مدير_الأصناف.py --انشاء "توصيل" --سعر 5 --خدمة --اكد   # صنف خدمة (فئة 28 · كود 900xxx)
 
 المدير ما بيقول «مش موجود» أبداً بدون ما يسرد العائلة كاملة قدّامك.
 """
@@ -203,7 +204,7 @@ def فحص(name, صامت=False):
                       % (p['default_code'] or '—', p['name'][:44], n, q, k))
     return (مطابق[0] if مطابق else None), fam
 
-def انشاء(name, سعر, فئة, وحدة=1, ضريبة=29, اكد=False):
+def انشاء(name, سعر, فئة, وحدة=1, ضريبة=29, اكد=False, خدمة=False):
     موجود, fam = فحص(name)
     if موجود:
         raise SystemExit('\n⛔ مدير الأصناف: الصنف موجود أصلاً (%s) — ممنوع التكرار.' % موجود['default_code'])
@@ -220,7 +221,7 @@ def انشاء(name, سعر, فئة, وحدة=1, ضريبة=29, اكد=False):
     from collections import Counter
     بوادئ = Counter((p['default_code'] or '')[:3] for p in fam
                     if re.fullmatch(r'\d{6}', p['default_code'] or ''))
-    بادئة = بوادئ.most_common(1)[0][0] if بوادئ else '900'
+    بادئة = '900' if خدمة else (بوادئ.most_common(1)[0][0] if بوادئ else '900')
     محجوز = {c['default_code'] for c in كل_الأصناف() if c['default_code']}
     محجوز |= {b['barcode'] for b in x('product.template', 'search_read',
               [('barcode', '!=', False)], ['barcode'], limit=6000,
@@ -234,7 +235,7 @@ def انشاء(name, سعر, فئة, وحدة=1, ضريبة=29, اكد=False):
         'name': name, 'default_code': كود, 'barcode': كود,
         'categ_id': فئة, 'uom_id': وحدة, 'list_price': float(سعر), 'standard_price': 0.0,
         'taxes_id': [[6, 0, [ضريبة]]], 'available_in_pos': float(سعر) > 0,
-        'type': 'consu', 'is_storable': False}])[0]
+        'type': 'service' if خدمة else 'consu', 'is_storable': False}])[0]
     setname(tid, name)
     _مخزون.clear()
     print('\n✅ أُنشئ: %s — %s @%s' % (كود, name, سعر))
@@ -263,8 +264,9 @@ def main(argv):
         رتّب(argv[1]); return
     if argv[0] == '--انشاء':
         g = lambda k, d=None: argv[argv.index(k) + 1] if k in argv else d
-        انشاء(argv[1], float(g('--سعر', 0)), int(g('--فئة', 25)),
-              int(g('--وحدة', 1)), int(g('--ضريبة', 29)), '--اكد' in argv); return
+        انشاء(argv[1], float(g('--سعر', 0)), int(g('--فئة', 28 if '--خدمة' in argv else 25)),
+              int(g('--وحدة', 1)), int(g('--ضريبة', 29)), '--اكد' in argv,
+              '--خدمة' in argv); return
     فحص(' '.join(argv))
 
 if __name__ == '__main__':
