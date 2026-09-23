@@ -111,6 +111,55 @@ def اسرد(rows, عنوان):
     if not rows:
         print('  — العائلة فاضية —')
 
+def تدقيق(name, سعر=None, فئة=None, وحدة=None):
+    """تحذيرات مبنية على أخطاء وقعنا فيها فعلاً — بتنطبع قبل أي إنشاء."""
+    fam = عائلة(name)
+    تحذير = []
+    if not fam:
+        return تحذير
+    # (أ) نفس المقاس باسم مكتوب بطريقة ثانية = تكرار شبه مؤكد
+    بصمة = مفتاح_الترتيب({'name': name})
+    توأم = [p for p in fam if مفتاح_الترتيب(p) == بصمة]
+    if توأم:
+        تحذير.append('🔴 نفس المقاس موجود بالعائلة: ' +
+                     ' · '.join('%s %s' % (p['default_code'], p['name']) for p in توأم[:3]))
+    # (ب) التكرارات الداخلية بالعائلة نفسها — تنظيف لاحق
+    from collections import Counter
+    ك = Counter(tuple(مفتاح_الترتيب(p)) for p in fam)
+    مكرر = [m for m, c in ك.items() if c > 1]
+    if مكرر:
+        تحذير.append('⚠️  العائلة نفسها فيها %d مقاس مكرّر بإملاءين — بدها تنظيف.' % len(مكرر))
+    # (ج) الفئة والوحدة والضريبة — لازم تطابق العائلة
+    from collections import Counter as C2
+    ف = C2(p['categ_id'][0] for p in fam if p['categ_id'])
+    if ف and فئة is not None:
+        غالب = ف.most_common(1)[0]
+        if فئة != غالب[0]:
+            اسم = next(p['categ_id'][1] for p in fam if p['categ_id'] and p['categ_id'][0] == غالب[0])
+            تحذير.append('⚠️  فئة العائلة الغالبة «%s» (%d من %d) — وانت حاطط فئة %d.'
+                         % (اسم, غالب[1], len(fam), فئة))
+    ids = [p['id'] for p in fam]
+    تفاصيل = x('product.template', 'search_read', [('id', 'in', ids[:80])],
+                ['uom_id', 'taxes_id', 'list_price'], context={'active_test': False})
+    و = C2(d['uom_id'][0] for d in تفاصيل if d['uom_id'])
+    if و and وحدة is not None and وحدة != و.most_common(1)[0][0]:
+        اسم = next(d['uom_id'][1] for d in تفاصيل if d['uom_id'] and d['uom_id'][0] == و.most_common(1)[0][0])
+        تحذير.append('⚠️  وحدة العائلة الغالبة «%s» — وانت حاطط وحدة %d.' % (اسم, وحدة))
+    بلا_ضريبة = [d for d in تفاصيل if not d['taxes_id']]
+    if بلا_ضريبة:
+        تحذير.append('ℹ️  %d صنف بالعائلة بلا ضريبة شراء — انتبه للاتساق.' % len(بلا_ضريبة))
+    # (د) السعر برّا مدى العائلة
+    أسعار = [d['list_price'] for d in تفاصيل if d['list_price']]
+    if أسعار and سعر:
+        lo, hi = min(أسعار), max(أسعار)
+        if سعر < lo * 0.5 or سعر > hi * 2:
+            تحذير.append('⚠️  السعر %.3f برّا مدى العائلة (%.3f – %.3f) — تأكّد.' % (سعر, lo, hi))
+    # (هـ) سعر صفر + نقطة بيع = نفس مشكلة الـ364 صنف
+    if سعر is not None and float(سعر) == 0:
+        تحذير.append('🔴 سعر صفر — بينقفل عن نقطة البيع تلقائياً لحد ما ينتسعّر.')
+    return تحذير
+
+
 def فحص(name, صامت=False):
     """يرجّع (مطابق, العائلة). ما بيحكي «مش موجود» إلا والعائلة مسرودة."""
     n = وحّد(name)
@@ -127,12 +176,21 @@ def فحص(name, صامت=False):
             print('    دقّق فيها قبل ما تفكّر بصنف جديد (الإملاء بيختلف: ادبتر/ادابتر · فولتراب/فلتراب · فرشاية/فرشاة).')
         else:
             print('🔴 لا مطابق ولا عائلة. تأكّد من الاسم قبل الإنشاء.')
+        for w in تدقيق(name):
+            print('    ' + w)
     return (مطابق[0] if مطابق else None), fam
 
 def انشاء(name, سعر, فئة, وحدة=1, ضريبة=29, اكد=False):
     موجود, fam = فحص(name)
     if موجود:
         raise SystemExit('\n⛔ مدير الأصناف: الصنف موجود أصلاً (%s) — ممنوع التكرار.' % موجود['default_code'])
+    ت = تدقيق(name, float(سعر), فئة, وحدة)
+    if ت:
+        print('\n── تدقيق مدير الأصناف ──')
+        for w in ت:
+            print('  ' + w)
+    if any(w.startswith('🔴 نفس المقاس') for w in ت) and '--تجاهل-التوأم' not in sys.argv:
+        raise SystemExit('\n⛔ مدير الأصناف: في صنف بنفس المقاس. لو متأكّد إنه مختلف، أضف --تجاهل-التوأم')
     if not اكد:
         raise SystemExit('\n⛔ مدير الأصناف: راجع العائلة فوق. لو فعلاً مش موجود، أعد الأمر مع --اكد')
     # الكود: البادئة الغالبة بالعائلة (لا أول صنف — قد يكون شاذاً)، ثم أول رقم شاغر
@@ -152,7 +210,7 @@ def انشاء(name, سعر, فئة, وحدة=1, ضريبة=29, اكد=False):
     tid = x('product.template', 'create', [{
         'name': name, 'default_code': كود, 'barcode': كود,
         'categ_id': فئة, 'uom_id': وحدة, 'list_price': float(سعر), 'standard_price': 0.0,
-        'taxes_id': [[6, 0, [ضريبة]]], 'available_in_pos': True,
+        'taxes_id': [[6, 0, [ضريبة]]], 'available_in_pos': float(سعر) > 0,
         'type': 'consu', 'is_storable': False}])[0]
     setname(tid, name)
     _مخزون.clear()
