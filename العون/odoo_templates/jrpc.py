@@ -1,7 +1,7 @@
 import json, urllib.request
 from pathlib import Path
 _e={}
-for l in Path('/home/user/Fam-Bam/.env').read_text().splitlines():
+for l in Path('/home/user/Fam-Bam/العون/.env').read_text().splitlines():
     if '=' in l and not l.startswith('#'):
         k,v=l.split('=',1); _e[k.strip()]=v.strip()
 URL,DB,USER,KEY=_e['ODOO_URL'],_e['ODOO_DB'],_e['ODOO_USERNAME'],_e['ODOO_API_KEY']

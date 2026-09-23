@@ -36,7 +36,7 @@ if isinstance(sid,list): sid=sid[0]
 x('ir.actions.server','run',[sid],context={'active_model':'account.move','active_id':mid,'active_ids':[mid]})
 b=x('ir.config_parameter','search_read',[('key','=','alawn.invb64')],['value'])
 if b and b[0]['value']:
-    open('/home/user/Fam-Bam/فاتورة_من_اودو.pdf','wb').write(base64.b64decode(b[0]['value']))
+    open('/home/user/Fam-Bam/العون/فاتورة_من_اودو.pdf','wb').write(base64.b64decode(b[0]['value']))
     print('حجم PDF:',len(base64.b64decode(b[0]['value'])))
 else:
     e=x('ir.config_parameter','search_read',[('key','=','alawn.err')],['value'])

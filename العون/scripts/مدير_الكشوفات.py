@@ -124,7 +124,7 @@ def اصدار(partner_id, name):
     kind = طبيعة_التعامل(partner_id)
     report, label = REPORTS[kind]
     safe = ''.join(c for c in name if c not in '/\\:*?"<>|').strip().replace(' ', '_')
-    path = '/home/user/Fam-Bam/%s_%s.pdf' % (label.replace(' ', '_'), safe)
+    path = '/home/user/Fam-Bam/العون/%s_%s.pdf' % (label.replace(' ', '_'), safe)
     render(report, partner_id, path)
     print('📄 %s → %s' % (label, path))
     return path

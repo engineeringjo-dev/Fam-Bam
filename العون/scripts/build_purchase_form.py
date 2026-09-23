@@ -7,7 +7,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protecti
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.formatting.rule import FormulaRule
 
-OUT = '/home/user/Fam-Bam/نموذج_مشتريات_شهري.xlsx'
+OUT = '/home/user/Fam-Bam/العون/نموذج_مشتريات_شهري.xlsx'
 INV_ROWS, ITEM_ROWS = 200, 600
 R0 = 7
 INV_END, ITEM_END = R0 + INV_ROWS - 1, R0 + ITEM_ROWS - 1

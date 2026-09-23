@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, json; sys.path.insert(0,'/home/user/Fam-Bam/odoo_templates')
+import sys, json; sys.path.insert(0,'/home/user/Fam-Bam/العون/odoo_templates')
 from jrpc import x
 SP='/tmp/claude-0/-home-user-Fam-Bam/a76a5bbe-02f9-54b9-9aba-c7781c667b82/scratchpad'
 items = json.load(open(SP+'/wt_items.json'))

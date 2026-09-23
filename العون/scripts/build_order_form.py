@@ -7,7 +7,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protecti
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.formatting.rule import FormulaRule
 
-OUT = '/home/user/Fam-Bam/نموذج_طلبية_ورشة.xlsx'
+OUT = '/home/user/Fam-Bam/العون/نموذج_طلبية_ورشة.xlsx'
 المدققون = 'عمر المصري,ابو علي'
 
 NAVY, TEAL, RUST = '1F4E6B', '0F6E6E', '9A4A00'

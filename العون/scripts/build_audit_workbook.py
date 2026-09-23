@@ -135,5 +135,5 @@ for col,let in ((9,'I'),(13,'M')):
 dv2=DataValidation(type='list', formula1='"نعم"', allow_blank=True); ws.add_data_validation(dv2)
 dv2.add('N3:N%d'%last); dv2.add('O3:O%d'%last)
 
-wb.save('/home/user/Fam-Bam/تدقيق_فواتير_يزيد_العمري.xlsx')
+wb.save('/home/user/Fam-Bam/العون/تدقيق_فواتير_يزيد_العمري.xlsx')
 print('✔ انعمل · فواتير %d · سطور %d' % (len(data), last-2))
