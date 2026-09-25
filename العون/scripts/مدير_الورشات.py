@@ -7,6 +7,8 @@
   python3 scripts/مدير_الورشات.py --كل                         # جرد كل الورشات وحالتها
   python3 scripts/مدير_الورشات.py --ورشة "ثروت"                # حالة ورشة وحدة
   python3 scripts/مدير_الورشات.py --فحص ملف.xlsx --ورشة "العجرمي"   # ملف جديد مقابل المرحّل
+  python3 scripts/مدير_الورشات.py --سجل                        # آخر مراجعة لكل ورشة
+  python3 scripts/مدير_الورشات.py --راجعت "الكابتن" "ملاحظة"   # تسجيل مراجعة ورشة الآن
 
 المدير ما بيخلّي ولا بند ينزل مرتين، وما بيخلّي ورشة تنفتح بلا مقاول ولا بلا رصيد مفهوم.
 
@@ -180,8 +182,46 @@ def فحص_ملف(path, اسم_ورشة):
     return جديد, مكرر, مشتبه
 
 
+# ═══════════ سجلّ المراجعات ═══════════
+السجل = os.path.join(ROOT, 'drive', 'سجل_مراجعة_الورشات.json')
+
+def سجل_حمّل():
+    import json
+    return json.load(open(السجل)) if os.path.exists(السجل) else {}
+
+def سجل_احفظ(d):
+    import json
+    json.dump(d, open(السجل, 'w'), ensure_ascii=False, indent=1)
+
+def راجعت(ورشة, ملاحظة=''):
+    """يسجّل إن الورشة انراجعت هلق — بتوقيت عمّان."""
+    import datetime
+    try:
+        from zoneinfo import ZoneInfo
+        الآن = datetime.datetime.now(ZoneInfo('Asia/Amman'))
+    except Exception:
+        الآن = datetime.datetime.utcnow() + datetime.timedelta(hours=3)
+    d = سجل_حمّل()
+    d.setdefault(ورشة, [])
+    d[ورشة].append({'وقت': الآن.strftime('%Y-%m-%d %H:%M'), 'ملاحظة': ملاحظة})
+    سجل_احفظ(d)
+    print('✅ انسجّلت مراجعة «%s» — %s' % (ورشة, الآن.strftime('%Y-%m-%d %H:%M')))
+
+def اعرض_السجل():
+    d = سجل_حمّل()
+    print(BAR); print('سجلّ مراجعة الورشات (توقيت عمّان)'); print(BAR)
+    if not d: print('— فاضي'); return
+    for ورشة, ر in sorted(d.items(), key=lambda z: z[1][-1]['وقت'], reverse=True):
+        print('%-26s آخر مراجعة: %s   (%d مراجعة)' % (ورشة, ر[-1]['وقت'], len(ر)))
+        if ر[-1]['ملاحظة']: print('   ↳ %s' % ر[-1]['ملاحظة'])
+    print(BAR)
+
+
 def main(argv):
     if not argv: raise SystemExit(__doc__)
+    if argv[0] == '--سجل': اعرض_السجل(); return
+    if argv[0] == '--راجعت':
+        راجعت(argv[1], ' '.join(argv[2:])); return
     if '--فحص' in argv:
         path = argv[argv.index('--فحص') + 1]
         ورشة = argv[argv.index('--ورشة') + 1] if '--ورشة' in argv else ''
