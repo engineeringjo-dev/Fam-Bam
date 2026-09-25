@@ -114,8 +114,8 @@ for c in ('B4', 'D4'):
     inv[c].font = F(11, True); inv[c].alignment = C(); inv[c].border = BOX
 inv.merge_cells('E4:I4')
 inv['E4'] = ('=IF(B4=0,"⛔ ما في فواتير مُدخلة",'
-             'IF(COUNTIF(I{0}:I{1},"⛔*")>0,'
-             '"⛔ في "&COUNTIF(I{0}:I{1},"⛔*")&" فاتورة ناقصة",'
+             'IF(COUNTIF(I{0}:I{1},"⛔*")+COUNTIF(I{0}:I{1},"🟡*")>0,'
+             '"⛔ في "&(COUNTIF(I{0}:I{1},"⛔*")+COUNTIF(I{0}:I{1},"🟡*"))&" فاتورة ناقصة",'
              '"✅ كل الفواتير مكتملة"))').format(R0, INV_END)
 inv['E4'].fill = PatternFill('solid', fgColor=AUTO)
 inv['E4'].font = F(12, True); inv['E4'].alignment = C(); inv['E4'].border = BOX
@@ -123,13 +123,13 @@ inv['E4'].font = F(12, True); inv['E4'].alignment = C(); inv['E4'].border = BOX
 table(inv,
       ['#', 'المورد', 'التاريخ', 'رقم الفاتورة', 'النوع',
        'المجموع', 'الخصم', 'الصافي', 'الحالة'],
-      [5, 30, 12, 14, 12, 12, 10, 12, 26], NAVY, INV_ROWS)
+      [5, 30, 16, 14, 12, 12, 10, 12, 26], NAVY, INV_ROWS)
 
 for r in range(R0, INV_END + 1):
     inv.cell(r, 1, '=IF(B{}="","",ROW()-{})'.format(r, R0 - 1))
     inv.cell(r, 1).fill = PatternFill('solid', fgColor=AUTO)
     inv.cell(r, 2).alignment = C('right')
-    inv.cell(r, 3).number_format = 'DD/MM/YYYY'
+    inv.cell(r, 3).number_format = '00"/"00"/"0000'
     for col in (6, 7, 8):
         inv.cell(r, col).number_format = '0.000'
     inv.cell(r, 8, '=IF(F{0}="","",F{0}-N(G{0}))'.format(r))
@@ -140,8 +140,8 @@ for r in range(R0, INV_END + 1):
         'IF(E{r}="","⛔ اختر النوع",'
         'IF(E{r}="مطبوعة","📷 مع الصورة",'
         'IF(D{r}="","⛔ اكتب رقم الفاتورة",'
-        'IF({s}=0,"⛔ ما في بنود مُدخلة",'
-        'IF(ROUND({s}-N(F{r}),3)=0,"✅ البنود مطابقة",'
+        'IF({s}=0,"🟡 بنودها ما انزلت",'
+        'IF(ROUND({s}-N(F{r}),3)=0,"✅ خلصت — البنود مطابقة",'
         '"⛔ فرق "&TEXT(N(F{r})-{s},"0.000")))))))'
     ).format(r=r, s=s))
     inv.cell(r, 9).fill = PatternFill('solid', fgColor=AUTO)
@@ -163,6 +163,14 @@ inv.conditional_formatting.add(rng, FormulaRule(
 inv.conditional_formatting.add('D{}:D{}'.format(R0, INV_END), FormulaRule(
     formula=['AND($D{0}<>"",COUNTIF($D${1}:$D${2},$D{0})>1)'.format(R0, R0, INV_END)],
     fill=PatternFill('solid', bgColor='FFD9A0')))
+# تاريخ غير منطقي — يوم>31 أو شهر>12 أو سنة<2020
+BADDATE = ('AND($B{0}<>"",$C{0}<>"",OR(INT($C{0}/1000000)<1,INT($C{0}/1000000)>31,'
+           'MOD(INT($C{0}/10000),100)<1,MOD(INT($C{0}/10000),100)>12,'
+           'MOD($C{0},10000)<2020))').format(R0)
+inv.conditional_formatting.add('C{}:C{}'.format(R0, INV_END),
+    FormulaRule(formula=[BADDATE], fill=PatternFill('solid', bgColor='FFD9A0'),
+                font=F(11, True, 'A11212')))
+
 # حقول ناقصة
 for col in ('C', 'F'):
     inv.conditional_formatting.add('{0}{1}:{0}{2}'.format(col, R0, INV_END), FormulaRule(
@@ -216,6 +224,55 @@ for r in range(R0, ITEM_END + 1):
     it.cell(r, 6, '=IF(C{0}="","",N(D{0})*N(E{0}))'.format(r))
     it.cell(r, 6).fill = PatternFill('solid', fgColor=AUTO)
 
+# ── لوحة متابعة الفواتير اليدوية (تتعبّى لحالها من ورقة «الفواتير») ──
+for k, v in (('G', 3), ('H', 14), ('I', 13), ('J', 13), ('K', 26)):
+    it.column_dimensions[k].width = v
+it.merge_cells('H4:K4')
+it['H4'] = ('=IF(COUNTIF(\'الفواتير\'!$E${0}:$E${1},"يدوية")=0,"لا يوجد فواتير يدوية",'
+            'COUNTIF(K{0}:K{1},"✅*")&" مكتملة من "&'
+            'COUNTIF(\'الفواتير\'!$E${0}:$E${1},"يدوية")&" فاتورة يدوية")').format(R0, INV_END)
+it['H4'].fill = PatternFill('solid', fgColor=AUTO)
+it['H4'].font = F(12, True); it['H4'].alignment = C(); it['H4'].border = BOX
+for i, h in enumerate(['رقم الفاتورة اليدوية', 'مجموع الفاتورة', 'مجموع بنودها', 'خلصت؟'], start=8):
+    c = it.cell(6, i, h)
+    c.font = F(11, True, 'FFFFFF'); c.alignment = C()
+    c.fill = PatternFill('solid', fgColor=GOLD)
+    c.border = Border(left=LINE, right=LINE, top=THICK, bottom=THICK)
+SUMB = "SUMIF($B${0}:$B${1},$H{{r}},$F${0}:$F${1})".format(R0, ITEM_END)
+CNTB = "COUNTIF($B${0}:$B${1},$H{{r}})".format(R0, ITEM_END)
+for r in range(R0, INV_END + 1):
+    it.cell(r, 8, ('=IF(\'الفواتير\'!$E{r}="يدوية",\'الفواتير\'!$D{r},"")').format(r=r))
+    it.cell(r, 9, '=IF($H{r}="","",\'الفواتير\'!$F{r})'.format(r=r))
+    it.cell(r, 10, '=IF($H{r}="","",{s})'.format(r=r, s=SUMB.format(r=r)))
+    it.cell(r, 11, ('=IF($H{r}="","",'
+                    'IF($H{r}=0,"⛔ اكتب رقم الفاتورة",'
+                    'IF({c}=0,"🟡 ما انزلت بنودها",'
+                    'IF(ROUND($I{r}-$J{r},3)=0,"✅ خلصت",'
+                    '"⛔ فرق "&TEXT($I{r}-$J{r},"0.000")))))').format(r=r, c=CNTB.format(r=r)))
+    for col in range(8, 12):
+        c = it.cell(r, col)
+        c.border = BOX; c.alignment = C(); c.font = F(10, True) if col == 11 else F(11)
+        c.fill = PatternFill('solid', fgColor=AUTO)
+    for col in (9, 10):
+        it.cell(r, col).number_format = '0.000'
+KR = 'K{}:K{}'.format(R0, INV_END)
+it.conditional_formatting.add(KR, FormulaRule(
+    formula=['LEFT($K{},1)="✅"'.format(R0)], fill=PatternFill('solid', bgColor=GREEN), font=F(10, True, '17632A')))
+it.conditional_formatting.add(KR, FormulaRule(
+    formula=['LEFT($K{},1)="⛔"'.format(R0)], fill=PatternFill('solid', bgColor=RED), font=F(10, True, 'A11212')))
+it.conditional_formatting.add(KR, FormulaRule(
+    formula=['LEFT($K{},1)="🟡"'.format(R0)], fill=PatternFill('solid', bgColor='FFF0C2'), font=F(10, True, GOLD)))
+it.conditional_formatting.add('H4', FormulaRule(
+    formula=['AND(COUNTIF($K${0}:$K${1},"✅*")>0,COUNTIF($K${0}:$K${1},"✅*")='
+             'COUNTIF(\'الفواتير\'!$E${0}:$E${1},"يدوية"))'.format(R0, INV_END)],
+    fill=PatternFill('solid', bgColor=GREEN), font=F(12, True, '17632A')))
+
+# رقم الفاتورة بعمود B يُختار من قائمة أرقام ورقة «الفواتير»
+dv = DataValidation(type='list',
+                    formula1="='الفواتير'!$D${0}:$D${1}".format(R0, INV_END),
+                    allow_blank=True, showDropDown=False)
+it.add_data_validation(dv); dv.add('B{}:B{}'.format(R0, ITEM_END))
+
 it.conditional_formatting.add('E4', FormulaRule(
     formula=['LEFT(E4,1)="✅"'], fill=PatternFill('solid', bgColor=GREEN), font=F(12, True, '17632A')))
 it.conditional_formatting.add('E4', FormulaRule(
@@ -255,27 +312,35 @@ STEPS = [
     ('2', 'اكتب الشهر مرة وحدة فوق بورقة «الفواتير» وبس. ورقة «البنود» بتاخده لحالها.'),
     ('sec', 'ورقة «الفواتير» — سطر لكل فاتورة'),
     ('3', 'المورد: اكتب الاسم **نفسه بالضبط** كل مرة. «كتانة» و«سليم كتانة» بينحسبوا موردين اثنين.'),
-    ('4', 'النوع: من القائمة — **مطبوعة** أو **يدوية**. هاي بتحدّد شو بعدها.'),
-    ('5', '**مطبوعة** ← المورد + التاريخ + رقم الفاتورة + المجموع وبس. ما بدنا بنودها، '
+    ('4', 'التاريخ: اكتبه **أرقام ورا بعض بلا شرطات** — 24092026 والخانة بتعرضه 24/09/2026 لحالها. '
+          'إذا صار **برتقالي** يعني التاريخ غلط (يوم أكبر من 31 أو شهر أكبر من 12).'),
+    ('5', 'النوع: من القائمة — **مطبوعة** أو **يدوية**. هاي بتحدّد شو بعدها.'),
+    ('6', '**مطبوعة** ← المورد + التاريخ + رقم الفاتورة + المجموع وبس. ما بدنا بنودها، '
           'بس **ابعث صورتها** مع الملف.'),
-    ('6', '**يدوية** ← نفس الأربعة، وكمان بنودها بورقة «البنود». '
+    ('7', '**يدوية** ← نفس الأربعة، وكمان بنودها بورقة «البنود». '
           'السبب: الخط اليدوي ما بينقرأ، والبنود لازم تنكتب عشان تنزل على النظام.'),
-    ('7', 'الخصم: إذا في خصم على الفاتورة كلها اكتبه، وإلا اتركه فاضي. '
+    ('8', 'الخصم: إذا في خصم على الفاتورة كلها اكتبه، وإلا اتركه فاضي. '
           'الصافي بيتحسب لحاله (المجموع − الخصم).'),
-    ('8', 'رقم الفاتورة اللي بيصير **برتقالي** = مكرر بنفس الملف. غيّره، وإلا بنودها بتختلط.'),
+    ('9', 'رقم الفاتورة اللي بيصير **برتقالي** = مكرر بنفس الملف. غيّره، وإلا بنودها بتختلط.'),
     ('sec', 'ورقة «البنود» — للفواتير اليدوية فقط'),
-    ('9', 'كل بند بسطر: رقم الفاتورة + البند + الكمية + الإفرادي. الإجمالي بيتحسب لحاله.'),
-    ('10', 'رقم الفاتورة لازم يكون **نفسه** المكتوب بورقة «الفواتير». '
+    ('10', 'كل بند بسطر: رقم الفاتورة + البند + الكمية + الإفرادي. الإجمالي بيتحسب لحاله.'),
+    ('11', 'رقم الفاتورة لازم يكون **نفسه** المكتوب بورقة «الفواتير». '
            'إذا طلع ⛔ مكان الرقم التسلسلي ← يعني الرقم مش موجود بورقة الفواتير.'),
-    ('11', 'اكتب البند زي ما هو مكتوب بالفاتورة. مش لازم يطابق الكتالوج — أنا بطابقه.'),
+    ('12', 'اكتب البند زي ما هو مكتوب بالفاتورة. مش لازم يطابق الكتالوج — أنا بطابقه.'),
+    ('sec', 'لوحة المتابعة — يمين ورقة «البنود»'),
+    ('◆', 'أرقام الفواتير **اليدوية** بتطلع فيها **لحالها** — ما بتكتب إشي. '
+          'جنب كل رقم: مجموع الفاتورة · مجموع بنودها اللي أدخلتها · وعمود **«خلصت؟»**.'),
+    ('◆', '🟡 **ما انزلت بنودها** = لسا ما بلّشت فيها · ⛔ **فرق 0.500** = المجموعان مش متطابقين '
+          '· ✅ **خلصت** = المجموعان تطابقا وخلصت هاي الفاتورة.'),
+    ('◆', 'فوق اللوحة بيطلع «**3 مكتملة من 5 فواتير يدوية**» — لما يصير أخضر يعني كلهن خلصوا.'),
     ('sec', 'التدقيق — شغل الإكسل مش شغلك'),
-    ('12', 'عمود «الحالة» بيقارن مجموع البنود مع مجموع الفاتورة لحاله: '
+    ('13', 'عمود «الحالة» بيقارن مجموع البنود مع مجموع الفاتورة لحاله: '
            '**✅ البنود مطابقة** يعني تمام · **⛔ فرق 0.500** يعني ناقص أو زايد 500 فلس.'),
-    ('13', 'العدّاد فوق ما بيصير أخضر إلا لما كل فاتورة تكون سليمة. '
+    ('14', 'العدّاد فوق ما بيصير أخضر إلا لما كل فاتورة تكون سليمة. '
            'لا تبعث الملف وهو أحمر.'),
     ('sec', 'الإرسال'),
-    ('14', 'كل يوم: ابعث الملف + صور الفواتير المطبوعة اللي دخّلتها اليوم.'),
-    ('15', 'الفواتير بتنزل على أودو **يوم بيوم** — مش آخر الشهر. '
+    ('15', 'كل يوم: ابعث الملف + صور الفواتير المطبوعة اللي دخّلتها اليوم.'),
+    ('16', 'الفواتير بتنزل على أودو **يوم بيوم** — مش آخر الشهر. '
            'كل يوم بيمرّ بلا تنزيل = يوم بتشتغل فيه على أرقام مش صحيحة.'),
     ('sec', 'الفكرة باختصار'),
     ('◆', 'المطبوعة إلها صورة بتغني عن كتابة بنودها. اليدوية ما إلها — '
