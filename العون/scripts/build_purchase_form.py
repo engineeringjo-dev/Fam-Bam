@@ -6,6 +6,7 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protection
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.formatting.rule import FormulaRule
+from openpyxl.workbook.defined_name import DefinedName
 
 OUT = '/home/user/Fam-Bam/العون/نموذج_مشتريات_شهري.xlsx'
 INV_ROWS, ITEM_ROWS = 200, 600
@@ -267,10 +268,26 @@ it.conditional_formatting.add('H4', FormulaRule(
              'COUNTIF(\'الفواتير\'!$E${0}:$E${1},"يدوية"))'.format(R0, INV_END)],
     fill=PatternFill('solid', bgColor=GREEN), font=F(12, True, '17632A')))
 
-# رقم الفاتورة بعمود B يُختار من قائمة أرقام ورقة «الفواتير»
-dv = DataValidation(type='list',
-                    formula1="='الفواتير'!$D${0}:$D${1}".format(R0, INV_END),
+# ── القائمة المنسدلة: الفواتير اليدوية **اللي لسا ما خلصت** فقط ──
+# M = ترتيب الفاتورة المفتوحة · N = القائمة مرصوصة فوق بلا فراغات بالنص
+for k in ('L', 'M', 'N'):
+    it.column_dimensions[k].width = 14
+    it.column_dimensions[k].hidden = True
+it.cell(6, 13, 'ترتيب'); it.cell(6, 14, 'المفتوحة')
+for r in range(R0, INV_END + 1):
+    it.cell(r, 13, ('=IF(AND($H{r}<>"",$H{r}<>0,LEFT($K{r},1)<>"✅"),'
+                    'COUNT($M${h}:M{p})+1,"")').format(r=r, h=R0 - 1, p=r - 1))
+    it.cell(r, 14, ('=IFERROR(INDEX($H${0}:$H${1},MATCH(ROW()-{2},$M${0}:$M${1},0)),"")'
+                    ).format(R0, INV_END, R0 - 1))
+# اسم معرَّف بطول متغيّر — عشان ما تطلع خانات فاضية بالقائمة
+wb.defined_names.add(DefinedName('فواتير_مفتوحة', attr_text=(
+    "OFFSET('البنود'!$N${0},0,0,MAX(1,SUMPRODUCT(--('البنود'!$N${0}:$N${1}<>\"\"))),1)"
+).format(R0, INV_END)))
+dv = DataValidation(type='list', formula1='=فواتير_مفتوحة',
                     allow_blank=True, showDropDown=False)
+dv.error = 'اختر رقم فاتورة يدوية لسا ما خلصت من القائمة.'
+dv.errorTitle = 'رقم غير موجود بالقائمة'
+dv.showErrorMessage = False
 it.add_data_validation(dv); dv.add('B{}:B{}'.format(R0, ITEM_END))
 
 it.conditional_formatting.add('E4', FormulaRule(
