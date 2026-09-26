@@ -9,8 +9,7 @@
   python3 scripts/مدير_الورشات.py --فحص ملف.xlsx --ورشة "العجرمي"   # ملف جديد مقابل المرحّل
   python3 scripts/مدير_الورشات.py --سجل                        # آخر مراجعة لكل ورشة
   python3 scripts/مدير_الورشات.py --راجعت "الكابتن" "ملاحظة"   # تسجيل مراجعة ورشة الآن
-  python3 scripts/مدير_الورشات.py --منذ-قريت                   # كل التحديثات من آخر «قريت» مجمّعة
-  python3 scripts/مدير_الورشات.py --قريت                        # صاحب المحل قرأ — نقطة جديدة
+  python3 scripts/مدير_الورشات.py --منذ-الترحيل               # كل تعديلات الدرايف من آخر ترحيل لكل ورشة
 
 المدير ما بيخلّي ولا بند ينزل مرتين، وما بيخلّي ورشة تنفتح بلا مقاول ولا بلا رصيد مفهوم.
 
@@ -222,36 +221,53 @@ def اعرض_السجل():
     print(BAR)
 
 
-# ═══════════ «قريت» — التقرير التراكمي (صاحب المحل 26/09) ═══════════
-# «مرات ما بكون فاضي وتمر ساعتين ثلاث وأنا ما شيكت الدرايف» →
-# كل تقرير بيعرض كل التحديثات من آخر «قريت»، مش من آخر فحص بس.
-آخر_قراءة = os.path.join(ROOT, 'drive', 'آخر_قراءة.json')
+# ═══════════ التقرير التراكمي من آخر ترحيل على أودو (صاحب المحل 26/09) ═══════════
+# «مرات ما بكون فاضي وتمر ساعتين ثلاث وأنا ما شيكت» ثم: «بدي كل التعديلات من آخر تعديل
+# على أودو صار، مش آخر قريت» → لكل ورشة: نقطة البداية = آخر فاتورة/مرتجع إلها انعدّل على أودو،
+# وبنعرض كل تعديلات الدرايف (من سجلّ المراجعة) بعدها — بتضل ظاهرة لحد ما ينرحّل.
+def _نواة(اسم):
+    اسم = re.sub(r'\.xlsx$', '', اسم)
+    return set(وحّد(re.sub(r'^(ورشة|ورشه|مشروع)\s+', '', اسم.strip())).split()) - {'د', 'د.'}
 
-def قريت():
-    import json
-    t = الآن_عمّان().strftime('%Y-%m-%d %H:%M')
-    json.dump({'وقت': t}, open(آخر_قراءة, 'w'), ensure_ascii=False)
-    print('📌 نقطة قراءة جديدة: %s — التقارير الجاية بتبدأ من هون' % t)
+def آخر_ترحيل():
+    """{partner_id: (اسم, آخر رقم, write_date بتوقيت عمّان)} لكل جهة إلها فاتورة أو مرتجع مرحّل."""
+    mv = x('account.move', 'search_read',
+           [('move_type', 'in', ['out_invoice', 'out_refund']), ('state', '=', 'posted')],
+           ['partner_id', 'name', 'write_date'], order='write_date desc')
+    out = {}
+    for m in mv:
+        if not m['partner_id'] or m['partner_id'][0] in out: continue
+        t = datetime.datetime.strptime(m['write_date'], '%Y-%m-%d %H:%M:%S') + datetime.timedelta(hours=3)
+        out[m['partner_id'][0]] = (m['partner_id'][1], m['name'], t.strftime('%Y-%m-%d %H:%M'))
+    return out
 
-def منذ_قريت():
-    import json
-    t = json.load(open(آخر_قراءة))['وقت'] if os.path.exists(آخر_قراءة) else ''
-    بنود = [(ر['وقت'], ورشة, ر['ملاحظة']) for ورشة, rs in سجل_حمّل().items()
-            for ر in rs if ر['وقت'] > t]
-    print(BAR); print('التحديثات من آخر «قريت» (%s) — %d' % (t or 'البداية', len(بنود))); print(BAR)
-    if not بنود: print('— ما في إشي جديد'); return
-    for ورشة in sorted({b[1] for b in بنود}, key=lambda w: max(b[0] for b in بنود if b[1] == w)):
-        print('▸ %s' % ورشة)
-        for وقت, _, م in sorted(b for b in بنود if b[1] == ورشة):
-            print('   %s/%s %s  %s' % (وقت[8:10], وقت[5:7], وقت[11:], م))
+def شريك_الورشة(ورشة):
+    ن = _نواة(ورشة)
+    ps = x('res.partner', 'search_read', [('customer_rank', '>', 0)], ['name'])
+    for p in ps:
+        if ن and ن <= _نواة(p['name']): return p['id'], p['name']
+    return None, None
+
+def منذ_الترحيل():
+    ت = آخر_ترحيل()
+    print(BAR); print('تعديلات الدرايف من آخر ترحيل على أودو — لكل ورشة (توقيت عمّان)'); print(BAR)
+    for ورشة, rs in sorted(سجل_حمّل().items(), key=lambda z: z[1][-1]['وقت'], reverse=True):
+        pid, pname = شريك_الورشة(ورشة)
+        if pid is None: بداية, رأس = '', '🔴 ما إلها شريك على أودو — كل التعديلات'
+        elif pid not in ت: بداية, رأس = '', '⏳ «%s» ولا فاتورة مرحّلة — كل التعديلات' % pname
+        else: بداية, رأس = ت[pid][2], 'آخر ترحيل: %s — %s' % (ت[pid][1], ت[pid][2][8:10] + '/' + ت[pid][2][5:7] + ' ' + ت[pid][2][11:])
+        بعد = [r for r in rs if r['وقت'] > بداية]
+        if not بعد: continue
+        print('▸ %s  (%s)' % (ورشة, رأس))
+        for r in بعد:
+            print('   %s/%s %s  %s' % (r['وقت'][8:10], r['وقت'][5:7], r['وقت'][11:], r['ملاحظة']))
     print(BAR)
 
 
 def main(argv):
     if not argv: raise SystemExit(__doc__)
     if argv[0] == '--سجل': اعرض_السجل(); return
-    if argv[0] == '--قريت': قريت(); return
-    if argv[0] == '--منذ-قريت': منذ_قريت(); return
+    if argv[0] == '--منذ-الترحيل': منذ_الترحيل(); return
     if argv[0] == '--راجعت':
         راجعت(argv[1], ' '.join(argv[2:])); return
     if '--فحص' in argv:
