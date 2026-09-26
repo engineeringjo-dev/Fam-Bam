@@ -64,6 +64,21 @@ def dv(ws, formula, rng):
 def name(nm, ref):
     wb.defined_names[nm] = DefinedName(nm, attr_text=ref)
 
+# ═══ قائمة الأوقات: كل ربع ساعة بنظام 12 ساعة (تبدأ 6:00 AM لأنها بداية الدوام) ═══
+def label(m):
+    h, mi = divmod(m, 60)
+    return '%d:%02d %s' % ((h % 12) or 12, mi, 'AM' if h < 12 else 'PM')
+SLOTS = [(6 * 60 + 15 * k) % 1440 for k in range(96)]
+TL = wb.create_sheet('الأوقات')
+for i, m in enumerate(SLOTS, start=1):
+    TL.cell(i, 1, label(m))
+    TL.cell(i, 2, dt.time(m // 60, m % 60)).number_format = 'h:mm AM/PM'
+TL.sheet_state = 'hidden'
+TIME_LIST = "='الأوقات'!$A$1:$A$96"
+
+def TV(ref):   # نص «7:15 PM» ← قيمة وقت
+    return "INDEX('الأوقات'!$B$1:$B$96,MATCH(%s,'الأوقات'!$A$1:$A$96,0))" % ref
+
 DAY = 'CHOOSE(WEEKDAY({d},1),"الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت")'
 
 # ═══════════════════ القواعد ═══════════════════
@@ -78,9 +93,9 @@ rules = [  # (اسم معرّف, القاعدة, القيمة, تنسيق, ال�
     ('MGR_SAL',   'المدير — راتب كل 10 أيام', 125, '#,##0.000', 'بلا ساعات عمل. كل 10 أيام دفعة.'),
     ('OMR_RATE',  'عمر المصري — أجر الساعة العادية', 1.25, '#,##0.000', 'السبت–الخميس من 07:00 لحد ساعة بداية الإضافي، والجمعة كل ساعاته.'),
     ('OMR_OT',    'عمر المصري — أجر الساعة بعد الدوام', 1.5, '#,##0.000', 'السبت–الخميس بعد الساعة المكتوبة تحت.'),
-    ('OMR_OT_AT', 'عمر المصري — بداية الإضافي (الساعة)', dt.time(18, 0), 'HH:MM', 'أي ساعة بعدها بتنحسب @ الإضافي. الجمعة ما إلها إضافي.'),
-    ('OMR_FRI_IN', 'عمر المصري — الجمعة من', dt.time(14, 0), 'HH:MM', 'دوام الجمعة المتفق عليه (للتنبيه بس، الحساب حسب الساعات الفعلية).'),
-    ('OMR_FRI_OUT', 'عمر المصري — الجمعة إلى', dt.time(23, 0), 'HH:MM', ''),
+    ('OMR_OT_AT', 'عمر المصري — بداية الإضافي (الساعة)', dt.time(18, 0), 'h:mm AM/PM', 'أي ساعة بعدها بتنحسب @ الإضافي. الجمعة ما إلها إضافي.'),
+    ('OMR_FRI_IN', 'عمر المصري — الجمعة من', dt.time(14, 0), 'h:mm AM/PM', 'دوام الجمعة المتفق عليه (للتنبيه بس، الحساب حسب الساعات الفعلية).'),
+    ('OMR_FRI_OUT', 'عمر المصري — الجمعة إلى', dt.time(23, 0), 'h:mm AM/PM', ''),
     ('AZZ_RATE',  'عبدالعزيز — أجر الساعة', 1.0, '#,##0.000', 'بغض النظر عن اليوم أو الوقت. يقبض نهاية كل يوم.'),
     ('GYP_RATE',  'تحميل جبسمبورد — أجر الساعة', 2.5, '#,##0.000', 'أي موظف: ساعات التحميل بتنحسب @2.5 بدل أجره العادي.'),
     ('OMR_INST',  'عمر المصري — قسط أسبوعي ثابت (دين/بضاعة)', 0, '#,##0.000', 'ينخصم كل أسبوع من الصافي. 0 = ما عليه أقساط.'),
@@ -104,55 +119,63 @@ K['B18'].font = F(10, False, '555555'); K['B18'].alignment = C('right')
 # ═══════════════════ ساعات عمر ═══════════════════
 O = sheet('ساعات عمر', 'ساعات عمر المصري — سطر لكل يوم', NAVY,
           ['التاريخ', 'اليوم', 'دخول', 'خروج', 'منها تحميل جبسمبورد (ساعات)', 'إجمالي الساعات', 'ساعات عادية', 'ساعات إضافي', 'المستحق (دينار)', 'ملاحظات'],
-          [13, 11, 10, 10, 15, 11, 11, 11, 13, 30], DAY_ROWS,
-          'اكتب التاريخ والدخول والخروج (مثل 07:00 و 18:30). السبت–الخميس: الساعات بعد بداية الإضافي @الإضافي. الجمعة: كل الساعات @العادي. ساعات الجبسمبورد @2.5 بدل أجرها.')
+          [13, 11, 12, 12, 15, 11, 11, 11, 13, 30], DAY_ROWS,
+          'اكتب التاريخ واختر الدخول والخروج من القائمة (كل ربع ساعة · AM/PM). السبت–الخميس: الساعات بعد بداية الإضافي @الإضافي. الجمعة: كل الساعات @العادي. ساعات الجبسمبورد @2.5 بدل أجرها.')
 paint(O, 'ACDEJ', R0, R0 + DAY_ROWS - 1, EDIT); paint(O, 'BFGHI', R0, R0 + DAY_ROWS - 1, AUTO)
 def omar_formulas(ws, r):
     ws['B%d' % r] = '=IF(A{r}="","",%s)' % DAY.format(d='A{r}')
     ws['B%d' % r] = ws['B%d' % r].value.replace('{r}', str(r))
-    ws['F%d' % r] = '=IF(OR(C{r}="",D{r}=""),"",ROUND(MOD(D{r}-C{r},1)*24,2))'.replace('{r}', str(r))
+    ws['K%d' % r] = ('=IF(C{r}="","",%s)' % TV('C{r}')).replace('{r}', str(r))
+    ws['L%d' % r] = ('=IF(D{r}="","",%s)' % TV('D{r}')).replace('{r}', str(r))
+    ws['F%d' % r] = '=IF(OR(K{r}="",L{r}=""),"",ROUND(MOD(L{r}-K{r},1)*24,2))'.replace('{r}', str(r))
     # الجمعة: كل الساعات عادية · غيرها: العادي لحد OMR_OT_AT والباقي إضافي
     ws['G%d' % r] = ('=IF(F{r}="","",IF(WEEKDAY(A{r},1)=6,F{r},'
-                     'ROUND(MAX(0,MIN(D{r},OMR_OT_AT)-C{r})*24,2)))').replace('{r}', str(r))
+                     'ROUND(MAX(0,MIN(IF(L{r}<K{r},L{r}+1,L{r}),OMR_OT_AT)-K{r})*24,2)))').replace('{r}', str(r))
     ws['H%d' % r] = '=IF(F{r}="","",ROUND(F{r}-G{r},2))'.replace('{r}', str(r))
     # المستحق = عادي×سعر + إضافي×سعر + فرق الجبسمبورد (بياخذ من العادي أولاً ثم من الإضافي)
     ws['I%d' % r] = ('=IF(F{r}="","",ROUND(G{r}*OMR_RATE+H{r}*OMR_OT'
                      '+MIN(N(E{r}),G{r})*(GYP_RATE-OMR_RATE)+MAX(0,MIN(N(E{r}),F{r})-G{r})*(GYP_RATE-OMR_OT),3))').replace('{r}', str(r))
-    for cl in 'CD': ws['%s%d' % (cl, r)].number_format = 'HH:MM'
+    for cl in 'KL': ws['%s%d' % (cl, r)].number_format = 'h:mm AM/PM'
     ws['A%d' % r].number_format = 'DD/MM/YYYY'; ws['I%d' % r].number_format = '#,##0.000'
     for cl in 'EFGH': ws['%s%d' % (cl, r)].number_format = '0.00'
 for r in range(R0, R0 + DAY_ROWS): omar_formulas(O, r)
 OE = R0 + DAY_ROWS - 1
 # تنبيه: جمعة خارج 14:00–23:00 · جبسمبورد أكثر من الساعات
-O.conditional_formatting.add('C%d:D%d' % (R0, OE), FormulaRule(formula=['AND($A%d<>"",WEEKDAY($A%d,1)=6,OR($C%d<OMR_FRI_IN,$D%d>OMR_FRI_OUT))' % (R0, R0, R0, R0)], fill=fill('FDE2C8')))
+dv(O, TIME_LIST, 'C%d:D%d' % (R0, OE))
+O.column_dimensions['K'].hidden = True; O.column_dimensions['L'].hidden = True
+O.conditional_formatting.add('C%d:D%d' % (R0, OE), FormulaRule(formula=['AND($A%d<>"",$K%d<>"",$L%d<>"",WEEKDAY($A%d,1)=6,OR($K%d<OMR_FRI_IN,$L%d>OMR_FRI_OUT))' % (R0, R0, R0, R0, R0, R0)], fill=fill('FDE2C8')))
 O.conditional_formatting.add('E%d:E%d' % (R0, OE), FormulaRule(formula=['AND($E%d<>"",$F%d<>"",$E%d>$F%d)' % (R0, R0, R0, R0)], fill=fill('FBD5D5')))
 tot = OE + 1
 O['H%d' % tot] = 'المجموع'; O['H%d' % tot].font = F(11, True); O['H%d' % tot].alignment = C()
 O['I%d' % tot] = '=SUM(I%d:I%d)' % (R0, OE); O['I%d' % tot].number_format = '#,##0.000'; O['I%d' % tot].font = F(11, True); O['I%d' % tot].fill = fill(AUTO); O['I%d' % tot].border = BOX
 ex = tot + 2
-O['J%d' % ex] = 'مثال (مش بيانات حقيقية) — السبت 07:00→19:30 ومنها ساعتين جبسمبورد: 12.5 ساعة = 11 عادي + 1.5 إضافي → 18.500'
+O['J%d' % ex] = 'مثال (مش بيانات حقيقية) — السبت 7:00 AM → 7:30 PM ومنها ساعتين جبسمبورد: 12.5 ساعة = 11 عادي + 1.5 إضافي → 18.500'
 O['J%d' % ex].font = F(10, False, '666666'); O['J%d' % ex].alignment = C('right')
-O['A%d' % ex] = WEEK1; O['C%d' % ex] = dt.time(7, 0); O['D%d' % ex] = dt.time(19, 30); O['E%d' % ex] = 2
+O['A%d' % ex] = WEEK1; O['C%d' % ex] = '7:00 AM'; O['D%d' % ex] = '7:30 PM'; O['E%d' % ex] = 2
 omar_formulas(O, ex)
 for cl in 'ABCDEFGHI': O['%s%d' % (cl, ex)].font = F(10, False, '888888'); O['%s%d' % (cl, ex)].border = BOX
 
 # ═══════════════════ ساعات عبدالعزيز ═══════════════════
 Z = sheet('ساعات عبدالعزيز', 'ساعات عبدالعزيز — سطر لكل يوم · يقبض نهاية اليوم', TEAL,
           ['التاريخ', 'اليوم', 'دخول', 'خروج', 'منها تحميل جبسمبورد (ساعات)', 'إجمالي الساعات', 'المستحق (دينار)', 'قبض؟', 'المقبوض (دينار)', 'ملاحظات'],
-          [13, 11, 10, 10, 15, 11, 13, 9, 13, 30], DAY_ROWS,
+          [13, 11, 12, 12, 15, 11, 13, 9, 13, 30], DAY_ROWS,
           'دينار للساعة بغض النظر عن اليوم. ساعات الجبسمبورد @2.5. لما يقبض آخر اليوم اختر «نعم» واكتب المقبوض — الفرق بيظهر بالتسوية.')
 paint(Z, 'ACDEHIJ', R0, R0 + DAY_ROWS - 1, EDIT); paint(Z, 'BFG', R0, R0 + DAY_ROWS - 1, AUTO)
 def azz_formulas(ws, r):
     ws['B%d' % r] = ('=IF(A{r}="","",%s)' % DAY.format(d='A{r}')).replace('{r}', str(r))
-    ws['F%d' % r] = '=IF(OR(C{r}="",D{r}=""),"",ROUND(MOD(D{r}-C{r},1)*24,2))'.replace('{r}', str(r))
+    ws['K%d' % r] = ('=IF(C{r}="","",%s)' % TV('C{r}')).replace('{r}', str(r))
+    ws['L%d' % r] = ('=IF(D{r}="","",%s)' % TV('D{r}')).replace('{r}', str(r))
+    ws['F%d' % r] = '=IF(OR(K{r}="",L{r}=""),"",ROUND(MOD(L{r}-K{r},1)*24,2))'.replace('{r}', str(r))
     ws['G%d' % r] = '=IF(F{r}="","",ROUND(F{r}*AZZ_RATE+MIN(N(E{r}),F{r})*(GYP_RATE-AZZ_RATE),3))'.replace('{r}', str(r))
-    for cl in 'CD': ws['%s%d' % (cl, r)].number_format = 'HH:MM'
+    for cl in 'KL': ws['%s%d' % (cl, r)].number_format = 'h:mm AM/PM'
     ws['A%d' % r].number_format = 'DD/MM/YYYY'
     for cl in 'GI': ws['%s%d' % (cl, r)].number_format = '#,##0.000'
     for cl in 'EF': ws['%s%d' % (cl, r)].number_format = '0.00'
 for r in range(R0, R0 + DAY_ROWS): azz_formulas(Z, r)
 ZE = R0 + DAY_ROWS - 1
 dv(Z, '"نعم,لا"', 'H%d:H%d' % (R0, ZE))
+dv(Z, TIME_LIST, 'C%d:D%d' % (R0, ZE))
+Z.column_dimensions['K'].hidden = True; Z.column_dimensions['L'].hidden = True
 Z.conditional_formatting.add('I%d:I%d' % (R0, ZE), FormulaRule(formula=['AND($H%d="نعم",$I%d<>$G%d)' % (R0, R0, R0)], fill=fill('FDE2C8')))
 tot = ZE + 1
 Z['F%d' % tot] = 'المجموع'; Z['F%d' % tot].font = F(11, True); Z['F%d' % tot].alignment = C()
@@ -160,9 +183,9 @@ for cl in 'GI':
     Z['%s%d' % (cl, tot)] = '=SUM(%s%d:%s%d)' % (cl, R0, cl, ZE); Z['%s%d' % (cl, tot)].number_format = '#,##0.000'
     Z['%s%d' % (cl, tot)].font = F(11, True); Z['%s%d' % (cl, tot)].fill = fill(AUTO); Z['%s%d' % (cl, tot)].border = BOX
 ex = tot + 2
-Z['J%d' % ex] = 'مثال — 08:00→16:00 ومنها ساعة جبسمبورد: 8 ساعات → 9.500 · قبض 9.500'
+Z['J%d' % ex] = 'مثال — 8:00 AM → 4:00 PM ومنها ساعة جبسمبورد: 8 ساعات → 9.500 · قبض 9.500'
 Z['J%d' % ex].font = F(10, False, '666666'); Z['J%d' % ex].alignment = C('right')
-Z['A%d' % ex] = WEEK1; Z['C%d' % ex] = dt.time(8, 0); Z['D%d' % ex] = dt.time(16, 0); Z['E%d' % ex] = 1; Z['H%d' % ex] = 'نعم'; Z['I%d' % ex] = 9.5
+Z['A%d' % ex] = WEEK1; Z['C%d' % ex] = '8:00 AM'; Z['D%d' % ex] = '4:00 PM'; Z['E%d' % ex] = 1; Z['H%d' % ex] = 'نعم'; Z['I%d' % ex] = 9.5
 azz_formulas(Z, ex)
 for cl in 'ABCDEFGHI': Z['%s%d' % (cl, ex)].font = F(10, False, '888888'); Z['%s%d' % (cl, ex)].border = BOX
 
@@ -298,7 +321,7 @@ steps = [
     ('القواعد', None),
     ('1', 'كل الأسعار والساعات بورقة «القواعد». غيّر أي رقم هناك وبيتغيّر الحساب بكل الملف. ما تكتب أسعار بالأوراق الثانية.'),
     ('كل يوم', None),
-    ('2', '«ساعات عمر»: التاريخ + دخول + خروج. السبت–الخميس: اللي بعد 18:00 بينحسب إضافي @1.5. الجمعة: كل الساعات @1.25 (ولو دوامه برّا 14:00–23:00 بيتلوّن برتقالي للتنبيه).'),
+    ('2', '«ساعات عمر»: التاريخ، واختر الدخول والخروج من القائمة المنسدلة (كل ربع ساعة، AM/PM). السبت–الخميس: اللي بعد 18:00 بينحسب إضافي @1.5. الجمعة: كل الساعات @1.25 (ولو دوامه برّا 14:00–23:00 بيتلوّن برتقالي للتنبيه).'),
     ('3', '«ساعات عبدالعزيز»: نفس الشي @1.0، وآخر اليوم لما يقبض: «نعم» + المبلغ.'),
     ('4', 'ساعات تحميل الجبسمبورد: اكتبها بعمودها (هي جزء من ساعات اليوم، مش زيادة عليها) وبتنحسب @2.5 بدل الأجر العادي.'),
     ('5', 'أي سلفة أو دين أو بضاعة أو دفعة: سطر بورقة «السلف والديون». الأرصدة القائمة اليوم: نوعها «رصيد سابق له» أو «رصيد سابق عليه».'),
