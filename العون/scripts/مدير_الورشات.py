@@ -9,6 +9,8 @@
   python3 scripts/مدير_الورشات.py --فحص ملف.xlsx --ورشة "العجرمي"   # ملف جديد مقابل المرحّل
   python3 scripts/مدير_الورشات.py --سجل                        # آخر مراجعة لكل ورشة
   python3 scripts/مدير_الورشات.py --راجعت "الكابتن" "ملاحظة"   # تسجيل مراجعة ورشة الآن
+  python3 scripts/مدير_الورشات.py --منذ-قريت                   # كل التحديثات من آخر «قريت» مجمّعة
+  python3 scripts/مدير_الورشات.py --قريت                        # صاحب المحل قرأ — نقطة جديدة
 
 المدير ما بيخلّي ولا بند ينزل مرتين، وما بيخلّي ورشة تنفتح بلا مقاول ولا بلا رصيد مفهوم.
 
@@ -193,14 +195,17 @@ def سجل_احفظ(d):
     import json
     json.dump(d, open(السجل, 'w'), ensure_ascii=False, indent=1)
 
-def راجعت(ورشة, ملاحظة=''):
-    """يسجّل إن الورشة انراجعت هلق — بتوقيت عمّان."""
+def الآن_عمّان():
     import datetime
     try:
         from zoneinfo import ZoneInfo
-        الآن = datetime.datetime.now(ZoneInfo('Asia/Amman'))
+        return datetime.datetime.now(ZoneInfo('Asia/Amman'))
     except Exception:
-        الآن = datetime.datetime.utcnow() + datetime.timedelta(hours=3)
+        return datetime.datetime.utcnow() + datetime.timedelta(hours=3)
+
+def راجعت(ورشة, ملاحظة=''):
+    """يسجّل إن الورشة انراجعت هلق — بتوقيت عمّان."""
+    الآن = الآن_عمّان()
     d = سجل_حمّل()
     d.setdefault(ورشة, [])
     d[ورشة].append({'وقت': الآن.strftime('%Y-%m-%d %H:%M'), 'ملاحظة': ملاحظة})
@@ -217,9 +222,36 @@ def اعرض_السجل():
     print(BAR)
 
 
+# ═══════════ «قريت» — التقرير التراكمي (صاحب المحل 26/09) ═══════════
+# «مرات ما بكون فاضي وتمر ساعتين ثلاث وأنا ما شيكت الدرايف» →
+# كل تقرير بيعرض كل التحديثات من آخر «قريت»، مش من آخر فحص بس.
+آخر_قراءة = os.path.join(ROOT, 'drive', 'آخر_قراءة.json')
+
+def قريت():
+    import json
+    t = الآن_عمّان().strftime('%Y-%m-%d %H:%M')
+    json.dump({'وقت': t}, open(آخر_قراءة, 'w'), ensure_ascii=False)
+    print('📌 نقطة قراءة جديدة: %s — التقارير الجاية بتبدأ من هون' % t)
+
+def منذ_قريت():
+    import json
+    t = json.load(open(آخر_قراءة))['وقت'] if os.path.exists(آخر_قراءة) else ''
+    بنود = [(ر['وقت'], ورشة, ر['ملاحظة']) for ورشة, rs in سجل_حمّل().items()
+            for ر in rs if ر['وقت'] > t]
+    print(BAR); print('التحديثات من آخر «قريت» (%s) — %d' % (t or 'البداية', len(بنود))); print(BAR)
+    if not بنود: print('— ما في إشي جديد'); return
+    for ورشة in sorted({b[1] for b in بنود}, key=lambda w: max(b[0] for b in بنود if b[1] == w)):
+        print('▸ %s' % ورشة)
+        for وقت, _, م in sorted(b for b in بنود if b[1] == ورشة):
+            print('   %s/%s %s  %s' % (وقت[8:10], وقت[5:7], وقت[11:], م))
+    print(BAR)
+
+
 def main(argv):
     if not argv: raise SystemExit(__doc__)
     if argv[0] == '--سجل': اعرض_السجل(); return
+    if argv[0] == '--قريت': قريت(); return
+    if argv[0] == '--منذ-قريت': منذ_قريت(); return
     if argv[0] == '--راجعت':
         راجعت(argv[1], ' '.join(argv[2:])); return
     if '--فحص' in argv:
