@@ -291,7 +291,7 @@ def رحّل(ملف, اكد=False):
                                             'ref': ('مرتجع بضاعة — ' if نوع == 'out_refund' else '') + re.sub(r'\.xlsx$', '', ملف)}])[0]
         فعلي = x('account.move', 'read', [mid], ['amount_total'])[0]['amount_total']
         assert abs(فعلي - مج) < 0.001, 'خلل بالمجموع %s: %s ≠ %s' % (d, فعلي, مج)
-        x('account.move', 'action_post', [[mid]])
+        x('account.move', 'action_post', [mid])
         m = x('account.move', 'read', [mid], ['name', 'state'])[0]
         assert m['state'] == 'posted'
         سجل.append({'id': mid, 'name': m['name'], 'date': d, 'type': نوع, 'total': مج})
