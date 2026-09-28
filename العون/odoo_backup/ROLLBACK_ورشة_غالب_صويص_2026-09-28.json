@@ -1,16 +1,9 @@
 [
  {
-  "id": 255,
-  "name": "INV/2026/00106",
+  "id": 257,
+  "name": "RINV/2026/00007",
   "date": "2026-09-26",
-  "type": "out_invoice",
-  "total": 396.2
- },
- {
-  "id": 256,
-  "name": "INV/2026/00107",
-  "date": "2026-09-27",
-  "type": "out_invoice",
-  "total": 26.0
+  "type": "out_refund",
+  "total": 0.75
  }
 ]

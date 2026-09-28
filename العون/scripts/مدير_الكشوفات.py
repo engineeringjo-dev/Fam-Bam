@@ -101,12 +101,13 @@ def فحص(partner_id=None):
     for l in x('account.move.line', 'search_read',
                [('display_type', '=', 'product'), ('parent_state', '=', 'posted'),
                 ('move_id.move_type', 'in', SALES), ('product_id', '!=', False)] + pdom,
-               ['move_id', 'product_id', 'quantity', 'price_unit', 'partner_id', 'date']):
+               ['move_id', 'move_type', 'product_id', 'quantity', 'price_unit', 'partner_id', 'date']):
         if l['product_id'][0] in عام:
             continue
-        مفاتيح[(l['partner_id'][0], l['date'], l['product_id'][0],
+        # نوع المستند جزء من المفتاح: مرتجع بنفس يوم البيع (فاتورة + إشعار دائن) مش تكرار
+        مفاتيح[(l['move_type'], l['partner_id'][0], l['date'], l['product_id'][0],
                 l['quantity'], l['price_unit'])].append(l)
-    for (pid, d, prod, qty, pu), ls in مفاتيح.items():
+    for (_, pid, d, prod, qty, pu), ls in مفاتيح.items():
         مستندات = {i['move_id'][1] for i in ls}
         if len(مستندات) > 1:
             out[ls[0]['partner_id'][1]].append(
