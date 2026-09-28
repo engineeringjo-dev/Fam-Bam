@@ -1,0 +1,17 @@
+{
+ "move": {
+  "id": 157,
+  "state": "posted",
+  "amount_total": 182.3,
+  "amount_residual": 182.3,
+  "payment_state": "not_paid",
+  "partner_id": [
+   20,
+   "مشروع مسجد علاء الدين"
+  ]
+ },
+ "refund_line": [
+  1067
+ ],
+ "partials": []
+}
