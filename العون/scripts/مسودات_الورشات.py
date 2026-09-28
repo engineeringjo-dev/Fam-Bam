@@ -283,7 +283,7 @@ def رحّل(ملف, اكد=False):
         ك += مج * (-1 if نوع == 'out_refund' else 1)
         print('  %s %s  %d سطر  %.3f' % ('↩️ إشعار دائن' if نوع == 'out_refund' else '🧾 فاتورة', d, len(ls), مج))
         if not اكد: continue
-        lines = [[0, 0, {'product_id': صنف(l['كود'])['id'], 'name': صنف(l['كود'])['name'],
+        lines = [[0, 0, {'product_id': صنف(l['كود'])['id'], 'name': صنف(l['كود'])['name'] + ((' — ' + l['وصف']) if l.get('وصف') else ''),
                          'quantity': l['كمية'], 'price_unit': l['سعر'], 'tax_ids': [[6, 0, []]]}]
                  for l in sorted(ls, key=lambda l: l['#'])]
         mid = x('account.move', 'create', [{'move_type': نوع, 'partner_id': pid, 'journal_id': JOURNAL,
