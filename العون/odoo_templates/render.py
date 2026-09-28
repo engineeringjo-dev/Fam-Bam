@@ -5,14 +5,16 @@ from jrpc import x
 import base64
 
 def render(report_name, res_id, out_path):
+    """res_id: رقم واحد، أو قائمة أرقام ← ملف واحد، كل مستند بصفحاته."""
+    ids = [int(i) for i in (res_id if isinstance(res_id, (list, tuple)) else [res_id])]
     rid = x('ir.actions.report','search',[('report_name','=',report_name)])[0]
     pm  = x('ir.model','search',[('model','=','res.partner')])[0]
     code = ("p=env['ir.config_parameter'].sudo()\n"
             "try:\n"
-            "    pdf=env['ir.actions.report']._render_qweb_pdf(%d,[%d])[0]\n"
+            "    pdf=env['ir.actions.report']._render_qweb_pdf(%d,%r)[0]\n"
             "    p.set_param('alawn.b','__'+b64encode(pdf).decode())\n"
             "except Exception as e:\n"
-            "    p.set_param('alawn.b','ERR '+repr(e)[:400])\n") % (rid, res_id)
+            "    p.set_param('alawn.b','ERR '+repr(e)[:400])\n") % (rid, ids)
     sid = x('ir.actions.server','create',[{'name':'tmp_render','model_id':pm,'state':'code','code':code}])
     if isinstance(sid,list): sid = sid[0]
     try:
