@@ -1,0 +1,16 @@
+[
+ {
+  "id": 252,
+  "name": "INV/2026/00103",
+  "date": "2026-09-24",
+  "type": "out_invoice",
+  "total": 41.0
+ },
+ {
+  "id": 253,
+  "name": "INV/2026/00104",
+  "date": "2026-09-27",
+  "type": "out_invoice",
+  "total": 95.05
+ }
+]
