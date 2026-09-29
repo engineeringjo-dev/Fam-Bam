@@ -3,7 +3,6 @@
 ملف لكل شهر: تختار رقم الشهر والسنة، والأسابيع وتواريخها بتطلع لحالها.
 
 القواعد (26/09/2026 من صاحب المحل):
-  • المدير: 125 دينار كل 10 أيام، بلا ساعات — ورقته لحال.
   • عمر المصري: السبت–الخميس 7:00 AM–6:00 PM @1.250/ساعة · بعد 6:00 PM @1.500 · الجمعة 2:00 PM–11:00 PM حسب الساعات @1.250.
   • عبدالعزيز: 1.000/ساعة بغض النظر عن اليوم · يقبض نهاية كل يوم.
   • تحميل الجبسمبورد: ساعاته @2.500 — بتنكتب مرة وحدة لكل أسبوع (مش لكل يوم).
@@ -129,9 +128,6 @@ rules = [
     ('AZZ_RATE', 'عبدالعزيز — أجر الساعة (دينار)', 1.0, '0.000', 'أي يوم. بيقبض نهاية كل يوم.'),
     ('GYP_RATE', 'تحميل الجبسمبورد — أجر الساعة (دينار)', 2.5, '0.000', 'ساعات التحميل جزء من ساعات الدوام، بس بتنحسب @2.5 بدل الأجر العادي.'),
     ('ROUND_MODE', 'جبر المستحق', 'لأقرب ربع', '@', 'لأقرب ربع: 18.300←18.250 و18.400←18.500 · للأعلى: أي كسر بيطلع للربع اللي فوقه.'),
-    ('ADV_CAP', 'سقف السلف بالأسبوع (نسبة من المستحق)', 0.5, '0%', 'تنبيه لو السلف تجاوزت. 0 = بلا سقف.'),
-    ('MGR_SAL', 'المدير — راتب كل 10 أيام (دينار)', 125, '0.000', ''),
-    ('MGR_START', 'المدير — بداية أول فترة', dt.date(2026, 9, 26), DATE, 'الفترات بتتسلسل من هالتاريخ كل 10 أيام. ثابت لكل الشهور.'),
 ]
 for i, (nm, rule, val, fmt, desc) in enumerate(rules, start=1):
     r = 3 + i
@@ -278,13 +274,14 @@ L = wb.create_sheet('القروض والديون')
 title(L, 'القروض والديون — بتنخصم أقساط كل أسبوع', RUST, 'G',
       '="شهر "&TEXT(\'التسوية\'!$C$3,"00")&" / "&\'التسوية\'!$E$3')
 for k, w in zip('ABCDEFG', [14, 16, 18, 16, 15, 16, 22]): L.column_dimensions[k].width = w
-header(L, 3, ['الموظف', 'القروض والديون (مع الماضي)', 'انخصم أقساط هالشهر', 'تسديد مباشر', 'الدين المتبقي', 'القسط الأسبوعي الحالي', 'قديش ضل'], RUST, 10, 34)
+header(L, 3, ['الموظف', 'القروض والديون (مع الماضي)', 'انخصم أقساط هالشهر', 'دفع كاش من جيبته', 'الدين المتبقي', 'القسط الأسبوعي الحالي', 'قديش ضل'], RUST, 10, 34)
 expl = [
     '• قرض أو دين أو بضاعة: اكتب المبلغ والقسط الأسبوعي بنفس السطر ← القسط بينخصم كل أسبوع لحاله لحد ما يخلص (آخر قسط = الباقي بس).',
-    '• بدك تغيّر القسط؟ سطر جديد فيه القسط الجديد بس. · تسديد مباشر: لو دفع من جيبته ← بينقص من الدين فوراً.',
+    '• بدك تغيّر القسط؟ سطر جديد فيه القسط الجديد بس. · «دفع كاش من جيبته»: لو جاب مصاري من برّا الراتب (جزء أو كل الدين) ← بينقص من الدين فوراً، وإذا سدّ كله الأقساط بتوقف لحالها.',
 ]
 for i, tx in enumerate(expl): note(L, 'A%d' % (7 + i), tx, 'A%d:G%d' % (7 + i, 7 + i), 10, '333333', 22)
-header(L, 10, ['التاريخ', 'الموظف', 'قرض / دين / بضاعة (دينار)', 'القسط الأسبوعي (دينار)', 'تسديد مباشر (دينار)', 'البيان', ''], RUST, 11, 34)
+header(L, 10, ['التاريخ', 'الموظف', 'قرض / دين / بضاعة (دينار)', 'القسط الأسبوعي (دينار)', 'دفع كاش من جيبته (دينار)', 'البيان', ''], RUST, 11, 34)
+L.merge_cells('F10:G10')
 LR0, LE = 11, 11 + LOG_ROWS - 1
 for r in range(LR0, LE + 1):
     edit(L, 'A%d' % r, DIN); edit(L, 'B%d' % r)
@@ -297,206 +294,128 @@ L.column_dimensions['J'].hidden = True; L.column_dimensions['K'].hidden = True
 L.freeze_panes = 'A11'
 for nm, c in (('LG_D', 'K'), ('LG_E', 'B'), ('LG_DEBT', 'C'), ('LG_INST', 'D'), ('LG_REP', 'E'), ('LG_IDX', 'J')):
     name(nm, "'القروض والديون'!$%s$%d:$%s$%d" % (c, LR0, c, LE))
-note(L, 'A%d' % (LE + 2), 'أمثلة: 7 · عمر المصري · 497.000 · القسط 30.000 · «قرض»   |   20 · عمر المصري · تسديد مباشر 50.000', 'A%d:G%d' % (LE + 2, LE + 2))
+note(L, 'A%d' % (LE + 2), 'أمثلة: 7 · عمر المصري · 497.000 · القسط 30.000 · «قرض»   |   20 · عمر المصري · دفع كاش من جيبته 50.000', 'A%d:G%d' % (LE + 2, LE + 2))
 
 def INST(emp, d, opening):
     """القسط الساري بتاريخ معيّن = آخر قسط انكتب لهالموظف لحد هالتاريخ، وإلا قسط الافتتاح."""
-    m = '_xlfn.MAXIFS(LG_IDX,LG_E,"%s",LG_INST,"<>",LG_D,"<="&%s)' % (emp, d)
+    m = 'SUMPRODUCT(MAX((LG_E="%s")*(LG_INST<>"")*(LG_D<=%s)*LG_IDX))' % (emp, d)   # بلا MAXIFS — بيشتغل على إكسل 2010+
     return 'IF(%s=0,%s,INDEX(LG_INST,%s))' % (m, opening, m)
 
-# ═══════════════════ التسوية ═══════════════════
+# ═══════════════════ التسوية (مبسّطة 29/09) ═══════════════════
 S = wb['Sheet']; S.title = 'التسوية'
-title(S, 'نظام الموظفين — التسوية الأسبوعية والشهرية', NAVY, 'L')
-for k, w in zip('ABCDEFGHIJKL', [15, 13, 13, 11, 12, 12, 12, 12, 12, 12, 12, 26]): S.column_dimensions[k].width = w
-# الشهر والسنة وأوله وآخره — جنب بعض
+title(S, 'التسوية — قديش بدفع لكل موظف', NAVY, 'L')
+for k, w in zip('ABCDEFGHIJKL', [16, 12, 13, 12, 12, 11, 11, 12, 16, 13, 12, 13]): S.column_dimensions[k].width = w
 S['B3'] = 'اختر الشهر'; S['D3'] = 'اختر السنة'
 for c in ('B3', 'D3'): S[c].font = F(13, True, NAVY); S[c].alignment = C('left')
 S['C3'] = 10; edit(S, 'C3', '00', True, 14); dv(S, "='القوائم'!$D$1:$D$12", 'C3', 'رقم الشهر 1–12')
 S['E3'] = 2026; edit(S, 'E3', '0', True, 14); dv(S, "='القوائم'!$E$1:$E$10", 'E3')
-S.merge_cells('F3:L3'); note(S, 'F3', '← أول شي اختار الشهر والسنة — كل الملف (الأسابيع وتواريخ الأيام) بيتبرمج عليهم', sz=10, color=RUST)
+S.merge_cells('F3:L3'); note(S, 'F3', '← أول شي اختار الشهر والسنة — كل الملف بيتبرمج عليهم', sz=10, color=RUST)
 S.row_dimensions[3].height = 30
-# الأسبوع المختار
-S['B5'] = 'الأسبوع'; S['B5'].font = F(12, True, NAVY); S['B5'].alignment = C('left')
+S['B5'] = 'اختر الأسبوع'; S['B5'].font = F(13, True, NAVY); S['B5'].alignment = C('left')
 S.merge_cells('C5:D5'); S['C5'] = 'الأسبوع الأول'; edit(S, 'C5', None, True, 13)
 dv(S, "='القوائم'!$J$11:$J$16", 'C5', 'القائمة بتتغيّر حسب الشهر')
 S.row_dimensions[5].height = 30
-S['N5'] = "=IFERROR(MIN(MATCH($C$5,'القوائم'!$K$11:$K$16,0),NW),1)"; S['N5'].font = F(8, False, 'BBBBBB')
+S['N5'] = "=IFERROR(MIN(MATCH($C$5,'القوائم'!$K$11:$K$16,0),NW),1)"; S['N5'].font = F(8, False, 'FFFFFF')
 name('WK', "'التسوية'!$N$5"); name('WS', "INDEX(%s,'التسوية'!$N$5)" % WSTART); name('WE', "INDEX(%s,'التسوية'!$N$5)" % WEND)
 
-# افتتاح الشهر
-S['A7'] = 'افتتاح الشهر — انقل الأرقام من «إقفال الشهر» بملف الشهر الماضي'; S['A7'].font = F(12, True, RUST); S.merge_cells('A7:L7'); S['A7'].alignment = C('right')
-header(S, 8, ['الموظف', 'مستحق له لسا ما قبضه (دينار)', 'قرض أو دين متبقي عليه (دينار)', 'القسط الأسبوعي (دينار)'], RUST, 10, 34)
-S.merge_cells('E8:L8'); note(S, 'E8', '«مستحق له» = أيام اشتغلها آخر الشهر الماضي وما انقبضت (مثلاً أسبوع مقطوع). بينضاف لصافي أول أسبوع. · «دين متبقي» = اللي ضل عليه من ديون وبضاعة. بينخصم منه القسط الأسبوعي لحد ما يخلص.', sz=9)
+# بداية ونهاية الشهر (ورقة لحال — المدوّر من الشهر الماضي وللشهر الجاي)
+B = wb.create_sheet('بداية ونهاية الشهر'); BS = "'بداية ونهاية الشهر'"
+title(B, 'بداية ونهاية الشهر — اللي بينتقل بين ملف شهر وملف الشهر اللي بعده', RUST, 'H',
+      '="شهر "&TEXT(\'التسوية\'!$C$3,"00")&" / "&\'التسوية\'!$E$3')
+for k, w in zip('ABCDEFGH', [16, 18, 18, 16, 14, 14, 14, 14]): B.column_dimensions[k].width = w
+B['A4'] = 'بداية الشهر — انسخ الأرقام من «نهاية الشهر» بملف الشهر الماضي'; B['A4'].font = F(13, True, RUST); B.merge_cells('A4:H4'); B['A4'].alignment = C('right')
+header(B, 5, ['الموظف', 'مستحق له من الشهر الماضي', 'دين متبقي عليه', 'القسط الأسبوعي'], RUST, 10, 34)
 OPEN = {}
 for i, nm in enumerate(['عمر المصري', 'عبدالعزيز']):
-    r = 9 + i; S['A%d' % r] = nm; auto(S, 'A%d' % r, None, True, color='FFFFFF')
-    for c in 'BCD': S['%s%d' % (c, r)] = 0; edit(S, '%s%d' % (c, r), MONEY, True)
+    r = 6 + i; B['A%d' % r] = nm; auto(B, 'A%d' % r, None, True, color='FFFFFF')
+    for c in 'BCD': B['%s%d' % (c, r)] = 0; edit(B, '%s%d' % (c, r), MONEY, True)
     OPEN[nm] = r
+note(B, 'A8', '«مستحق له» = أيام اشتغلها آخر الشهر الماضي وما انقبضت ← بينضاف لأول أسبوع. · «دين متبقي» والقسط ← بيكمّل ينخصم كل أسبوع.', 'A8:H8', 9)
+def OP(c, nm): return '%s!$%s$%d' % (BS, c, OPEN[nm])
 
-# جداول الشهر — بلا عمودي «من/إلى» (بأمره 28/09): تواريخ الأسبوع بتنقرا من القوائم مباشرة
+# الأعمدة (نفسها للموظفين والجدولين) ↓
+COLS = ['الأسبوع', 'عدد الساعات', 'المستحق من الساعات', '+ إكرامية', '+ مدوّر', '− السلف', '− القسط', '− قبضه يومياً', 'الصافي للدفع', 'المدفوع', 'الباقي له', 'الدين المتبقي']
 def month_table(top, emp, color, rows_ref, is_azz):
-    S['A%d' % top] = emp + ' — كل أسابيع الشهر'; S['A%d' % top].font = F(13, True, color); S.merge_cells('A%d:L%d' % (top, top)); S['A%d' % top].alignment = C('right')
-    if is_azz:
-        heads = ['الأسبوع', 'عدد الساعات', 'المستحق (دينار)', '+ مدوّر', '− مقبوض يومياً', '− السلف', '− القسط', 'الصافي للدفع', 'المدفوع (دينار)', 'الباقي له', 'الدين المتبقي']
-    else:
-        heads = ['الأسبوع', 'عدد الساعات', 'المستحق (دينار)', '+ مدوّر', '− السلف', '− القسط', 'الصافي للدفع', 'المدفوع (دينار)', 'الباقي له', 'الدين المتبقي', 'ملاحظة']
-    header(S, top + 1, heads, color, 10, 34)
-    r0 = top + 2; orow = OPEN[emp]
+    S['A%d' % top] = emp + ' — كل أسابيع الشهر  (اكتب الإكرامية والمدفوع بالخانات الصفراء)'; S['A%d' % top].font = F(12, True, color)
+    S.merge_cells('A%d:L%d' % (top, top)); S['A%d' % top].alignment = C('right')
+    header(S, top + 1, COLS, color, 10, 34)
+    r0 = top + 2; sh = "'ساعات عبدالعزيز'" if is_azz else "'ساعات عمر'"
     for k in range(NWMAX):
-        r = r0 + k; on = '%d<=NW' % (k + 1); s1, s2 = rows_ref[k]; sh = "'ساعات عبدالعزيز'" if is_azz else "'ساعات عمر'"
-        ws_, we_ = "'القوائم'!$H$%d" % (11 + k), "'القوائم'!$I$%d" % (11 + k)
+        r = r0 + k; on = '%d<=NW' % (k + 1); s1, s2 = rows_ref[k]
+        we_ = "'القوائم'!$I$%d" % (11 + k); ws_ = "'القوائم'!$H$%d" % (11 + k)
         S['A%d' % r] = '=IF(%s,"الأسبوع %s","")' % (on, ORD[k])
         S['B%d' % r] = '=IF(%s,N(%s!E%d),"")' % (on, sh, s1)
         S['C%d' % r] = '=IF(%s,N(%s!%s%d),"")' % (on, sh, 'F' if is_azz else 'H', s2)
-        S['D%d' % r] = '=IF(%s,%s,"")' % (on, '$B$%d' % orow if k == 0 else '0')
-        adv = 'SUMIFS(ADV_AMT,ADV_E,"%s",ADV_D,">="&%s,ADV_D,"<="&%s)' % (emp, ws_, we_)
-        ic = 'G' if is_azz else 'F'
-        prev = '0' if k == 0 else 'SUM(%s%d:%s%d)' % (ic, r0, ic, r - 1)
-        owed = '$C${o}+SUMIFS(LG_DEBT,LG_E,"{e}",LG_D,"<="&{we})-SUMIFS(LG_REP,LG_E,"{e}",LG_D,"<="&{we})'.format(o=orow, e=emp, we=we_)
-        # القسط ما بيزيد عن اللي ضايل من راتب الأسبوع (بعد السلف) — والفرق بيطوّل القرض بس
-        avail = 'N(C{r})+N(D{r})-N(E{r})-N(F{r})' if is_azz else 'N(C{r})+N(D{r})-N(E{r})'
-        inst = 'IF(N(C{r})=0,0,MAX(0,MIN({i},{ow}-{p},{av})))'.format(r=r, i=INST(emp, we_, '$D$%d' % orow), ow=owed, p=prev, av=avail.format(r=r))
-        rem = '=IF(%s,MAX(0,%s-SUM(%s%d:%s%d)),"")' % (on, owed, ic, r0, ic, r)
-        if is_azz:
-            S['E%d' % r] = '=IF(%s,N(%s!H%d),"")' % (on, sh, s1)
-            S['F%d' % r] = '=IF(%s,%s,"")' % (on, adv)
-            S['G%d' % r] = '=IF(%s,%s,"")' % (on, inst)
-            S['H%d' % r] = '=IF(%s,C%d+D%d-E%d-F%d-G%d,"")' % ((on,) + (r,) * 5)
-            edit(S, 'I%d' % r, MONEY)
-            S['J%d' % r] = '=IF(%s,H%d-N(I%d),"")' % (on, r, r)
-            S['K%d' % r] = rem
-            auto_cols, money = 'ABCDEFGHJK', 'CDEFGHJK'
-        else:
-            S['E%d' % r] = '=IF(%s,%s,"")' % (on, adv)
-            S['F%d' % r] = '=IF(%s,%s,"")' % (on, inst)
-            S['G%d' % r] = '=IF(%s,C%d+D%d-E%d-F%d,"")' % ((on,) + (r,) * 4)
-            edit(S, 'H%d' % r, MONEY)
-            S['I%d' % r] = '=IF(%s,G%d-N(H%d),"")' % (on, r, r)
-            S['J%d' % r] = rem
-            S['K%d' % r] = '=IF(%s,IF(AND(ADV_CAP>0,C%d>0,E%d>ADV_CAP*C%d),"⚠️ السلف فوق السقف",IF(G%d<0,"⚠️ السلف أكثر من المستحق","")),"")' % ((on,) + (r,) * 4)
-            auto_cols, money = 'ABCDEFGIJK', 'CDEFGIJ'
-        for c in auto_cols: auto(S, '%s%d' % (c, r))
+        edit(S, 'D%d' % r, MONEY)
+        S['E%d' % r] = '=IF(%s,%s,"")' % (on, OP('B', emp) if k == 0 else '0')
+        S['F%d' % r] = '=IF(%s,SUMIFS(ADV_AMT,ADV_E,"%s",ADV_D,">="&%s,ADV_D,"<="&%s),"")' % (on, emp, ws_, we_)
+        S['H%d' % r] = ('=IF(%s,N(%s!H%d),"")' % (on, sh, s1)) if is_azz else '=IF(%s,0,"")' % on
+        owed = '{o}+SUMIFS(LG_DEBT,LG_E,"{e}",LG_D,"<="&{we})-SUMIFS(LG_REP,LG_E,"{e}",LG_D,"<="&{we})'.format(o=OP('C', emp), e=emp, we=we_)
+        prev = '0' if k == 0 else 'SUM(G%d:G%d)' % (r0, r - 1)
+        avail = 'N(C{r})+N(D{r})+N(E{r})-N(F{r})-N(H{r})'.format(r=r)
+        S['G%d' % r] = '=IF(%s,IF(N(C%d)=0,0,MAX(0,MIN(%s,%s-%s,%s))),"")' % (on, r, INST(emp, we_, OP('D', emp)), owed, prev, avail)
+        S['I%d' % r] = '=IF(%s,N(C{r})+N(D{r})+N(E{r})-N(F{r})-N(G{r})-N(H{r}),"")'.replace('{r}', str(r)) % on
+        edit(S, 'J%d' % r, MONEY)
+        S['K%d' % r] = '=IF(%s,I%d-N(J%d),"")' % (on, r, r)
+        S['L%d' % r] = '=IF(%s,MAX(0,%s-SUM(G%d:G%d)),"")' % (on, owed, r0, r)
+        for c in 'ABCEFGHIKL': auto(S, '%s%d' % (c, r))
         S['B%d' % r].number_format = DUR
-        for c in money: S['%s%d' % (c, r)].number_format = MONEY
+        for c in 'CDEFGHIJKL': S['%s%d' % (c, r)].number_format = MONEY
         S['A%d' % r].font = F(11, True, color)
-        S['%s%d' % ('K' if is_azz else 'J', r)].font = F(11, True, RUST)
-        if not is_azz: S['K%d' % r].font = F(9, True, 'C00000')
+        S['I%d' % r].font = F(12, True, FINAL_C); S['L%d' % r].font = F(10, True, RUST)
     tr = r0 + NWMAX
     S['A%d' % tr] = 'مجموع الشهر'
-    sumcols = 'BCDEFGHIJ' if is_azz else 'BCDEFGHI'
-    for c in sumcols: S['%s%d' % (c, tr)] = '=SUM(%s%d:%s%d)' % (c, r0, c, tr - 1)
-    dc = 'K' if is_azz else 'J'
-    S['%s%d' % (dc, tr)] = '=MAX(0,$C${o}+SUMIFS(LG_DEBT,LG_E,"{e}")-SUMIFS(LG_REP,LG_E,"{e}")-{ic}{t})'.format(o=orow, e=emp, ic='G' if is_azz else 'F', t=tr)
-    for c in 'ABCDEFGHIJK': auto(S, '%s%d' % (c, tr), None, True, color=SUBT)
+    for c in 'BCDEFGHIJK': S['%s%d' % (c, tr)] = '=SUM(%s%d:%s%d)' % (c, r0, c, tr - 1)
+    S['L%d' % tr] = '=MAX(0,%s+SUMIFS(LG_DEBT,LG_E,"%s")-SUMIFS(LG_REP,LG_E,"%s")-G%d)' % (OP('C', emp), emp, emp, tr)
+    for c in 'ABCDEFGHIJKL': auto(S, '%s%d' % (c, tr), None, True, color=SUBT)
     S['B%d' % tr].number_format = DUR
-    for c in sumcols[1:] + dc: S['%s%d' % (c, tr)].number_format = MONEY
-    S.conditional_formatting.add('A%d:K%d' % (r0, tr - 1), FormulaRule(formula=['AND($A%d<>"",ROW()-%d+1=WK)' % (r0, r0)], fill=fill('FFF2B3')))
+    for c in 'CDEFGHIJKL': S['%s%d' % (c, tr)].number_format = MONEY
+    S.conditional_formatting.add('A%d:L%d' % (r0, tr - 1), FormulaRule(formula=['AND($A%d<>"",ROW()-%d+1=WK)' % (r0, r0)], fill=fill('FFF2B3')))
     return r0, tr
 
-OR0, OTR = month_table(20, 'عمر المصري', NAVY, OMR, False)
+# الأسبوع المختار — فوق، ورقم «الصافي للدفع» برتقالي بارز
+S['A7'] = '="تسوية  «"&$C$5&"»"'; S['A7'].font = F(14, True, NAVY); S.merge_cells('A7:L7'); S['A7'].alignment = C('right'); S.row_dimensions[7].height = 26
+header(S, 8, ['الموظف'] + COLS[1:], NAVY, 10, 34)
+OR0, OTR = month_table(13, 'عمر المصري', NAVY, OMR, False)
 ZR0, ZTR = month_table(OTR + 2, 'عبدالعزيز', TEAL, AZZ, True)
-
-# الأسبوع المختار (فوق الجداول)
-S['A12'] = '="تسوية الأسبوع المختار   ·   "&$C$5'
-S['A12'].font = F(13, True, NAVY); S.merge_cells('A12:L12'); S['A12'].alignment = C('right'); S.row_dimensions[12].height = 24
-header(S, 13, ['الموظف', 'عدد الساعات', 'المستحق (دينار)', '+ مدوّر', '− مقبوض يومياً', '− السلف', '− القسط', 'الصافي للدفع', 'المدفوع (دينار)', 'الباقي له', 'الدين المتبقي', 'ملاحظة'], NAVY, 10, 34)
-# عمود الهدف ← عمود جدول الشهر
-sel = [('عمر المصري', OR0, {'B': 'B', 'C': 'C', 'D': 'D', 'E': None, 'F': 'E', 'G': 'F', 'H': 'G', 'I': 'H', 'J': 'I', 'K': 'J'}),
-       ('عبدالعزيز', ZR0, {'B': 'B', 'C': 'C', 'D': 'D', 'E': 'E', 'F': 'F', 'G': 'G', 'H': 'H', 'I': 'I', 'J': 'J', 'K': 'K'})]
-for i, (nm, r0, m) in enumerate(sel):
-    r = 14 + i
-    S['A%d' % r] = nm
-    for tgt, src in m.items():
-        S['%s%d' % (tgt, r)] = ('=N(INDEX(%s%d:%s%d,WK))' % (src, r0, src, r0 + NWMAX - 1)) if src else 0
-    S['L%d' % r] = '=IF(AND(ADV_CAP>0,C{r}>0,F{r}>ADV_CAP*C{r}),"⚠️ السلف فوق السقف",IF(H{r}<0,"⚠️ السلف أكثر من المستحق",IF(AND(H{r}>0,J{r}=0),"✔ مدفوع",IF(H{r}>0,"لسا ما اندفع",""))))'.replace('{r}', str(r))
-    for c in 'ABCDEFGHIJKL': auto(S, '%s%d' % (c, r))
-    S['A%d' % r].font = F(11, True)
-    S['B%d' % r].number_format = DUR
-    for c in 'CDEFGHIJK': S['%s%d' % (c, r)].number_format = MONEY
-    S['H%d' % r].font = F(13, True); S['K%d' % r].font = F(11, True, RUST); S['L%d' % r].font = F(10, True, 'C00000')
-    S.row_dimensions[r].height = 24
-note(S, 'A17', 'المدفوع بينكتب بجداول الشهر تحت (سطر الأسبوع) — وهون بيطلع لحاله. المدير بورقته لحال · عمال المهام بورقتهم.', 'A17:L17', 9)
-
-# إقفال الشهر
-CL = ZTR + 3
-S['A%d' % CL] = 'إقفال الشهر — هالأرقام بتنكتب بـ«افتتاح الشهر» بملف الشهر الجاي'; S['A%d' % CL].font = F(13, True, RUST)
-S.merge_cells('A%d:L%d' % (CL, CL)); S['A%d' % CL].alignment = C('right')
-header(S, CL + 1, ['الموظف', 'مستحق له لسا ما قبضه (دينار)', 'قرض أو دين متبقي عليه (دينار)', 'القسط الأسبوعي (دينار)'], RUST, 10, 34)
-for i, (nm, tr, rest_c, inst_c) in enumerate([('عمر المصري', OTR, 'I', 'F'), ('عبدالعزيز', ZTR, 'J', 'G')]):
-    r = CL + 2 + i; o = OPEN[nm]
-    S['A%d' % r] = nm
-    S['B%d' % r] = '=%s%d' % (rest_c, tr)
-    S['C%d' % r] = '=$C$%d+SUMIFS(LG_DEBT,LG_E,A%d)-SUMIFS(LG_REP,LG_E,A%d)-%s%d' % (o, r, r, inst_c, tr)
-    S['D%d' % r] = '=IF(C%d>0,%s,0)' % (r, INST(nm, 'MEND', '$D$%d' % o))
-    for c in 'ABCD': auto(S, '%s%d' % (c, r), MONEY if c != 'A' else None, True, 12)
-    S.merge_cells('E%d:L%d' % (r, r))
-    S['E%d' % r] = '=IF(B{r}>0.0005,"المحل لسا مدين إله بـ "&TEXT(B{r},"0.000"),IF(B{r}<-0.0005,"قبض زيادة "&TEXT(-B{r},"0.000")&" — بتنخصم الشهر الجاي","ما إله شي"))&IF(C{r}>0.0005,"  ·  وعليه دين "&TEXT(C{r},"0.000"),"")'.replace('{r}', str(r))
-    S['E%d' % r].font = F(10, True, RUST); S['E%d' % r].alignment = C('right')
+for i, (nm, r0) in enumerate([('عمر المصري', OR0), ('عبدالعزيز', ZR0)]):
+    r = 9 + i; S['A%d' % r] = nm
+    for c in 'BCDEFGHIJKL':
+        S['%s%d' % (c, r)] = '=N(INDEX(%s%d:%s%d,WK))' % (c, r0, c, r0 + NWMAX - 1)
+        auto(S, '%s%d' % (c, r), MONEY)
+    S['B%d' % r].number_format = DUR; S['A%d' % r].font = F(12, True)
+    auto(S, 'I%d' % r, MONEY, True, 16, color=FINAL_BG, fc='FFFFFF')
+    S['I%d' % r].border = Border(left=THICK, right=THICK, top=THICK, bottom=THICK)
+    S['L%d' % r].font = F(11, True, RUST); S.row_dimensions[r].height = 32
+note(S, 'A11', 'الإكرامية والمدفوع بينكتبوا بجداول الشهر تحت (سطر الأسبوع، الخانات الصفراء) — وهون بيطلعوا لحالهم.', 'A11:L11', 9)
 S.freeze_panes = 'A6'
-for i, (nm, tr, inst_c) in enumerate([('عمر المصري', OTR, 'F'), ('عبدالعزيز', ZTR, 'G')]):
-    r = 4 + i; o = OPEN[nm]
+
+# نهاية الشهر
+B['A11'] = 'نهاية الشهر — هالأرقام بتنكتب بـ«بداية الشهر» بملف الشهر الجاي'; B['A11'].font = F(13, True, RUST); B.merge_cells('A11:H11'); B['A11'].alignment = C('right')
+header(B, 12, ['الموظف', 'مستحق له لسا ما قبضه', 'دين متبقي عليه', 'القسط الأسبوعي'], RUST, 10, 34)
+for i, (nm, tr) in enumerate([('عمر المصري', OTR), ('عبدالعزيز', ZTR)]):
+    r = 13 + i
+    B['A%d' % r] = nm
+    B['B%d' % r] = "='التسوية'!K%d" % tr
+    B['C%d' % r] = "='التسوية'!L%d" % tr
+    B['D%d' % r] = '=IF(C%d>0,%s,0)' % (r, INST(nm, 'MEND', '$D$%d' % OPEN[nm]))
+    for c in 'ABCD': auto(B, '%s%d' % (c, r), MONEY if c != 'A' else None, True, 12)
+    B.merge_cells('E%d:H%d' % (r, r))
+    B['E%d' % r] = '=IF(B{r}>0.0005,"المحل لسا مدين إله بـ "&TEXT(B{r},"0.000"),IF(B{r}<-0.0005,"قبض زيادة "&TEXT(-B{r},"0.000")&" — بتنخصم الشهر الجاي","ما إله شي"))&IF(C{r}>0.0005,"  ·  وعليه دين "&TEXT(C{r},"0.000"),"")'.replace('{r}', str(r))
+    B['E%d' % r].font = F(10, True, RUST); B['E%d' % r].alignment = C('right')
+
+# ملخّص ورقة القروض
+for i, (nm, tr) in enumerate([('عمر المصري', OTR), ('عبدالعزيز', ZTR)]):
+    r = 4 + i
     L['A%d' % r] = nm
-    L['B%d' % r] = "='التسوية'!$C$%d+SUMIFS(LG_DEBT,LG_E,A%d)" % (o, r)
-    L['C%d' % r] = "='التسوية'!%s%d" % (inst_c, tr)
+    L['B%d' % r] = "=%s+SUMIFS(LG_DEBT,LG_E,A%d)" % (OP('C', nm), r)
+    L['C%d' % r] = "='التسوية'!G%d" % tr
     L['D%d' % r] = '=SUMIFS(LG_REP,LG_E,A%d)' % r
     L['E%d' % r] = '=MAX(0,B{r}-C{r}-D{r})'.replace('{r}', str(r))
-    L['F%d' % r] = '=IF(E%d>0,%s,0)' % (r, INST(nm, 'MEND', "'التسوية'!$D$%d" % o))
+    L['F%d' % r] = '=IF(E%d>0,%s,0)' % (r, INST(nm, 'MEND', OP('D', nm)))
     L['G%d' % r] = '=IF(E{r}<0.0005,"✔ ما عليه شي",IF(F{r}>0,ROUNDUP(E{r}/F{r},0)&" أسبوع تقريباً","⚠️ حدّد القسط"))'.replace('{r}', str(r))
     for c in 'ABCDEFG': auto(L, '%s%d' % (c, r), MONEY if c in 'BCDEF' else None, True, 11)
     L['E%d' % r].font = F(13, True, RUST); L.row_dimensions[r].height = 24
-
-# ═══════════════════ المدير (ورقته لحال) ═══════════════════
-M = wb.create_sheet('المدير')
-title(M, 'المدير — 125 دينار كل 10 أيام', GOLD, 'J',
-      '="شهر "&TEXT(\'التسوية\'!$C$3,"00")&" / "&\'التسوية\'!$E$3&"   ·   الفترات اللي بتخلص بهالشهر"')
-for k, w in zip('ABCDEFGHIJ', [14, 13, 13, 12, 12, 12, 13, 13, 13, 24]): M.column_dimensions[k].width = w
-note(M, 'A3', 'الفترات بتطلع لحالها من «بداية أول فترة» بورقة القواعد، وكل فترة بتنحسب بملف الشهر اللي بتخلص فيه. '
-     'سلفه وديونه بجدول تحت بهالورقة نفسها.', 'A3:J3', h=32)
-header(M, 5, ['افتتاح الشهر', 'مستحق له لسا ما قبضه', 'دين متبقي عليه', 'القسط كل فترة'], GOLD, 10, 30)
-M['A6'] = 'من الشهر الماضي'; auto(M, 'A6', None, True, color='FFFFFF')
-for c in 'BCD': M['%s6' % c] = 0; edit(M, '%s6' % c, MONEY, True)
-header(M, 8, ['الفترة', 'من', 'إلى', 'الراتب (دينار)', '+ مدوّر', '− السلف', '− القسط', 'الصافي', 'المدفوع (دينار)', 'الباقي له', 'الدين المتبقي'], GOLD, 10, 30)
-M.column_dimensions['K'].width = 14
-M['L8'] = '=MAX(0,ROUNDUP((MSTART-MGR_START-9)/10,0))'; M['L8'].font = F(8, False, 'BBBBBB')
-MR0 = 9; ML0, MLE = 18, 18 + MLOG_ROWS - 1
-for i in range(4):
-    r = MR0 + i; n = '($L$8+%d)' % i
-    ok = 'AND(MGR_START+10*{n}+9>=MSTART,MGR_START+10*{n}+9<=MEND)'.format(n=n)
-    M['B%d' % r] = '=IF(%s,MGR_START+10*%s,"")' % (ok, n)
-    M['A%d' % r] = '=IF(B%d="","","الفترة %s")' % (r, ORDF[i])
-    M['C%d' % r] = '=IF(B%d="","",B%d+9)' % (r, r)
-    M['D%d' % r] = '=IF(B%d="","",MGR_SAL)' % r
-    M['E%d' % r] = '=IF(B%d="","",%s)' % (r, '$B$6' if i == 0 else '0')
-    M['F%d' % r] = "=IF(B%d=\"\",\"\",SUMIFS($B$%d:$B$%d,$M$%d:$M$%d,\">=\"&B%d,$M$%d:$M$%d,\"<=\"&C%d))" % (r, ML0, MLE, ML0, MLE, r, ML0, MLE, r)
-    prev = '0' if i == 0 else 'SUM(G%d:G%d)' % (MR0, r - 1)
-    mx = '_xlfn.MAXIFS($L${a}:$L${b},$D${a}:$D${b},"<>",$M${a}:$M${b},"<="&C{r})'.format(r=r, a=ML0, b=MLE)
-    inm = 'IF({m}=0,$D$6,INDEX($D${a}:$D${b},{m}))'.format(m=mx, a=ML0, b=MLE)
-    owed = '$C$6+SUMIFS($C${a}:$C${b},$M${a}:$M${b},"<="&C{r})-SUMIFS($E${a}:$E${b},$M${a}:$M${b},"<="&C{r})'.format(r=r, a=ML0, b=MLE)
-    M['G%d' % r] = '=IF(B{r}="","",MIN({i},MAX(0,{ow}-{p})))'.format(r=r, i=inm, ow=owed, p=prev)
-    M['K%d' % r] = '=IF(B{r}="","",MAX(0,{ow}-SUM(G{a}:G{r})))'.format(r=r, ow=owed, a=MR0)
-    M['H%d' % r] = '=IF(B%d="","",D%d+E%d-F%d-G%d)' % ((r,) * 5)
-    edit(M, 'I%d' % r, MONEY)
-    M['J%d' % r] = '=IF(B%d="","",H%d-N(I%d))' % (r, r, r)
-    for c in 'ABCDEFGHJK': auto(M, '%s%d' % (c, r))
-    for c in 'BC': M['%s%d' % (c, r)].number_format = DATE
-    for c in 'DEFGHJK': M['%s%d' % (c, r)].number_format = MONEY
-    M['K%d' % r].font = F(11, True, RUST)
-M['A13'] = 'مجموع الشهر'
-for c in 'DEFGHIJ': M['%s13' % c] = '=SUM(%s%d:%s%d)' % (c, MR0, c, MR0 + 3)
-for c in 'ABCDEFGHIJ': auto(M, '%s13' % c, MONEY if c in 'DEFGHIJ' else None, True, color=SUBT)
-M['A15'] = 'إقفال الشهر ← افتتاح الشهر الجاي:'; M['A15'].font = F(11, True, RUST)
-M['C15'] = 'مستحق له'; M['D15'] = '=J13'; M['E15'] = 'دين عليه'
-M['F15'] = '=MAX(0,C6+SUM(C%d:C%d)-SUM(E%d:E%d)-G13)' % (ML0, MLE, ML0, MLE)
-for c in ('D15', 'F15'): auto(M, c, MONEY, True, 12)
-header(M, 17, ['التاريخ', 'سلفة (دينار)', 'قرض / دين / بضاعة (دينار)', 'القسط كل فترة (دينار)', 'تسديد مباشر (دينار)', 'البيان'], RUST, 10, 34)
-M.merge_cells('F17:J17')
-for r in range(ML0, MLE + 1):
-    edit(M, 'A%d' % r, DIN); M['M%d' % r] = '=' + DVAL('A%d' % r)
-    for c in 'BCDE': edit(M, '%s%d' % (c, r), MONEY)
-    M.merge_cells('F%d:J%d' % (r, r)); edit(M, 'F%d' % r); M['F%d' % r].alignment = C('right')
-    M['L%d' % r] = r - ML0 + 1
-M.column_dimensions['L'].hidden = True; M.column_dimensions['M'].hidden = True
-dv_date(M, 'A%d:A%d' % (ML0, MLE), 'MGR_START', 'MEND', 'اكتب التاريخ يوم/شهر/سنة')
 
 # ═══════════════════ عمال المهام ═══════════════════
 T = wb.create_sheet('عمال المهام')
@@ -522,17 +441,17 @@ I['B1'] = 'كيف يشتغل الملف'; I['B1'].font = F(16, True, NAVY)
 steps = [
     ('أول كل شهر', None),
     ('1', 'خذ نسخة من الملف وسمّيها برقم الشهر. أول شي فوق بورقة «التسوية»: اختر الشهر والسنة — كل الملف (الأسابيع وتواريخ الأيام) بيتبرمج عليهم.'),
-    ('2', 'انقل أرقام «إقفال الشهر» من ملف الشهر الماضي لـ«افتتاح الشهر»: مستحق له لسا ما قبضه · دين متبقي عليه · القسط الأسبوعي. (وكمان للمدير بورقته.)'),
+    ('2', 'بورقة «بداية ونهاية الشهر»: انسخ أرقام «نهاية الشهر» من ملف الشهر الماضي لـ«بداية الشهر»: مستحق له · دين متبقي عليه · القسط الأسبوعي.'),
     ('الأسبوع اللي بيقطع بين شهرين', None),
     ('3', 'الملف فيه أيام الشهر بس. مثلاً شهر 10/2026 بيبدأ الخميس 01/10: «الأسبوع الأول» = الخميس والجمعة بس، والسبت 26/09 لـالأربعاء 30/09 كانوا بملف شهر 9.'),
-    ('4', 'وآخر الشهر نفس الشي: السبت 31/10 بس بملف شهر 10، والباقي بملف شهر 11. اللي اشتغله وما انقبض بيطلع بـ«إقفال الشهر» ← «مستحق له» بافتتاح الشهر الجاي، وبينضاف لصافي أول أسبوع.'),
+    ('4', 'وآخر الشهر نفس الشي: السبت 31/10 بس بملف شهر 10، والباقي بملف شهر 11. اللي اشتغله وما انقبض بيطلع بـ«نهاية الشهر» ← «مستحق له» ببداية الشهر الجاي، وبينضاف لصافي أول أسبوع.'),
     ('كل يوم', None),
     ('5', 'بورقة الساعات: اختر الدخول والخروج من القائمة (كل ربع ساعة، AM/PM) — أو اكتبه مثل 7:30 AM. عدد الساعات (مثل 11 س 30 د) والعادي والإضافي والمستحق بيطلعوا لحالهم. عبدالعزيز: آخر اليوم «قبض؟ نعم» + المبلغ.'),
     ('6', 'ساعات تحميل الجبسمبورد: مرة وحدة تحت كل أسبوع (مجموع ساعات التحميل بالأسبوع).'),
     ('7', 'سلفة الأسبوع (كاش وسط الأسبوع): سطر بورقة «السلف» — بتنخصم كاملة من نفس الأسبوع. قرض أو دين أو بضاعة: سطر بورقة «القروض والديون» فيه المبلغ والقسط الأسبوعي — القسط بينخصم لحاله كل أسبوع، وفوق الورقة ملخّص: قديش عليه، قديش ضل، وكم أسبوع.'),
     ('آخر الأسبوع', None),
-    ('8', 'بورقة «التسوية» اختر الأسبوع — بيطلعلك لكل واحد المستحق (مجبور لربع دينار) ناقص السلف والقسط = الصافي للدفع.'),
-    ('9', 'لما تدفع: اكتب المبلغ بخانة «المدفوع» بسطر الأسبوع بجدول الشهر.'),
+    ('8', 'بورقة «التسوية» اختر الأسبوع — فوق بيطلعلك لكل موظف «الصافي للدفع» (المربّع البرتقالي) = المستحق + الإكرامية + المدوّر − السلف − القسط − اللي قبضه يومياً.'),
+    ('9', 'الإكرامية (Tip) والمدفوع: بجدول الشهر تحت، بسطر الأسبوع (الخانات الصفراء).'),
     ('الحماية', None),
     ('10', 'الخلايا الصفراء بس بتنكتب. الباقي محمي عشان المعادلات ما تنخرب (الحماية بلا كلمة سر — من «مراجعة ← إلغاء حماية الورقة» إذا لزم).'),
     ('التاريخ', None),
@@ -545,7 +464,7 @@ for a, b in steps:
     I['B%d' % r] = b; I['B%d' % r].font = F(11); I['B%d' % r].alignment = C('right'); I.row_dimensions[r].height = 34; r += 1
 
 # ═══════════════════ الترتيب والحماية ═══════════════════
-order = ['التسوية', 'ساعات عمر', 'ساعات عبدالعزيز', 'السلف', 'القروض والديون', 'المدير', 'عمال المهام', 'القواعد', 'التعليمات', 'القوائم']
+order = ['التسوية', 'ساعات عمر', 'ساعات عبدالعزيز', 'السلف', 'القروض والديون', 'بداية ونهاية الشهر', 'عمال المهام', 'القواعد', 'التعليمات', 'القوائم']
 wb._sheets = [wb[n] for n in order]
 wb.active = 0
 for ws in wb.worksheets:
