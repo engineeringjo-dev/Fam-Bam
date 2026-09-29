@@ -42,13 +42,13 @@ table.t{width:100%%;border-collapse:collapse}.t th{background:#ddd;border:1px so
 </tr></table>
 <div style="border-bottom:2px solid #333;margin:3px 0 4px"></div>
 <h2>فواتير مشروع مسجد علاء الدين — بالبنود</h2>
-<div class="note">الفواتير بعد دفعة الـ 800 دينار (17/08/2026)</div>
+<div class="note"><b>الفترة: من <span class="ltr">%(d1)s</span> إلى <span class="ltr">%(d2)s</span></b></div>
 <table style="width:100%%;border-collapse:collapse"><tr><td style="width:50%%;vertical-align:top;padding-left:4px"><table class="t">%(th)s<tbody>
 %(rows)s
 </tbody></table></td></tr></table>
 <table class="t" style="margin-top:4px"><tr class="tot"><td class="c">مجموع الفواتير — %(n)d فواتير · %(nl)d صنف</td><td class="n" style="width:20%%">%(tot)s</td></tr></table>
 <div style="margin-top:6px;border:2px solid #333;padding:4px;text-align:center;font-weight:bold;font-size:%(h2)spx">مجموع الفواتير: %(tot)s دينار أردني</div>
-</body></html>''' % dict(fs=FS,h=FS+4,h2=FS+2,wd=WD[today.weekday()],td=today.strftime('%d/%m/%Y'),rows=rows,th=TH.replace('%%','%'),n=len(ms),nl=nl,tot=f3(tot))
+</body></html>''' % dict(fs=FS,h=FS+4,h2=FS+2,wd=WD[today.weekday()],td=today.strftime('%d/%m/%Y'),d1=dt.date.fromisoformat(ms[0]['invoice_date']).strftime('%d/%m/%Y'),d2=dt.date.fromisoformat(ms[-1]['invoice_date']).strftime('%d/%m/%Y'),rows=rows,th=TH.replace('%%','%'),n=len(ms),nl=nl,tot=f3(tot))
 out='/home/user/Fam-Bam/العون/فواتير_مسجد_علاء_الدين_بعد_800_بالبنود.pdf'
 render_html(html,out)
 d=open(out,'rb').read(); print('pages',len(re.findall(rb'/Type\s*/Page[^s]',d)),'lines',nl,'tot',round(tot,3))
