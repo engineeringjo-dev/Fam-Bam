@@ -27,6 +27,7 @@ EDIT, AUTO, WEEKBAR, SUBT, OUTM = 'FFF6CC', 'EDEDED', 'DCE6EE', 'E3EFE3', 'D9D9D
 LINE = Side(style='thin', color='9AA5AD'); THICK = Side(style='medium', color=NAVY)
 BOX = Border(left=LINE, right=LINE, top=LINE, bottom=LINE)
 DUR = '[h]" س "mm" د"'   # مدة: 11 س 30 د (مش ساعة حائط)
+DIN = '[<=31]"يوم "0;[<=3112]00\\/00;dd/mm/yyyy'   # خانة تاريخ بتقبل: 5 · 510 · 05/10/2026
 DATE = 'dd/mm/yyyy'; MONEY = '#,##0.000;[Red]-#,##0.000;-'; HRS = '0.00'
 NWMAX = 6                      # أقصى عدد أسابيع (كاملة أو مقطوعة) بالشهر
 BLOCK = 10                     # عنوان الأسبوع + 7 أيام + مجموع الأيام + سطر الجبسمبورد
@@ -48,10 +49,11 @@ def dv(ws, formula, rng, prompt=None):
     d = DataValidation(type='list', formula1=formula, allow_blank=True)
     if prompt: d.prompt = prompt; d.showInputMessage = True
     ws.add_data_validation(d); d.add(rng)
-def dv_date(ws, rng, lo='MSTART', hi='MEND', msg='اكتب التاريخ يوم/شهر/سنة — ومن أيام الشهر المختار'):
-    d = DataValidation(type='date', operator='between', formula1=lo, formula2=hi, allow_blank=True,
-                       showErrorMessage=True, errorTitle='تاريخ غلط', error=msg,
-                       showInputMessage=True, promptTitle='التاريخ', prompt='يوم/شهر/سنة  مثل 05/10/2026')
+def dv_date(ws, rng, *_):
+    # قائمة أيام الشهر المختار — أو اكتب رقم اليوم لحاله (5) أو يوم وشهر (510) أو التاريخ كامل
+    d = DataValidation(type='list', formula1="='القوائم'!$N$1:$N$31", allow_blank=True, showErrorMessage=False,
+                       showInputMessage=True, promptTitle='التاريخ',
+                       prompt='اختار من القائمة، أو اكتب رقم اليوم لحاله (مثل 5) — بينحسب من الشهر المختار')
     ws.add_data_validation(d); d.add(rng)
 def cellfmt(c, color='FFFFFF', bold=False, fmt=None, sz=11, h='center', fc='000000'):
     c.border = BOX; c.fill = fill(color); c.font = F(sz, bold, fc); c.alignment = C(h)
@@ -77,6 +79,11 @@ def header(ws, row, heads, color, sz=10, height=34):
 
 DAYNAME = 'CHOOSE(WEEKDAY({d},1),"الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت")'
 def TXT(x): return 'TEXT(DAY(%s),"00")&"/"&TEXT(MONTH(%s),"00")&"/"&YEAR(%s)' % (x, x, x)
+def DVAL(x):   # رقم اليوم لحاله ← تاريخ بالشهر المختار · 4 أرقام يوم+شهر (0510) · أو تاريخ كامل
+    return ('IF({x}="","",IF(ISNUMBER({x}),IF({x}<=31,DATE(YEAR(MSTART),MONTH(MSTART),{x}),'
+            'IF({x}<=3112,DATE(YEAR(MSTART),MOD({x},100),INT({x}/100)),{x})),IFERROR(DATEVALUE({x}),"")))').format(x=x)
+def OUTLBL(a):   # يوم برّا الشهر: وين انحسب
+    return 'IF({a}<MSTART,"↩ بملف شهر ","↪ بملف شهر ")&TEXT(MONTH({a}),"00")'.format(a=a)
 def RND(x): return 'IF(ROUND_MODE="للأعلى",CEILING(ROUND((%s),3),0.25),ROUND((%s)*4,0)/4)' % (x, x)
 
 # ═══════════════════ ورقة مخفية: القوائم والحسابات ═══════════════════
@@ -101,6 +108,8 @@ for k in range(NWMAX):     # صف لكل أسبوع: بدايته ونهايته
     H['L%d' % r] = '=IF(%d<=NW,IF(%s<MSTART,"بدأ بالشهر الماضي — أيامه قبل "&%s&" بملف الشهر الماضي",IF(%s+6>MEND,"بيكمل بالشهر الجاي — أيامه بعد "&%s&" بملف الشهر الجاي","أسبوع كامل")),"")' % (
         k + 1, sat, TXT('MSTART'), sat, TXT('MEND'))
     for c in 'HI': H['%s%d' % (c, r)].number_format = DATE
+for i in range(31):
+    H['N%d' % (i + 1)] = '=IF(%d<=DAY(MEND),MSTART+%d,"")' % (i + 1, i); H['N%d' % (i + 1)].number_format = DATE
 H.sheet_state = 'hidden'
 TIME_LIST = "='القوائم'!$A$1:$A$96"
 def TV(ref):   # من القائمة (نص) · أو وقت مكتوب (رقم) · أو نص وقت ثاني — دايماً وقت صافي
@@ -141,7 +150,7 @@ def hours_sheet(ttl, banner, color, heads, widths, text):
     note(ws, 'A3', text, 'A3:I3', h=36)
     for k, w in enumerate(widths, start=1): ws.column_dimensions[col(k)].width = w
     header(ws, 5, heads, color, 11, 32); ws.freeze_panes = 'A6'
-    ws.column_dimensions['K'].hidden = True; ws.column_dimensions['L'].hidden = True
+    ws.column_dimensions['K'].hidden = True; ws.column_dimensions['L'].hidden = True; ws.column_dimensions['M'].hidden = True
     return ws
 
 def week_bar(ws, k, color):
@@ -152,10 +161,11 @@ def week_bar(ws, k, color):
     return r
 
 def day_date(ws, r, k, d):
-    ws['A%d' % r] = '=IF(AND(%d<=NW,WFIRST+%d>=MSTART,WFIRST+%d<=MEND),WFIRST+%d,"")' % (k + 1, 7 * k + d, 7 * k + d, 7 * k + d)
+    ws['A%d' % r] = '=IF(%d<=NW,WFIRST+%d,"")' % (k + 1, 7 * k + d)
+    ws['M%d' % r] = '=IF(A{r}="",0,IF(AND(A{r}>=MSTART,A{r}<=MEND),1,0))'.replace('{r}', str(r))   # 1 = من أيام الشهر
     ws['B%d' % r] = '=IF(A{r}="","",%s)'.replace('{r}', str(r)) % DAYNAME.format(d='A%d' % r)
-    ws['K%d' % r] = '=IF(OR(A{r}="",C{r}=""),"",%s)'.replace('{r}', str(r)) % TV('C%d' % r)
-    ws['L%d' % r] = '=IF(OR(A{r}="",D{r}=""),"",%s)'.replace('{r}', str(r)) % TV('D%d' % r)
+    ws['K%d' % r] = '=IF(OR(M{r}=0,C{r}=""),"",%s)'.replace('{r}', str(r)) % TV('C%d' % r)
+    ws['L%d' % r] = '=IF(OR(M{r}=0,D{r}=""),"",%s)'.replace('{r}', str(r)) % TV('D%d' % r)
     auto(ws, 'A%d' % r, DATE); auto(ws, 'B%d' % r)
     for c in 'KL': ws['%s%d' % (c, r)].number_format = 'h:mm AM/PM'
     if d == 6:
@@ -172,11 +182,11 @@ for k in range(NWMAX):
     hr = week_bar(O, k, NAVY)
     for d in range(7):
         r = hr + 1 + d; day_date(O, r, k, d)
-        O['E%d' % r] = '=IF(OR(K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))'.replace('{r}', str(r))
-        O['F%d' % r] = ('=IF(E{r}="","",IF(WEEKDAY(A{r},1)=6,E{r},'
+        O['E%d' % r] = ('=IF(A{r}="","",IF(M{r}=0,%s,IF(OR(K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))))' % OUTLBL('A{r}')).replace('{r}', str(r))
+        O['F%d' % r] = ('=IF(OR(E{r}="",M{r}=0),"",IF(WEEKDAY(A{r},1)=6,E{r},'
                         'MIN(E{r},MAX(0,MIN(IF(L{r}<K{r},L{r}+1,L{r}),OMR_OT_AT)-K{r}))))').replace('{r}', str(r))
-        O['G%d' % r] = '=IF(E{r}="","",MAX(0,E{r}-F{r}))'.replace('{r}', str(r))
-        O['H%d' % r] = '=IF(E{r}="","",ROUND((F{r}*OMR_RATE+G{r}*OMR_OT)*24,3))'.replace('{r}', str(r))
+        O['G%d' % r] = '=IF(OR(E{r}="",M{r}=0),"",MAX(0,E{r}-F{r}))'.replace('{r}', str(r))
+        O['H%d' % r] = '=IF(OR(E{r}="",M{r}=0),"",ROUND((F{r}*OMR_RATE+G{r}*OMR_OT)*24,3))'.replace('{r}', str(r))
         for c in 'CD': edit(O, '%s%d' % (c, r))
         edit(O, 'I%d' % r)
         for c, fm in zip('EFGH', [DUR, DUR, DUR, MONEY]): auto(O, '%s%d' % (c, r), fm)
@@ -198,7 +208,7 @@ for k in range(NWMAX):
 OEND = B0 + BLOCK * NWMAX - 1
 dv(O, TIME_LIST, 'C%d:D%d' % (B0, OEND))
 O.conditional_formatting.add('C%d:D%d' % (B0, OEND), FormulaRule(
-    formula=['AND(ISNUMBER($A%d),$K%d<>"",$L%d<>"",WEEKDAY($A%d,1)=6,OR($K%d<OMR_FRI_IN,$L%d>OMR_FRI_OUT))' % ((B0,) * 6)], fill=fill('FDE2C8')))
+    formula=['AND($M%d=1,$K%d<>"",$L%d<>"",WEEKDAY($A%d,1)=6,OR($K%d<OMR_FRI_IN,$L%d>OMR_FRI_OUT))' % ((B0,) * 6)], fill=fill('FDE2C8')))
 
 # ---- عبدالعزيز ----
 Z = hours_sheet('ساعات عبدالعزيز', 'ساعات عبدالعزيز — بيقبض نهاية كل يوم', TEAL,
@@ -211,8 +221,8 @@ for k in range(NWMAX):
     hr = week_bar(Z, k, TEAL)
     for d in range(7):
         r = hr + 1 + d; day_date(Z, r, k, d)
-        Z['E%d' % r] = '=IF(OR(K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))'.replace('{r}', str(r))
-        Z['F%d' % r] = '=IF(E%d="","",%s)' % (r, RND('E%d*24*AZZ_RATE' % r))
+        Z['E%d' % r] = ('=IF(A{r}="","",IF(M{r}=0,%s,IF(OR(K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))))' % OUTLBL('A{r}')).replace('{r}', str(r))
+        Z['F%d' % r] = '=IF(OR(E%d="",M%d=0),"",%s)' % (r, r, RND('E%d*24*AZZ_RATE' % r))
         for c in 'CDGI': edit(Z, '%s%d' % (c, r))
         edit(Z, 'H%d' % r, MONEY)
         auto(Z, 'E%d' % r, DUR); auto(Z, 'F%d' % r, MONEY)
@@ -232,8 +242,10 @@ for k in range(NWMAX):
 ZEND = B0 + BLOCK * NWMAX - 1
 dv(Z, TIME_LIST, 'C%d:D%d' % (B0, ZEND)); dv(Z, '"نعم,لا"', 'G%d:G%d' % (B0, ZEND))
 Z.conditional_formatting.add('H%d:H%d' % (B0, ZEND), FormulaRule(formula=['AND($G%d="نعم",ISNUMBER($F%d),N($H%d)<>$F%d)' % ((B0,) * 4)], fill=fill('FDE2C8')))
-for ws, end in ((O, OEND), (Z, ZEND)):   # أيام خارج الشهر: رمادي
-    ws.conditional_formatting.add('C%d:D%d' % (B0, end), FormulaRule(formula=['AND($A%d="",$B%d="")' % (B0, B0)], fill=fill(OUTM)))
+for ws, end in ((O, OEND), (Z, ZEND)):   # أيام برّا الشهر: رمادي بتاريخها ومكتوب وين انحسبت
+    ws.conditional_formatting.add('A%d:I%d' % (B0, end), FormulaRule(formula=['AND(ISNUMBER($A%d),$M%d=0)' % (B0, B0)],
+                                  fill=fill(OUTM), font=Font(color='7F7F7F', italic=True)))
+    ws.column_dimensions['E'].width = 14
 
 # ═══════════════════ السلف والقروض ═══════════════════
 # أسهل (28/09): القرض بسطر واحد مع قسطه · ملخّص فوق لكل موظف: قديش عليه وقديش ضل وكم أسبوع
@@ -251,14 +263,15 @@ for i, tx in enumerate(expl): note(L, 'A%d' % (7 + i), tx.replace('**', ''), 'A%
 header(L, 11, ['التاريخ', 'الموظف', 'سلفة (دينار)', 'قرض / دين / بضاعة (دينار)', 'القسط الأسبوعي (دينار)', 'تسديد مباشر (دينار)', 'البيان', ''], RUST, 11, 34)
 LR0, LE = 12, 12 + LOG_ROWS - 1
 for r in range(LR0, LE + 1):
-    edit(L, 'A%d' % r, DATE); edit(L, 'B%d' % r)
+    edit(L, 'A%d' % r, DIN); edit(L, 'B%d' % r)
+    L['K%d' % r] = '=' + DVAL('A%d' % r)
     for c in 'CDEF': edit(L, '%s%d' % (c, r), MONEY)
     L.merge_cells('G%d:H%d' % (r, r)); edit(L, 'G%d' % r); L['G%d' % r].alignment = C('right')
     L['J%d' % r] = r - LR0 + 1                      # ترتيب السطر (للقسط الأحدث)
 dv(L, '"عمر المصري,عبدالعزيز"', 'B%d:B%d' % (LR0, LE)); dv_date(L, 'A%d:A%d' % (LR0, LE))
-L.column_dimensions['J'].hidden = True
+L.column_dimensions['J'].hidden = True; L.column_dimensions['K'].hidden = True
 L.freeze_panes = 'A12'
-for nm, c in (('LG_D', 'A'), ('LG_E', 'B'), ('LG_ADV', 'C'), ('LG_DEBT', 'D'), ('LG_INST', 'E'), ('LG_REP', 'F'), ('LG_IDX', 'J')):
+for nm, c in (('LG_D', 'K'), ('LG_E', 'B'), ('LG_ADV', 'C'), ('LG_DEBT', 'D'), ('LG_INST', 'E'), ('LG_REP', 'F'), ('LG_IDX', 'J')):
     name(nm, "'السلف والديون'!$%s$%d:$%s$%d" % (c, LR0, c, LE))
 note(L, 'A%d' % (LE + 2), 'أمثلة: 05/10/2026 · عمر المصري · سلفة 20.000 · «كاش من الصندوق»   |   07/10/2026 · عمر المصري · قرض 497.000 · القسط 30.000 · «قرض»   |   20/10/2026 · عمر المصري · تسديد مباشر 50.000', 'A%d:H%d' % (LE + 2, LE + 2))
 
@@ -431,11 +444,11 @@ for i in range(4):
     M['C%d' % r] = '=IF(B%d="","",B%d+9)' % (r, r)
     M['D%d' % r] = '=IF(B%d="","",MGR_SAL)' % r
     M['E%d' % r] = '=IF(B%d="","",%s)' % (r, '$B$6' if i == 0 else '0')
-    M['F%d' % r] = "=IF(B%d=\"\",\"\",SUMIFS($B$%d:$B$%d,$A$%d:$A$%d,\">=\"&B%d,$A$%d:$A$%d,\"<=\"&C%d))" % (r, ML0, MLE, ML0, MLE, r, ML0, MLE, r)
+    M['F%d' % r] = "=IF(B%d=\"\",\"\",SUMIFS($B$%d:$B$%d,$M$%d:$M$%d,\">=\"&B%d,$M$%d:$M$%d,\"<=\"&C%d))" % (r, ML0, MLE, ML0, MLE, r, ML0, MLE, r)
     prev = '0' if i == 0 else 'SUM(G%d:G%d)' % (MR0, r - 1)
-    mx = '_xlfn.MAXIFS($L${a}:$L${b},$D${a}:$D${b},"<>",$A${a}:$A${b},"<="&C{r})'.format(r=r, a=ML0, b=MLE)
+    mx = '_xlfn.MAXIFS($L${a}:$L${b},$D${a}:$D${b},"<>",$M${a}:$M${b},"<="&C{r})'.format(r=r, a=ML0, b=MLE)
     inm = 'IF({m}=0,$D$6,INDEX($D${a}:$D${b},{m}))'.format(m=mx, a=ML0, b=MLE)
-    owed = '$C$6+SUMIFS($C${a}:$C${b},$A${a}:$A${b},"<="&C{r})-SUMIFS($E${a}:$E${b},$A${a}:$A${b},"<="&C{r})'.format(r=r, a=ML0, b=MLE)
+    owed = '$C$6+SUMIFS($C${a}:$C${b},$M${a}:$M${b},"<="&C{r})-SUMIFS($E${a}:$E${b},$M${a}:$M${b},"<="&C{r})'.format(r=r, a=ML0, b=MLE)
     M['G%d' % r] = '=IF(B{r}="","",MIN({i},MAX(0,{ow}-{p})))'.format(r=r, i=inm, ow=owed, p=prev)
     M['K%d' % r] = '=IF(B{r}="","",MAX(0,{ow}-SUM(G{a}:G{r})))'.format(r=r, ow=owed, a=MR0)
     M['H%d' % r] = '=IF(B%d="","",D%d+E%d-F%d-G%d)' % ((r,) * 5)
@@ -455,11 +468,11 @@ for c in ('D15', 'F15'): auto(M, c, MONEY, True, 12)
 header(M, 17, ['التاريخ', 'سلفة (دينار)', 'قرض / دين / بضاعة (دينار)', 'القسط كل فترة (دينار)', 'تسديد مباشر (دينار)', 'البيان'], RUST, 10, 34)
 M.merge_cells('F17:J17')
 for r in range(ML0, MLE + 1):
-    edit(M, 'A%d' % r, DATE)
+    edit(M, 'A%d' % r, DIN); M['M%d' % r] = '=' + DVAL('A%d' % r)
     for c in 'BCDE': edit(M, '%s%d' % (c, r), MONEY)
     M.merge_cells('F%d:J%d' % (r, r)); edit(M, 'F%d' % r); M['F%d' % r].alignment = C('right')
     M['L%d' % r] = r - ML0 + 1
-M.column_dimensions['L'].hidden = True
+M.column_dimensions['L'].hidden = True; M.column_dimensions['M'].hidden = True
 dv_date(M, 'A%d:A%d' % (ML0, MLE), 'MGR_START', 'MEND', 'اكتب التاريخ يوم/شهر/سنة')
 
 # ═══════════════════ عمال المهام ═══════════════════
@@ -470,7 +483,7 @@ note(T, 'A3', 'كل مهمة سطر: التاريخ، العامل، شو عمل
 header(T, 5, ['التاريخ', 'اسم العامل', 'المهمة', 'المبلغ المدفوع (دينار)', 'ملاحظات'], PLUM, 11, 30)
 TE = 6 + TASK_ROWS - 1
 for r in range(6, TE + 1):
-    edit(T, 'A%d' % r, DATE); edit(T, 'B%d' % r); edit(T, 'C%d' % r); edit(T, 'D%d' % r, MONEY); edit(T, 'E%d' % r)
+    edit(T, 'A%d' % r, DIN); edit(T, 'B%d' % r); edit(T, 'C%d' % r); edit(T, 'D%d' % r, MONEY); edit(T, 'E%d' % r)
     for c in 'CE': T['%s%d' % (c, r)].alignment = C('right')
 dv_date(T, 'A6:A%d' % TE)
 T['C%d' % (TE + 1)] = 'مجموع الشهر'; auto(T, 'C%d' % (TE + 1), None, True, color=SUBT)
@@ -500,7 +513,8 @@ steps = [
     ('الحماية', None),
     ('10', 'الخلايا الصفراء بس بتنكتب. الباقي محمي عشان المعادلات ما تنخرب (الحماية بلا كلمة سر — من «مراجعة ← إلغاء حماية الورقة» إذا لزم).'),
     ('التاريخ', None),
-    ('11', 'كل التواريخ بالملف يوم/شهر/سنة (05/10/2026). خانات التاريخ ما بتقبل إلا تاريخ من الشهر المختار.'),
+    ('11', 'كل التواريخ بالملف يوم/شهر/سنة (05/10/2026). بخانة التاريخ: اختار من القائمة، أو اكتب رقم اليوم لحاله (5 = يوم 5 من الشهر المختار)، أو يوم وشهر (0510 = 05/10)، أو 5/10.'),
+    ('12', 'الأسبوع المقطوع بين شهرين: أيامه اللي برّا الشهر بتطلع رمادي بتاريخها ومكتوب عليها «↩ بملف شهر 09» أو «↪ بملف شهر 11» — ما بتنكتب هون.'),
 ]
 r = 3
 for a, b in steps:
