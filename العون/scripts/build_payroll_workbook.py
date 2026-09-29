@@ -82,8 +82,6 @@ def TXT(x): return 'TEXT(DAY(%s),"00")&"/"&TEXT(MONTH(%s),"00")&"/"&YEAR(%s)' % 
 def DVAL(x):   # رقم اليوم لحاله ← تاريخ بالشهر المختار · 4 أرقام يوم+شهر (0510) · أو تاريخ كامل
     return ('IF({x}="","",IF(ISNUMBER({x}),IF({x}<=31,DATE(YEAR(MSTART),MONTH(MSTART),{x}),'
             'IF({x}<=3112,DATE(YEAR(MSTART),MOD({x},100),INT({x}/100)),{x})),IFERROR(DATEVALUE({x}),"")))').format(x=x)
-def OUTLBL(a):   # يوم برّا الشهر: وين انحسب
-    return 'IF({a}<MSTART,"↩ بملف شهر ","↪ بملف شهر ")&TEXT(MONTH({a}),"00")'.format(a=a)
 def RND(x): return 'IF(ROUND_MODE="للأعلى",CEILING(ROUND((%s),3),0.25),ROUND((%s)*4,0)/4)' % (x, x)
 
 # ═══════════════════ ورقة مخفية: القوائم والحسابات ═══════════════════
@@ -161,7 +159,7 @@ def week_bar(ws, k, color):
     return r
 
 def day_date(ws, r, k, d):
-    ws['A%d' % r] = '=IF(%d<=NW,WFIRST+%d,"")' % (k + 1, 7 * k + d)
+    ws['A%d' % r] = '=IF(AND(%d<=NW,WFIRST+%d>=MSTART,WFIRST+%d<=MEND),WFIRST+%d,"")' % (k + 1, 7 * k + d, 7 * k + d, 7 * k + d)   # برّا الشهر = فاضي (بأمره 29/09)
     ws['M%d' % r] = '=IF(A{r}="",0,IF(AND(A{r}>=MSTART,A{r}<=MEND),1,0))'.replace('{r}', str(r))   # 1 = من أيام الشهر
     ws['B%d' % r] = '=IF(A{r}="","",%s)'.replace('{r}', str(r)) % DAYNAME.format(d='A%d' % r)
     ws['K%d' % r] = '=IF(OR(M{r}=0,C{r}=""),"",%s)'.replace('{r}', str(r)) % TV('C%d' % r)
@@ -182,7 +180,7 @@ for k in range(NWMAX):
     hr = week_bar(O, k, NAVY)
     for d in range(7):
         r = hr + 1 + d; day_date(O, r, k, d)
-        O['E%d' % r] = ('=IF(A{r}="","",IF(M{r}=0,%s,IF(OR(K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))))' % OUTLBL('A{r}')).replace('{r}', str(r))
+        O['E%d' % r] = '=IF(OR(M{r}=0,K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))'.replace('{r}', str(r))
         O['F%d' % r] = ('=IF(OR(E{r}="",M{r}=0),"",IF(WEEKDAY(A{r},1)=6,E{r},'
                         'MIN(E{r},MAX(0,MIN(IF(L{r}<K{r},L{r}+1,L{r}),OMR_OT_AT)-K{r}))))').replace('{r}', str(r))
         O['G%d' % r] = '=IF(OR(E{r}="",M{r}=0),"",MAX(0,E{r}-F{r}))'.replace('{r}', str(r))
@@ -221,7 +219,7 @@ for k in range(NWMAX):
     hr = week_bar(Z, k, TEAL)
     for d in range(7):
         r = hr + 1 + d; day_date(Z, r, k, d)
-        Z['E%d' % r] = ('=IF(A{r}="","",IF(M{r}=0,%s,IF(OR(K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))))' % OUTLBL('A{r}')).replace('{r}', str(r))
+        Z['E%d' % r] = '=IF(OR(M{r}=0,K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))'.replace('{r}', str(r))
         Z['F%d' % r] = '=IF(OR(E%d="",M%d=0),"",%s)' % (r, r, RND('E%d*24*AZZ_RATE' % r))
         for c in 'CDGI': edit(Z, '%s%d' % (c, r))
         edit(Z, 'H%d' % r, MONEY)
@@ -242,10 +240,8 @@ for k in range(NWMAX):
 ZEND = B0 + BLOCK * NWMAX - 1
 dv(Z, TIME_LIST, 'C%d:D%d' % (B0, ZEND)); dv(Z, '"نعم,لا"', 'G%d:G%d' % (B0, ZEND))
 Z.conditional_formatting.add('H%d:H%d' % (B0, ZEND), FormulaRule(formula=['AND($G%d="نعم",ISNUMBER($F%d),N($H%d)<>$F%d)' % ((B0,) * 4)], fill=fill('FDE2C8')))
-for ws, end in ((O, OEND), (Z, ZEND)):   # أيام برّا الشهر: رمادي بتاريخها ومكتوب وين انحسبت
-    ws.conditional_formatting.add('A%d:I%d' % (B0, end), FormulaRule(formula=['AND(ISNUMBER($A%d),$M%d=0)' % (B0, B0)],
-                                  fill=fill(OUTM), font=Font(color='7F7F7F', italic=True)))
-    ws.column_dimensions['E'].width = 14
+for ws, end in ((O, OEND), (Z, ZEND)):   # أيام برّا الشهر: فاضية ورمادي خفيف بخانات الدخول والخروج
+    ws.conditional_formatting.add('C%d:D%d' % (B0, end), FormulaRule(formula=['AND($A%d="",$B%d="")' % (B0, B0)], fill=fill(OUTM)))
 
 # ═══════════════════ السلف والقروض ═══════════════════
 # أسهل (28/09): القرض بسطر واحد مع قسطه · ملخّص فوق لكل موظف: قديش عليه وقديش ضل وكم أسبوع
@@ -514,7 +510,6 @@ steps = [
     ('10', 'الخلايا الصفراء بس بتنكتب. الباقي محمي عشان المعادلات ما تنخرب (الحماية بلا كلمة سر — من «مراجعة ← إلغاء حماية الورقة» إذا لزم).'),
     ('التاريخ', None),
     ('11', 'كل التواريخ بالملف يوم/شهر/سنة (05/10/2026). بخانة التاريخ: اختار من القائمة، أو اكتب رقم اليوم لحاله (5 = يوم 5 من الشهر المختار)، أو يوم وشهر (0510 = 05/10)، أو 5/10.'),
-    ('12', 'الأسبوع المقطوع بين شهرين: أيامه اللي برّا الشهر بتطلع رمادي بتاريخها ومكتوب عليها «↩ بملف شهر 09» أو «↪ بملف شهر 11» — ما بتنكتب هون.'),
 ]
 r = 3
 for a, b in steps:
