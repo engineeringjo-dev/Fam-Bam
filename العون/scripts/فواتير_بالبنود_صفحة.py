@@ -13,16 +13,16 @@ blocks=[]; tot=0; nl=0
 for m in ms:
     d=dt.date.fromisoformat(m['invoice_date'])
     ls=x('account.move.line','search_read',[('move_id','=',m['id']),('display_type','=','product')],['name','quantity','price_unit','price_subtotal','sequence'],order='sequence,id')
-    rows='<tr class="ih"><td colspan="4">فاتورة <span class="ltr">%s</span> &nbsp;·&nbsp; %s <span class="ltr">%s</span></td><td class="n">%s</td></tr>' % (m['name'],WD[d.weekday()],d.strftime('%d/%m/%Y'),f3(m['amount_total']))
+    rows='<tr class="ih"><td colspan="3">فاتورة <span class="ltr">%s</span> &nbsp;·&nbsp; %s <span class="ltr">%s</span></td><td class="n">%s</td></tr>' % (m['name'],WD[d.weekday()],d.strftime('%d/%m/%Y'),f3(m['amount_total']))
     for i,l in enumerate(ls,1):
         nm=re.sub(r'^\[[^\]]*\]\s*','',l['name'] or '')
-        rows+='<tr><td class="c">%d</td><td>%s</td><td class="c">%s</td><td class="n">%s</td><td class="n">%s</td></tr>' % (i,nm,q(l['quantity']),f3(l['price_unit']),f3(l['price_subtotal']))
+        rows+='<tr><td class="c">%d</td><td>%s</td><td class="c">%s</td><td class="n">%s</td></tr>' % (i,nm,q(l['quantity']),f3(l['price_subtotal']))
         nl+=1
     tot+=m['amount_total']; blocks.append((len(ls)+1,rows))
 half=sum(b[0] for b in blocks)/2; acc=0; cols=['','']
 for n_,r_ in blocks:
     cols[0 if acc<half else 1]+=r_; acc+=n_
-TH='<thead><tr><th style="width:6%%">#</th><th>الصنف</th><th style="width:9%%">الكمية</th><th style="width:13%%">السعر</th><th style="width:15%%">المجموع</th></tr></thead>'
+TH='<thead><tr><th style="width:6%%">#</th><th>الصنف</th><th style="width:10%%">الكمية</th><th style="width:17%%">المجموع</th></tr></thead>'
 rows='</tbody></table></td><td style="width:50%%;vertical-align:top;padding-right:4px"><table class="t">'+TH.replace('%%','%')+'<tbody>'
 rows=cols[0]+rows+cols[1]
 today=dt.date.today()
