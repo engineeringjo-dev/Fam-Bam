@@ -88,7 +88,8 @@ H = wb.create_sheet('القوائم')
 def label(m):
     h, mi = divmod(m, 60)
     return '%d:%02d %s' % ((h % 12) or 12, mi, 'AM' if h < 12 else 'PM')
-for i, m in enumerate([(6 * 60 + 15 * k) % 1440 for k in range(96)], start=1):   # تبدأ 6:00 AM
+NT = 288                        # كل 5 دقائق (بأمره 30/09) — 24 ساعة
+for i, m in enumerate([(6 * 60 + 5 * k) % 1440 for k in range(NT)], start=1):   # تبدأ 6:00 AM
     H.cell(i, 1, label(m)); H.cell(i, 2, dt.time(m // 60, m % 60)).number_format = 'h:mm AM/PM'
 for i in range(12): H.cell(i + 1, 4, i + 1)
 for i, y in enumerate(YEARS, start=1): H.cell(i, 5, y)
@@ -108,10 +109,10 @@ for k in range(NWMAX):     # صف لكل أسبوع: بدايته ونهايته
 for i in range(31):
     H['N%d' % (i + 1)] = '=IF(%d<=DAY(MEND),MSTART+%d,"")' % (i + 1, i); H['N%d' % (i + 1)].number_format = DATE
 H.sheet_state = 'hidden'
-TIME_LIST = "='القوائم'!$A$1:$A$96"
+TIME_LIST = "='القوائم'!$A$1:$A$%d" % NT
 def TV(ref):   # من القائمة (نص) · أو وقت مكتوب (رقم) · أو نص وقت ثاني — دايماً وقت صافي
-    return ("IF(ISNUMBER({r}),MOD({r},1),IFERROR(INDEX('القوائم'!$B$1:$B$96,MATCH(TRIM({r}),'القوائم'!$A$1:$A$96,0)),"
-            "IFERROR(MOD(TIMEVALUE({r}),1),\"\")))").format(r=ref)
+    return ("IF(ISNUMBER({r}),MOD({r},1),IFERROR(INDEX('القوائم'!$B$1:$B${n},MATCH(TRIM({r}),'القوائم'!$A$1:$A${n},0)),"
+            "IFERROR(MOD(TIMEVALUE({r}),1),\"\")))").format(r=ref, n=NT)
 WSTART = "'القوائم'!$H$11:$H$16"; WEND = "'القوائم'!$I$11:$I$16"
 
 # ═══════════════════ القواعد ═══════════════════
@@ -139,18 +140,18 @@ for i, (nm, rule, val, fmt, desc) in enumerate(rules, start=1):
 
 # ═══════════════════ أوراق الساعات ═══════════════════
 FINAL, FINAL_C, FINAL_BG = [], 'C55A11', 'ED7D31'   # المستحق النهائي: خلفية برتقالية وخط أبيض عريض
-def hours_sheet(ttl, banner, color, heads, widths, text):
+def hours_sheet(ttl, banner, color, heads, widths, text, last='I'):
     ws = wb.create_sheet(ttl)
-    title(ws, banner, color, 'I', '="شهر "&TEXT(\'التسوية\'!$C$3,"00")&" / "&\'التسوية\'!$E$3&"   (الشهر والسنة بتنختار من ورقة التسوية)"')
-    note(ws, 'A3', text, 'A3:I3', h=36)
+    title(ws, banner, color, last, '="شهر "&TEXT(\'التسوية\'!$C$3,"00")&" / "&\'التسوية\'!$E$3&"   (الشهر والسنة بتنختار من ورقة التسوية)"')
+    note(ws, 'A3', text, 'A3:%s3' % last, h=36)
     for k, w in enumerate(widths, start=1): ws.column_dimensions[col(k)].width = w
     header(ws, 5, heads, color, 11, 32); ws.freeze_panes = 'A6'
     ws.column_dimensions['K'].hidden = True; ws.column_dimensions['L'].hidden = True; ws.column_dimensions['M'].hidden = True
     return ws
 
-def week_bar(ws, k, color):
+def week_bar(ws, k, color, last='I'):
     r = B0 + BLOCK * k; sat = 'WFIRST+%d' % (7 * k)
-    ws.merge_cells('A%d:I%d' % (r, r))
+    ws.merge_cells('A%d:%s%d' % (r, last, r))
     ws['A%d' % r] = '=IF(%d<=NW,"الأسبوع %s","")' % (k + 1, ORD[k])
     cellfmt(ws['A%d' % r], WEEKBAR, True, sz=14, fc=color, h='right'); ws.row_dimensions[r].height = 28
     return r
@@ -207,36 +208,35 @@ O.conditional_formatting.add('C%d:D%d' % (B0, OEND), FormulaRule(
 
 # ---- عبدالعزيز ----
 Z = hours_sheet('ساعات عبدالعزيز', 'ساعات عبدالعزيز — بيقبض نهاية كل يوم', TEAL,
-    ['التاريخ', 'اليوم', 'دخول', 'خروج', 'عدد الساعات', 'مستحق اليوم (دينار)', 'قبض؟', 'المقبوض (دينار)', 'ملاحظات'],
-    [13, 10, 12, 12, 10, 14, 8, 13, 30],
-    'دينار للساعة أي يوم. مستحق كل يوم مجبور لربع دينار. لما يقبض آخر اليوم: «نعم» + المبلغ. '
-    'ساعات الجبسمبورد تحت كل أسبوع — فرقها بينضاف لمستحق الأسبوع وبيندفع آخره.')
+    ['التاريخ', 'اليوم', 'دخول', 'خروج', 'عدد الساعات', 'مستحق اليوم (دينار)', 'قبض؟', 'ملاحظات'],
+    [13, 10, 12, 12, 10, 14, 9, 34],
+    'دينار للساعة أي يوم. مستحق كل يوم مجبور لربع دينار. لما يقبض آخر اليوم: «قبض؟ نعم» — المبلغ = مستحق اليوم لحاله. '
+    'ساعات الجبسمبورد تحت كل أسبوع — فرقها بينضاف لمستحق الأسبوع وبيندفع آخره.', 'H')   # 30/09 بأمره: عمود «المقبوض (دينار)» انشال
 AZZ = []
 for k in range(NWMAX):
-    hr = week_bar(Z, k, TEAL)
+    hr = week_bar(Z, k, TEAL, 'H')
     for d in range(7):
         r = hr + 1 + d; day_date(Z, r, k, d)
         Z['E%d' % r] = '=IF(OR(M{r}=0,K{r}="",L{r}=""),"",MOD(L{r}-K{r},1))'.replace('{r}', str(r))
         Z['F%d' % r] = '=IF(OR(E%d="",M%d=0),"",%s)' % (r, r, RND('E%d*24*AZZ_RATE' % r))
-        for c in 'CDGI': edit(Z, '%s%d' % (c, r))
-        edit(Z, 'H%d' % r, MONEY)
+        for c in 'CDGH': edit(Z, '%s%d' % (c, r))
         auto(Z, 'E%d' % r, DUR); auto(Z, 'F%d' % r, MONEY)
     s1, s2 = hr + 8, hr + 9; lo, hi = hr + 1, hr + 7; on = '%d<=NW' % (k + 1)
     Z.merge_cells('A%d:D%d' % (s1, s1)); Z['A%d' % s1] = '=IF(%s,"مجموع أيام الأسبوع %s","")' % (on, ORD[k])
-    for c in 'EFH': Z['%s%d' % (c, s1)] = '=IF(%s,SUM(%s%d:%s%d),"")' % (on, c, lo, c, hi)
-    for c in 'ABCDEFGHI': auto(Z, '%s%d' % (c, s1), None, True, color=SUBT)
-    Z['E%d' % s1].number_format = DUR
-    for c in 'FH': Z['%s%d' % (c, s1)].number_format = MONEY
+    for c in 'EF': Z['%s%d' % (c, s1)] = '=IF(%s,SUM(%s%d:%s%d),"")' % (on, c, lo, c, hi)
+    Z['G%d' % s1] = '=IF(%s,SUMIFS(F%d:F%d,G%d:G%d,"نعم"),"")' % (on, lo, hi, lo, hi)   # اللي قبضه يومياً بالأسبوع
+    for c in 'ABCDEFGH': auto(Z, '%s%d' % (c, s1), None, True, color=SUBT)
+    Z['E%d' % s1].number_format = DUR; Z['F%d' % s1].number_format = MONEY
+    Z['G%d' % s1].number_format = '"قبض "#,##0.000'
     Z.merge_cells('A%d:D%d' % (s2, s2)); Z['A%d' % s2] = '=IF(%s,"ساعات تحميل الجبسمبورد بهالأسبوع (رقم: 2 أو 1.5) ←","")' % on
     auto(Z, 'A%d' % s2, None, True, color=SUBT); edit(Z, 'E%d' % s2, HRS, True)
     Z['F%d' % s2] = '=IF(%s,N(F%d)+%s,"")' % (on, s1, RND('N(E%d)*(GYP_RATE-AZZ_RATE)' % s2))
     auto(Z, 'F%d' % s2, MONEY, True, 16, color=SUBT); FINAL.append((Z, 'F%d' % s2)); Z.row_dimensions[s2].height = 32
-    Z.merge_cells('G%d:I%d' % (s2, s2)); Z['G%d' % s2] = '=IF(%s,"← المستحق النهائي للأسبوع (دينار) مع فرق الجبسمبورد","")' % on
+    Z.merge_cells('G%d:H%d' % (s2, s2)); Z['G%d' % s2] = '=IF(%s,"← المستحق النهائي للأسبوع (دينار) مع فرق الجبسمبورد","")' % on
     auto(Z, 'G%d' % s2, None, True, 12, color=SUBT, fc=FINAL_C)
     AZZ.append((s1, s2))
 ZEND = B0 + BLOCK * NWMAX - 1
 dv(Z, TIME_LIST, 'C%d:D%d' % (B0, ZEND)); dv(Z, '"نعم,لا"', 'G%d:G%d' % (B0, ZEND))
-Z.conditional_formatting.add('H%d:H%d' % (B0, ZEND), FormulaRule(formula=['AND($G%d="نعم",ISNUMBER($F%d),N($H%d)<>$F%d)' % ((B0,) * 4)], fill=fill('FDE2C8')))
 for ws, end in ((O, OEND), (Z, ZEND)):   # أيام برّا الشهر: فاضية ورمادي خفيف بخانات الدخول والخروج
     ws.conditional_formatting.add('C%d:D%d' % (B0, end), FormulaRule(formula=['AND($A%d="",$B%d="")' % (B0, B0)], fill=fill(OUTM)))
 
@@ -344,7 +344,7 @@ def month_table(top, emp, color, rows_ref, is_azz):
     for k in range(NWMAX):
         r = r0 + k; on = '%d<=NW' % (k + 1); s1, s2 = rows_ref[k]
         we_ = "'القوائم'!$I$%d" % (11 + k); ws_ = "'القوائم'!$H$%d" % (11 + k)
-        daily = 'N(%s!H%d)' % (sh, s1) if is_azz else '0'
+        daily = 'N(%s!G%d)' % (sh, s1) if is_azz else '0'
         S['A%d' % r] = '=IF(%s,"الأسبوع %s","")' % (on, ORD[k])
         S['B%d' % r] = '=IF(%s,N(%s!%s%d)%s,"")' % (on, sh, 'F' if is_azz else 'H', s2, ('+' + OP('B', emp)) if k == 0 else '')
         edit(S, 'C%d' % r, MONEY)
@@ -429,6 +429,81 @@ T['D%d' % (TE + 1)] = '=SUM(D6:D%d)' % TE; auto(T, 'D%d' % (TE + 1), MONEY, True
 T.freeze_panes = 'A6'
 note(T, 'A%d' % (TE + 3), 'مثال: 07/10/2026 · محمد · تنزيل طبلية جبسمبورد · 10.000', 'A%d:E%d' % (TE + 3, TE + 3))
 
+# عمود مخفي: ترقيم أول ظهور لكل عامل (للملخّص — بلا معادلات مصفوفة)
+for r in range(6, TE + 1):
+    T['G%d' % r] = '=IF(AND(B{r}<>"",COUNTIF(B$6:B{r},B{r})=1),MAX(G$5:G{p})+1,"")'.replace('{r}', str(r)).replace('{p}', str(r - 1))
+T.column_dimensions['G'].hidden = True
+
+# ═══════════════════ ملخص الأيدي العاملة (30/09 بأمره) ═══════════════════
+M = wb.create_sheet('ملخص الأيدي العاملة')
+title(M, 'ملخص الأيدي العاملة — وضع كل موظف وقديش دفعت هالشهر', NAVY, 'I',
+      '="شهر "&TEXT(\'التسوية\'!$C$3,"00")&" / "&\'التسوية\'!$E$3')
+for k, w in zip('ABCDEFGHI', [16, 13, 13, 12, 12, 13, 15, 13, 14]): M.column_dimensions[k].width = w
+SS = "'التسوية'"
+M['A4'] = 'الموظفين الثابتين'; M['A4'].font = F(13, True, NAVY); M.merge_cells('A4:I4'); M['A4'].alignment = C('right')
+header(M, 5, ['الموظف', 'ساعات الشهر', 'المستحق', 'إكرامية', 'سلف', 'أقساط دين', 'قبض فعلياً', 'الباقي له', 'الدين المتبقي عليه'], NAVY, 10, 34)
+for i, (nm, tr, sh, rows) in enumerate([('عمر المصري', OTR, "'ساعات عمر'", OMR), ('عبدالعزيز', ZTR, "'ساعات عبدالعزيز'", AZZ)]):
+    r = 6 + i; M['A%d' % r] = nm
+    M['B%d' % r] = '=' + '+'.join('N(%s!E%d)' % (sh, s1) for s1, _ in rows)
+    M['C%d' % r] = '=%s!B%d' % (SS, tr); M['D%d' % r] = '=%s!C%d' % (SS, tr)
+    M['E%d' % r] = '=%s!D%d' % (SS, tr); M['F%d' % r] = '=%s!E%d' % (SS, tr)
+    daily = ('+' + '+'.join('N(%s!G%d)' % (sh, s1) for s1, _ in rows)) if nm == 'عبدالعزيز' else ''
+    M['G%d' % r] = '=%s!G%d%s' % (SS, tr, daily)          # عبدالعزيز: الأسبوعي + اللي قبضه يومياً
+    M['H%d' % r] = '=%s!H%d' % (SS, tr); M['I%d' % r] = '=%s!M%d' % (SS, tr)
+    auto(M, 'A%d' % r, None, True, 12); auto(M, 'B%d' % r, DUR, False, 11)
+    for c in 'CDEFGHI': auto(M, '%s%d' % (c, r), MONEY, False, 11)
+    M['H%d' % r].font = F(12, True, FINAL_C); M['I%d' % r].font = F(11, True, RUST)
+    M.row_dimensions[r].height = 26
+# الوضع بكلمات
+for i, nm in enumerate(['عمر المصري', 'عبدالعزيز']):
+    r = 8 + i
+    M['A%d' % r] = '="• "&A%d&": "&IF(H{r0}>0.0005,"المحل لسا مدين إله بـ "&TEXT(H{r0},"0.000"),IF(H{r0}<-0.0005,"قبض زيادة "&TEXT(-H{r0},"0.000"),"مخالص — ما إله شي"))&IF(I{r0}>0.0005,"  ·  وعليه دين "&TEXT(I{r0},"0.000"),"")'.replace('{r0}', str(6 + i)) % (6 + i)
+    M.merge_cells('A%d:I%d' % (r, r)); M['A%d' % r].font = F(11, True, RUST); M['A%d' % r].alignment = C('right')
+
+M['A11'] = 'عمال المهام'; M['A11'].font = F(13, True, PLUM); M.merge_cells('A11:I11'); M['A11'].alignment = C('right')
+header(M, 12, ['#', 'العامل', 'عدد المهام', 'قبض (دينار)'], PLUM, 10, 28)
+WK_ROWS = 15; TW0 = 13
+TB, TD, TG = "'عمال المهام'!$B$6:$B$%d" % TE, "'عمال المهام'!$D$6:$D$%d" % TE, "'عمال المهام'!$G$6:$G$%d" % TE
+for i in range(WK_ROWS):
+    r = TW0 + i
+    M['A%d' % r] = '=IF(B%d="","",%d)' % (r, i + 1)
+    M['B%d' % r] = '=IFERROR(INDEX(%s,MATCH(%d,%s,0)),"")' % (TB, i + 1, TG)
+    M['C%d' % r] = '=IF(B{r}="","",COUNTIF({tb},B{r}))'.replace('{r}', str(r)).replace('{tb}', TB)
+    M['D%d' % r] = '=IF(B{r}="","",SUMIFS({td},{tb},B{r}))'.replace('{r}', str(r)).replace('{td}', TD).replace('{tb}', TB)
+    for c in 'ABCD': auto(M, '%s%d' % (c, r), MONEY if c == 'D' else None)
+TWT = TW0 + WK_ROWS
+M['B%d' % TWT] = 'مجموع عمال المهام'; M['C%d' % TWT] = '=COUNTA(%s)' % TB; M['D%d' % TWT] = "='عمال المهام'!D%d" % (TE + 1)
+for c in 'ABCD': auto(M, '%s%d' % (c, TWT), MONEY if c == 'D' else None, True, 11, color=SUBT)
+
+P0 = TWT + 2
+M['A%d' % P0] = 'قديش دفعت أيدي عاملة هالشهر (كاش طالع فعلياً)'; M['A%d' % P0].font = F(13, True, NAVY)
+M.merge_cells('A%d:I%d' % (P0, P0)); M['A%d' % P0].alignment = C('right')
+pay = [
+    ('رواتب عمر المصري (المدفوع آخر الأسابيع)', "=%s!G%d" % (SS, OTR)),
+    ('عبدالعزيز (يومي + آخر الأسابيع)', '=G7'),
+    ('سلف كاش للموظفين', '=E6+E7'),
+    ('عمال المهام', '=D%d' % TWT),
+]
+for i, (lb, fm) in enumerate(pay):
+    r = P0 + 1 + i; M['A%d' % r] = lb; M.merge_cells('A%d:E%d' % (r, r)); M['F%d' % r] = fm
+    auto(M, 'A%d' % r, None, False, 11); M['A%d' % r].alignment = C('right'); auto(M, 'F%d' % r, MONEY, True, 11)
+TOT = P0 + 1 + len(pay)
+M['A%d' % TOT] = 'المجموع اللي دفعته للأيدي العاملة'; M.merge_cells('A%d:E%d' % (TOT, TOT))
+auto(M, 'A%d' % TOT, None, True, 13, color=SUBT, fc=FINAL_C); M['A%d' % TOT].alignment = C('right')
+M['F%d' % TOT] = '=SUM(F%d:F%d)' % (P0 + 1, TOT - 1)
+auto(M, 'F%d' % TOT, MONEY, True, 16, color=FINAL_BG, fc='FFFFFF')
+M['F%d' % TOT].border = Border(left=THICK, right=THICK, top=THICK, bottom=THICK); M.row_dimensions[TOT].height = 32
+info = [
+    ('كلفة الشغل هالشهر (المستحق + الإكرامية + المهام)', '=C6+C7+D6+D7+D%d' % TWT),
+    ('لسا عليك للموظفين (الباقي لهم)', '=MAX(0,H6)+MAX(0,H7)'),
+    ('قروض وديون انعطت هالشهر (مش أجور — بترجع أقساط)', '=SUMIFS(LG_DEBT,LG_E,"عمر المصري")+SUMIFS(LG_DEBT,LG_E,"عبدالعزيز")'),
+]
+for i, (lb, fm) in enumerate(info):
+    r = TOT + 2 + i; M['A%d' % r] = lb; M.merge_cells('A%d:E%d' % (r, r)); M['F%d' % r] = fm
+    auto(M, 'A%d' % r, None, False, 10); M['A%d' % r].alignment = C('right'); auto(M, 'F%d' % r, MONEY, False, 11)
+note(M, 'A%d' % (TOT + 6), 'كل الأرقام بتطلع لحالها من باقي الأوراق — ما في إشي بينكتب هون. «قبض فعلياً» = المدفوع بالتسوية (+ اليومي لعبدالعزيز). السلف كاش طالع، فبتنعدّ مع المدفوع.', 'A%d:I%d' % (TOT + 6, TOT + 6), 9)
+M.freeze_panes = 'A4'
+
 # ═══════════════════ التعليمات ═══════════════════
 I = wb.create_sheet('التعليمات')
 I.sheet_view.rightToLeft = True; I.sheet_view.showGridLines = False
@@ -442,7 +517,7 @@ steps = [
     ('3', 'الملف فيه أيام الشهر بس. مثلاً شهر 10/2026 بيبدأ الخميس 01/10: «الأسبوع الأول» = الخميس والجمعة بس، والسبت 26/09 لـالأربعاء 30/09 كانوا بملف شهر 9.'),
     ('4', 'وآخر الشهر نفس الشي: السبت 31/10 بس بملف شهر 10، والباقي بملف شهر 11. اللي اشتغله وما انقبض بيطلع بـ«نهاية الشهر» ← «مستحق له» ببداية الشهر الجاي، وبينضاف لصافي أول أسبوع.'),
     ('كل يوم', None),
-    ('5', 'بورقة الساعات: اختر الدخول والخروج من القائمة (كل ربع ساعة، AM/PM) — أو اكتبه مثل 7:30 AM. عدد الساعات (مثل 11 س 30 د) والعادي والإضافي والمستحق بيطلعوا لحالهم. عبدالعزيز: آخر اليوم «قبض؟ نعم» + المبلغ.'),
+    ('5', 'بورقة الساعات: اختر الدخول والخروج من القائمة (كل 5 دقائق، AM/PM) — أو اكتبه مثل 7:30 AM. عدد الساعات (مثل 11 س 30 د) والعادي والإضافي والمستحق بيطلعوا لحالهم. عبدالعزيز: آخر اليوم «قبض؟ نعم» بس — المبلغ هو مستحق اليوم.'),
     ('6', 'ساعات تحميل الجبسمبورد: مرة وحدة تحت كل أسبوع (مجموع ساعات التحميل بالأسبوع).'),
     ('7', 'سلفة الأسبوع (كاش وسط الأسبوع): سطر بورقة «السلف» — بتنخصم كاملة من نفس الأسبوع. قرض أو دين أو بضاعة: سطر بورقة «القروض والديون» فيه المبلغ والقسط الأسبوعي — القسط بينخصم لحاله كل أسبوع، وفوق الورقة ملخّص: قديش عليه، قديش ضل، وكم أسبوع.'),
     ('آخر الأسبوع', None),
@@ -452,6 +527,8 @@ steps = [
     ('10', 'الخلايا الصفراء بس بتنكتب. الباقي محمي عشان المعادلات ما تنخرب (الحماية بلا كلمة سر — من «مراجعة ← إلغاء حماية الورقة» إذا لزم).'),
     ('التاريخ', None),
     ('11', 'كل التواريخ بالملف يوم/شهر/سنة (05/10/2026). بخانة التاريخ: اختار من القائمة، أو اكتب رقم اليوم لحاله (5 = يوم 5 من الشهر المختار)، أو يوم وشهر (0510 = 05/10)، أو 5/10.'),
+    ('آخر الشهر', None),
+    ('12', 'ورقة «ملخص الأيدي العاملة» (آخر ورقة): وضع كل موظف (قبض، الباقي له، دينه)، عمال المهام كل واحد قديش قبض، وقديش دفعت أيدي عاملة بالشهر كامل.'),
 ]
 r = 3
 for a, b in steps:
@@ -460,7 +537,7 @@ for a, b in steps:
     I['B%d' % r] = b; I['B%d' % r].font = F(11); I['B%d' % r].alignment = C('right'); I.row_dimensions[r].height = 34; r += 1
 
 # ═══════════════════ الترتيب والحماية ═══════════════════
-order = ['التسوية', 'ساعات عمر', 'ساعات عبدالعزيز', 'السلف', 'القروض والديون', 'بداية ونهاية الشهر', 'عمال المهام', 'القواعد', 'التعليمات', 'القوائم']
+order = ['التسوية', 'ساعات عمر', 'ساعات عبدالعزيز', 'السلف', 'القروض والديون', 'بداية ونهاية الشهر', 'عمال المهام', 'القواعد', 'التعليمات', 'ملخص الأيدي العاملة', 'القوائم']
 wb._sheets = [wb[n] for n in order]
 wb.active = 0
 for ws in wb.worksheets:
