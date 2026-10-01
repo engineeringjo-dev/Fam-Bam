@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""نظام الموظفين السنوي الأسبوعي — محلات العون لمواد البناء (النسخة 13 · بأمره 01/10/2026)
+"""نظام الموظفين السنوي الأسبوعي — محلات العون لمواد البناء (النسخة 14 · بأمره 01/10/2026)
 ملف واحد للسنة: 53 كتلة أسبوعية (السبت → الجمعة). السنة بتنختار من ورقة «بداية السنة».
 
 القاعدة الذهبية: **الأسبوع كامل بينسب للشهر والسنة اللي فيهم جمعته (يوم القبض)** — ما بينقسم أبداً.
@@ -24,10 +24,11 @@ from openpyxl.formatting.rule import FormulaRule
 from openpyxl.workbook.defined_name import DefinedName
 
 OUT = '/home/user/Fam-Bam/العون/نظام_الموظفين.xlsx'
-VERSION = 13
+VERSION = 14
 NAVY, TEAL, GOLD, PLUM, RUST = '1F4E6B', '0F6E6E', '8A6A00', '5B3A6B', '8B3A2F'
-EDIT, AUTO, WEEKBAR, SUBT, OUTM = 'FFF6CC', 'EDEDED', 'DCE6EE', 'E3EFE3', 'D9D9D9'
-LOCKED, CURW = 'C6E0B4', 'BDD7EE'          # أسبوع مقبوض (مقفول) أخضر · الأسبوع الحالي أزرق
+# ترميز الألوان (بأمره 01/10 «تباين واضح»): أصفر ذهبي = بتعبّيها إنت · رمادي فاتح = محسوبة · أخضر = أسبوع مقبوض/مقفول · أزرق = الأسبوع الحالي · رمادي غامق = برّا الفترة
+EDIT, AUTO, WEEKBAR, SUBT, OUTM = 'FFD966', 'F2F2F2', 'E7E6E6', 'E2EFDA', 'BFBFBF'
+LOCKED, CURW, CURW_ROWS = '92D050', '5B9BD5', 'DDEBF7'   # مقبوض أخضر واضح · عنوان الأسبوع الحالي أزرق غامق (خط أبيض) · أيامه أزرق فاتح
 LINE = Side(style='thin', color='9AA5AD'); THICK = Side(style='medium', color=NAVY)
 BOX = Border(left=LINE, right=LINE, top=LINE, bottom=LINE)
 DUR = '[h]" س "mm" د"'
@@ -82,7 +83,7 @@ def legend(ws, row, items, last):
     for i, (tx, color) in enumerate(items):
         c = ws.cell(row, 1 + i, tx); cellfmt(c, color, True, sz=9, h='center')
     ws.row_dimensions[row].height = 22
-LEGEND = [('🟨 بتعبّيها إنت', EDIT), ('محسوبة — ما بتنكتب', AUTO), ('أسبوع مقبوض = مقفول', LOCKED), ('الأسبوع الحالي', CURW), ('برّا الفترة', OUTM)]
+LEGEND = [('أصفر = بتعبّيها إنت', EDIT), ('رمادي = محسوبة، ما بتنكتب', AUTO), ('أخضر = أسبوع مقبوض ومقفول', LOCKED), ('أزرق = الأسبوع الحالي', CURW_ROWS), ('رمادي غامق = برّا الفترة', OUTM)]
 
 DAYNAME = 'CHOOSE(WEEKDAY({d},1),"الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت")'
 def TXT(x): return 'TEXT(DAY(%s),"00")&"/"&TEXT(MONTH(%s),"00")&"/"&YEAR(%s)' % (x, x, x)      # تاريخ كامل dd/mm/yyyy
@@ -106,7 +107,7 @@ for i, m in enumerate([(6 * 60 + 5 * k) % 1440 for k in range(NT)], start=1):
     H.cell(i, 1, label(m)); H.cell(i, 2, dt.time(m // 60, m % 60)).number_format = 'h:mm AM/PM'
 for i in range(12): H.cell(i + 1, 4, i + 1)
 for i, y in enumerate(YEARS, start=1): H.cell(i, 5, y)
-H['G4'] = "='بداية السنة'!$C$3"                                      # السنة (من قائمة ورقة بداية السنة)
+H['G4'] = "=IF(AND(ISNUMBER('بداية السنة'!$C$3),'بداية السنة'!$C$3>=2000,'بداية السنة'!$C$3<=2100),'بداية السنة'!$C$3,2026)"   # السنة (من قائمة ورقة بداية السنة) — احتياط 2026
 H['G1'] = '=DATE(G4,1,1)+MOD(6-WEEKDAY(DATE(G4,1,1),1),7)-6'
 H['G2'] = '=INT((DATE(G4,12,31)-(G1+6))/7)+1'
 H['G3'] = '=IF(AND(TODAY()>=G1,TODAY()<=G1+7*G2-1),INT((TODAY()-G1)/7)+1,1)'
@@ -198,14 +199,14 @@ name('START_O', OP('B', EMPS[0])); name('START_Z', OP('B', EMPS[1]))
 
 # ═══════════════════ أوراق الساعات ═══════════════════
 FINAL_C, FINAL_BG = 'C55A11', 'ED7D31'
-DUE_BG, DUE_FC = 'E2F0D9', '1B5E20'
+DUE_BG, DUE_FC = 'C6E0B4', '1B5E20'
 def hours_sheet(ttl, banner, color, widths, text, last):
     ws = wb.create_sheet(ttl)
     title(ws, banner, color, last, YEAR_SUB)
     note(ws, 'A3', text, 'A3:%s3' % last, h=40)
     for k, w in enumerate(widths, start=1): ws.column_dimensions[col(k)].width = w
     legend(ws, 5, LEGEND, last); ws.freeze_panes = 'A6'
-    for c in 'KLMNOPQR': ws.column_dimensions[c].hidden = True
+    for c in 'KLMNOPQRS': ws.column_dimensions[c].hidden = True
     return ws
 
 def week_block_head(ws, k, color, last, start_name, heads):
@@ -219,7 +220,8 @@ def week_block_head(ws, k, color, last, start_name, heads):
     header(ws, r + 1, heads, color, 10, 26)
     ws['M%d' % r] = '=IF(AND(%d<=NW,%d>=%s),1,0)' % (w, w, start_name)
     ws['L%d' % r] = '=IF(%d<=NW,%s,"")' % (w, fri); ws['L%d' % r].number_format = DATE
-    ws['R%d' % r] = w                                                   # رقم الأسبوع (لتلوين الأسبوع الحالي)
+    ws['R%d' % r] = w                                                   # رقم الأسبوع على سطر العنوان بس
+    for rr in range(r, r + BLOCK): ws['S%d' % rr] = w                   # رقم الأسبوع على كل أسطر الكتلة
     return r
 
 def day_rows(ws, hr, k, paid_ref):
@@ -329,9 +331,10 @@ dv(Z, TIME_LIST, 'C%d:D%d' % (B0, ZEND)); dv(Z, '"نعم,لا"', 'G%d:G%d' % (B0
 
 for ws, end, last in ((O, OEND, 'I'), (Z, ZEND, 'H')):
     rng = 'A%d:%s%d' % (B0, last, end)
-    ws.conditional_formatting.add(rng, FormulaRule(formula=['$M%d=0' % B0], fill=fill(OUTM)))
+    ws.conditional_formatting.add(rng, FormulaRule(formula=['$M%d=0' % B0], fill=fill(OUTM), font=Font(color='7F7F7F')))
     ws.conditional_formatting.add(rng, FormulaRule(formula=['AND($M%d=1,$Q%d=1)' % (B0, B0)], fill=fill(LOCKED)))
-    ws.conditional_formatting.add(rng, FormulaRule(formula=['$R%d=CURWK' % B0], fill=fill(CURW), font=Font(bold=True, color=NAVY)))   # سطر عنوان الأسبوع الحالي
+    ws.conditional_formatting.add(rng, FormulaRule(formula=['$R%d=CURWK' % B0], fill=fill(CURW), font=Font(bold=True, color='FFFFFF')))   # عنوان الأسبوع الحالي: أزرق غامق
+    ws.conditional_formatting.add(rng, FormulaRule(formula=['AND($S%d=CURWK,$R%d<>CURWK)' % (B0, B0)], fill=fill(CURW_ROWS)))               # أيام الأسبوع الحالي: أزرق فاتح
 for ws, rows, c in ((O, OMR, 'H'), (Z, AZZ, 'F')):
     for s1, s2, s3, hr in rows:
         ws.conditional_formatting.add('%s%d' % (c, s2), FormulaRule(formula=['%s%d<>""' % (c, s2)], fill=fill(FINAL_BG), font=Font(color='FFFFFF', bold=True)))
@@ -475,7 +478,7 @@ def week_ledger(top, emp, color, rows, is_azz):
     for c in 'DEFGHIL': W['%s%d' % (c, tr)] = '=SUM(%s%d:%s%d)' % (c, r0, c, tr - 1)
     for c in 'ABCDEFGHIJKLM': auto(W, '%s%d' % (c, tr), MONEY, True, color=SUBT)
     W.conditional_formatting.add('A%d:M%d' % (r0, tr - 1), FormulaRule(formula=['AND($A%d<>"",N($I%d)>0)' % (r0, r0)], fill=fill(LOCKED)))
-    W.conditional_formatting.add('A%d:M%d' % (r0, tr - 1), FormulaRule(formula=['$A%d=WK' % r0], fill=fill(CURW), font=Font(bold=True)))
+    W.conditional_formatting.add('A%d:M%d' % (r0, tr - 1), FormulaRule(formula=['$A%d=WK' % r0], fill=fill(CURW_ROWS), font=Font(bold=True)))
     for c, key in zip('ABCDEFGHIJKLM', LKEYS):
         name(LN(pre, key), "%s!$%s$%d:$%s$%d" % (WS_, c, r0, c, tr - 1))
     return r0, tr
@@ -585,7 +588,7 @@ for c in 'DEFGHIJKL': M['%s%d' % (c, MT)] = '=SUM(%s6:%s17)' % (c, c)
 for c in 'ABCDEFGHIJKL': auto(M, '%s%d' % (c, MT), MONEY if c not in 'ABCD' else None, True, color=SUBT)
 M['B%d' % MT].number_format = DATE; M['C%d' % MT].number_format = DATE; M['D%d' % MT].number_format = '0'
 M['I%d' % MT].font = F(13, True, 'FFFFFF'); M['I%d' % MT].fill = fill(FINAL_BG)
-M.conditional_formatting.add('A6:L17', FormulaRule(formula=['INDEX(WMON,WK)=ROW()-5'], fill=fill(CURW)))
+M.conditional_formatting.add('A6:L17', FormulaRule(formula=['INDEX(WMON,WK)=ROW()-5'], fill=fill(CURW_ROWS)))
 note(M, 'A%d' % (MT + 1), '«كلفة الشغل» = المستحق + الإكرامية + المهام (الأجر كامل، سواء انقبض كاش أو بضاعة). «المجموع كاش» = اللي طلع من الدرج فعلياً. السلف كاش فبتنعدّ · البضاعة والأقساط لا. الأشهر اللي فيها 5 جمع بتطلع أعلى — قارن بمعدل الأسبوع.', 'A%d:L%d' % (MT + 1, MT + 1), 9, h=30)
 
 E0 = MT + 3
@@ -645,7 +648,7 @@ steps = [
     ('1', 'ملف واحد للسنة كاملة. الأسبوع من السبت لمساء الجمعة، ومساء الجمعة الموظف بياخذ أجرته. الأسبوع كامل بينسب للشهر اللي فيه جمعته (يوم القبض) — ما بينقسم أبداً بين شهرين.'),
     ('2', 'الأسبوع 1 = اللي جمعته أول جمعة بيناير. السنة فيها 52 أو 53 أسبوع (2027 فيها 53). الأيام اللي آخر ديسمبر وجمعتها بيناير بتروح لملف السنة الجاية.'),
     ('الألوان', None),
-    ('3', 'أصفر = خانة بتعبّيها إنت · رمادي = محسوبة (ما بتنكتب) · أخضر = أسبوع مقبوض ومقفول · أزرق = الأسبوع الحالي · رمادي غامق = برّا الفترة. المفتاح موجود فوق كل ورقة.'),
+    ('3', 'أصفر ذهبي = خانة بتعبّيها إنت · رمادي فاتح = محسوبة (ما بتنكتب) · أخضر = أسبوع مقبوض ومقفول · أزرق = الأسبوع الحالي (عنوانه غامق وأيامه فاتح) · رمادي غامق = برّا الفترة. المفتاح موجود فوق كل ورقة.'),
     ('أول السنة (أو أول ما تبلّش)', None),
     ('4', 'بورقة «بداية السنة»: اختر السنة من القائمة (كل الملف بيتبرمج عليها)، وأسبوع البداية (أسبوع 1 لسنة كاملة — أو رقم الأسبوع اللي بلّشت فيه)، ومستحق له من قبل، ودين عليه، والقسط — من «نهاية السنة» بملف السنة الماضية.'),
     ('كل يوم', None),
