@@ -12,6 +12,14 @@
      بتتوزّع على ديون الموظف **الأقدم فالأحدث**: اللي بيسدّ بضاعة = تحصيل مبيعات،
      اللي بيسدّ قرض كاش = استرداد قرض (مش مبيعات)، واللي بيسدّ دين قديم = تحصيل دين قديم.
   3) أرقام الشهر من ملخص الأيدي العاملة للعلم.
+  4) 💵 طلعات الكاش من الدرج (النسخة 17+ · بأمره 01/10): قبض عبدالعزيز اليومي · المدفوع يوم الجمعة · السلف · عمال المهام ·
+     قرض كاش (طالع) · دفعات كاش سداد (داخل) — **قيد واحد لكل يوم بتاريخه الحقيقي** (دفتر MISC):
+       أجور ← مدين 500301 Basic Salary · دائن «100902 كاش المحل — غير مسجّل»
+     الحساب الوسيط لأنه البيع الكاش اليومي لسا ما بينزل على أودو (الحل البديل بأمره) — لما يصير ينزل بيتحوّل الدائن للصندوق.
+     القرض الكاش ودفعات السداد بتنزل كمان على ذمّة الموظف (بدها شريك إله) — لحالها مع البضاعة.
+
+  python3 scripts/قارئ_نظام_الموظفين.py "ملف.xlsx" --رحّل-الكاش          # تجربة: شو رح ينزل
+  python3 scripts/قارئ_نظام_الموظفين.py "ملف.xlsx" --رحّل-الكاش --اكد    # ترحيل بعد «رحّل» من صاحب المحل بس
 
 القواعد:
   • ولا إشي بينرحّل على أودو بلا «رحّل» من صاحب المحل.
@@ -26,6 +34,10 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 REG = os.path.join(ROOT, 'drive', 'ذمم_الموظفين.json')
 EMPS = ['عمر المصري', 'عبدالعزيز']
 RECALC = '/mnt/skills/public/xlsx/scripts/recalc.py'
+WAGE_ACC = '500301'                         # Basic Salary
+CLEAR_CODE, CLEAR_NAME = '100902', 'كاش المحل — غير مسجّل (وسيط الأجور)'
+MISC_JOURNAL = 10
+BLOCK, B0 = 14, 5                           # النسخة 17
 BAR = '─' * 78
 NWMAX = 53
 
@@ -112,7 +124,90 @@ def اقرأ(path):
     Bs = wb['السنة']
     افتتاح = {e: {'بداية': int(Bs['B%d' % (6 + i)].value or 1), 'دين': رقم(Bs['D%d' % (6 + i)].value)} for i, e in enumerate(EMPS)}
     M = wb['ملخص الأيدي العاملة']
-    return سنة, nw, حالي, جمعة, سطور, أقساط, مدفوع, افتتاح, M
+    كاش = اقرأ_الكاش(wb, nw, جمعة, سطور) if int(H['P2'].value or 0) >= 17 else None
+    return سنة, nw, حالي, جمعة, سطور, أقساط, مدفوع, افتتاح, M, كاش
+
+
+def اقرأ_الكاش(wb, nw, جمعة, سطور):
+    """كل طلعة/دخلة كاش من الدرج بتاريخها: [{تاريخ، أسبوع، شخص، نوع، مبلغ، اتجاه(-1 طالع/+1 داخل)، مرجع}]"""
+    out = []
+    for sh, emp in (('ساعات عمر', 'عمر المصري'), ('ساعات عبدالعزيز', 'عبدالعزيز')):
+        ws = wb[sh]
+        for k in range(nw):
+            hr = B0 + BLOCK * k; w = k + 1
+            if emp == 'عبدالعزيز':
+                for r in range(hr + 2, hr + 9):
+                    if (ws['G%d' % r].value or '').strip() == 'نعم' and رقم(ws['F%d' % r].value) > 0:
+                        out.append({'تاريخ': تاريخ(ws['A%d' % r].value), 'أسبوع': w, 'شخص': emp, 'نوع': 'قبض يومي',
+                                    'مبلغ': رقم(ws['F%d' % r].value), 'اتجاه': -1, 'مرجع': '%s!F%d' % (sh, r)})
+            v = رقم(ws['E%d' % (hr + 12)].value)
+            if v > 0 and w in جمعة:
+                out.append({'تاريخ': جمعة[w], 'أسبوع': w, 'شخص': emp, 'نوع': 'راتب الأسبوع %d' % w, 'مبلغ': v, 'اتجاه': -1,
+                            'مرجع': '%s!E%d' % (sh, hr + 12)})
+    A = wb['السلف']
+    for r in range(10, A.max_row + 1):
+        amt = رقم(A['D%d' % r].value); d = تاريخ(A['G%d' % r].value)
+        if amt > 0 and d and A['C%d' % r].value:
+            wk = A['H%d' % r].value
+            out.append({'تاريخ': d, 'أسبوع': int(wk) if isinstance(wk, (int, float)) else None, 'شخص': A['C%d' % r].value,
+                        'نوع': 'سلفة' + ((' — ' + str(A['E%d' % r].value).strip()) if A['E%d' % r].value else ''), 'مبلغ': amt, 'اتجاه': -1, 'مرجع': 'السلف!%d' % r})
+    T = wb['عمال المهام']
+    for r in range(6, T.max_row + 1):
+        amt = رقم(T['E%d' % r].value); d = تاريخ(T['H%d' % r].value)
+        if amt > 0 and d and T['C%d' % r].value:
+            wk = T['I%d' % r].value
+            out.append({'تاريخ': d, 'أسبوع': int(wk) if isinstance(wk, (int, float)) else None, 'شخص': str(T['C%d' % r].value).strip(),
+                        'نوع': 'مهمة — ' + str(T['D%d' % r].value or '').strip(), 'مبلغ': amt, 'اتجاه': -1, 'مرجع': 'المهام!%d' % r})
+    for x_ in سطور:
+        if x_['نوع'] == 'قرض كاش' and x_['مبلغ'] and x_['تاريخ']:
+            out.append({'تاريخ': x_['تاريخ'], 'أسبوع': x_['أسبوع'], 'شخص': x_['موظف'], 'نوع': 'قرض كاش (ذمّة عليه)', 'مبلغ': x_['مبلغ'],
+                        'اتجاه': -1, 'مرجع': 'القروض!%d' % x_['صف'], 'ذمّة': True})
+        if x_['من_جيبته'] and x_['تاريخ']:
+            out.append({'تاريخ': x_['تاريخ'], 'أسبوع': x_['أسبوع'], 'شخص': x_['موظف'], 'نوع': 'دفعة كاش سداد', 'مبلغ': x_['من_جيبته'],
+                        'اتجاه': +1, 'مرجع': 'القروض!%d' % x_['صف'], 'ذمّة': True})
+    return sorted(out, key=lambda e: (e['تاريخ'], e['شخص']))
+
+
+def مفتاح_كاش(سنة, e):
+    return 'كاش|%d|%s|%s|%s|%.3f' % (سنة, e['تاريخ'].isoformat(), e['شخص'], e['مرجع'], e['مبلغ'])
+
+
+def حساب_الوسيط(x, ينشئ):
+    a = x('account.account', 'search_read', [('code', '=', CLEAR_CODE)], ['id'])
+    if a: return a[0]['id']
+    if not ينشئ: return None
+    return x('account.account', 'create', {'code': CLEAR_CODE, 'name': CLEAR_NAME, 'account_type': 'asset_current', 'reconcile': False})
+
+
+def رحّل_الكاش(سنة, أيام, reg, اكد):
+    """قيد MISC لكل يوم — بس سطور الأجور (السلف/الرواتب/القبض اليومي/المهام). القرض والسداد بيستنّوا شريك الموظف."""
+    sys.path.insert(0, os.path.join(ROOT, 'odoo_templates'))
+    from jrpc import x
+    wage = x('account.account', 'search_read', [('code', '=', WAGE_ACC)], ['id'])[0]['id']
+    clr = حساب_الوسيط(x, اكد)
+    print('\n' + BAR + '\n%s ترحيل الكاش — حساب الوسيط %s %s' % ('🔴' if اكد else 'تجربة (بلا --اكد)', CLEAR_CODE,
+          '✔ موجود' if clr else '— رح ينفتح أول ترحيل'))
+    سجل = []
+    for d in sorted(أيام):
+        ls = [e for e in أيام[d] if not e['مرحّل'] and not e.get('ذمّة')]
+        if not ls: continue
+        tot = round(sum(e['مبلغ'] for e in ls), 3)
+        print('  %s  %d سطر  %8.3f' % (d.strftime('%d/%m/%Y'), len(ls), tot))
+        if not اكد: continue
+        lines = [(0, 0, {'account_id': wage, 'name': '%s — %s' % (e['شخص'], e['نوع']), 'debit': e['مبلغ'], 'credit': 0}) for e in ls]
+        lines.append((0, 0, {'account_id': clr, 'name': 'أجور مدفوعة من كاش المحل %s' % d.strftime('%d/%m/%Y'), 'debit': 0, 'credit': tot}))
+        mid = x('account.move', 'create', {'move_type': 'entry', 'journal_id': MISC_JOURNAL, 'date': d.isoformat(),
+                                           'ref': 'أجور كاش %s (نظام الموظفين)' % d.strftime('%d/%m/%Y'), 'line_ids': lines})
+        x('account.move', 'action_post', [mid])
+        nm = x('account.move', 'read', [mid], ['name'])[0]['name']
+        print('     ✅ %s' % nm)
+        for e in ls: reg['كاش_مرحّل'][مفتاح_كاش(سنة, e)] = nm
+        سجل.append({'id': mid, 'name': nm, 'date': d.isoformat(), 'total': tot})
+    if اكد and سجل:
+        json.dump(reg, open(REG, 'w'), ensure_ascii=False, indent=1)
+        json.dump(سجل, open(os.path.join(ROOT, 'odoo_backup', 'ROLLBACK_أجور_كاش_%s.json' % dt.date.today().isoformat()), 'w'),
+                  ensure_ascii=False, indent=1)
+    print(BAR)
 
 
 def وزّع(ديون, مبلغ):
@@ -131,7 +226,7 @@ def main():
     path = sys.argv[1]; a = sys.argv[2:]
     شهر = int(a[a.index('--شهر') + 1]) if '--شهر' in a else None
     حد = int(a[a.index('--لحد-أسبوع') + 1]) if '--لحد-أسبوع' in a else None
-    سنة, nw, حالي, جمعة, سطور, أقساط, مدفوع, افتتاح, M = اقرأ(path)
+    سنة, nw, حالي, جمعة, سطور, أقساط, مدفوع, افتتاح, M, كاش = اقرأ(path)
     reg = حمّل_السجل()
     if حد is None: حد = حالي
     أسابيع = [w for w in range(1, حد + 1) if w in جمعة and (شهر is None or جمعة[w].month == شهر)]
@@ -195,6 +290,31 @@ def main():
         for i, h in enumerate(heads):
             v = M.cell(r, 4 + i).value
             print('  %-14s %10s' % (h, ('%d' % v) if i == 0 else ('%.3f' % رقم(v))))
+    # 4) طلعات الكاش — قيد لكل يوم
+    print('\n💵 طلعات الكاش من الدرج — قيد لكل يوم بتاريخه (مدين أجور %s · دائن «%s %s»)' % (WAGE_ACC, CLEAR_CODE, CLEAR_NAME))
+    if كاش is None:
+        print('  ⚠️ الملف نسخة قبل 17 — حدّثه للنسخة 17 عشان نقرأ الكاش')
+        أيام = {}
+    else:
+        reg.setdefault('كاش_مرحّل', {})
+        أيام = {}
+        for e in كاش:
+            if e['أسبوع'] not in أسابيع: continue
+            e['مرحّل'] = مفتاح_كاش(سنة, e) in reg['كاش_مرحّل']
+            أيام.setdefault(e['تاريخ'], []).append(e)
+        for d in sorted(أيام):
+            ls = أيام[d]; طالع = sum(e['مبلغ'] for e in ls if e['اتجاه'] < 0); داخل = sum(e['مبلغ'] for e in ls if e['اتجاه'] > 0)
+            print('  %s  طالع %8.3f%s' % (d.strftime('%d/%m/%Y'), طالع, ('  · داخل %.3f' % داخل) if داخل else ''))
+            for e in ls:
+                print('       %s %-11s %-34s %8.3f%s%s' % ('−' if e['اتجاه'] < 0 else '+', e['شخص'][:11], e['نوع'][:34], e['مبلغ'],
+                      '  (ذمّة — بده شريك)' if e.get('ذمّة') else '', '  ✔ مرحّل' if e['مرحّل'] else ''))
+        if not أيام: print('  — ما في طلعات كاش بهالنطاق')
+        else:
+            ت = sum(e['مبلغ'] * -e['اتجاه'] for ls in أيام.values() for e in ls)
+            print('  ⟵ صافي الطالع من الدرج بالنطاق: %.3f · %d يوم' % (ت, len(أيام)))
+    if '--رحّل-الكاش' in a:
+        رحّل_الكاش(سنة, أيام, reg, '--اكد' in a)
+
     print('\n⏸️ مسودة بس — الترحيل على أودو بعد «رحّل» (الموظف شريك عميل · البضاعة بمطابقة مدير الأصناف · الأقساط قيد خصم راتب بتاريخ الجمعة).')
 
 
