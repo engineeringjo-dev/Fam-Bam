@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""قارئ ملف «نظام الموظفين» السنوي الأسبوعي (النسخة 15 و16) — لما صاحب المحل يرفع الملف (بأمره 30/09 و01/10)
+"""قارئ ملف «نظام الموظفين» السنوي الأسبوعي (النسخة 15–17) — لما صاحب المحل يرفع الملف (بأمره 30/09 و01/10)
 
   python3 scripts/قارئ_نظام_الموظفين.py "ملف.xlsx"                 # كل الأسابيع لحد اليوم — مسودة بس
   python3 scripts/قارئ_نظام_الموظفين.py "ملف.xlsx" --شهر 10        # أسابيع شهر 10 (حسب الجمعة = يوم القبض)
@@ -35,8 +35,36 @@ def حمّل_السجل():
     return {'مرحّل': {}, 'أقساط_مرحّلة': {}, 'ديون': {e: [] for e in EMPS}}
 
 
+def كلمة_السر():
+    """كلمة سر فتح الملف (النسخة 17) — من PAYROLL_PASS بالبيئة أو بملف .env (ما بتنطبع)."""
+    if os.environ.get('PAYROLL_PASS'): return os.environ['PAYROLL_PASS']
+    env = os.path.join(ROOT, '.env')
+    if os.path.exists(env):
+        for line in open(env, encoding='utf-8'):
+            if line.startswith('PAYROLL_PASS='): return line.split('=', 1)[1].strip()
+    return None
+
+
+def فك_التشفير(path):
+    """لو الملف عليه كلمة سر فتح ← نسخة مفكوكة مؤقتة."""
+    try:
+        import msoffcrypto
+    except ImportError:
+        return path
+    with open(path, 'rb') as f:
+        of = msoffcrypto.OfficeFile(f)
+        if not of.is_encrypted(): return path
+        pw = كلمة_السر()
+        if not pw: sys.exit('⛔ الملف عليه كلمة سر — حط PAYROLL_PASS بملف .env')
+        of.load_key(password=pw)
+        out = os.path.join(tempfile.mkdtemp(), 'dec.xlsx')
+        with open(out, 'wb') as g: of.decrypt(g)
+    return out
+
+
 def افتح(path):
     """القيم المحسوبة — لو الملف ما انحفظ من إكسل (بلا قيم) بنحسبه بنسخة مؤقتة."""
+    path = فك_التشفير(path)
     wb = openpyxl.load_workbook(path, data_only=True)
     if wb['القوائم']['G2'].value is None and os.path.exists(RECALC):
         tmp = os.path.join(tempfile.mkdtemp(), 'x.xlsx'); shutil.copy(path, tmp)
@@ -66,12 +94,14 @@ def اقرأ(path):
     جمعة = {k + 1: تاريخ(H['I%d' % (11 + k)].value) for k in range(NWMAX) if تاريخ(H['I%d' % (11 + k)].value)}
     L = wb['القروض والديون']
     سطور = []
-    for r in range(11, L.max_row + 1):
-        emp, typ, amt, rep = L['B%d' % r].value, L['C%d' % r].value, رقم(L['D%d' % r].value), رقم(L['F%d' % r].value)
+    # أعمدة السجل: النسخة 17 فيها «اليوم» بعمود B ← كل شي زاح عمود (الموظف C · النوع D · المبلغ E · دفعات كاش سداد G · البيان H)
+    cE, cT, cA, cR, cB = ('C', 'D', 'E', 'G', 'H') if int(H['P2'].value or 0) >= 17 else ('B', 'C', 'D', 'F', 'G')
+    for r in range(10, L.max_row + 1):
+        emp, typ, amt, rep = L['%s%d' % (cE, r)].value, L['%s%d' % (cT, r)].value, رقم(L['%s%d' % (cA, r)].value), رقم(L['%s%d' % (cR, r)].value)
         if emp not in EMPS or (not amt and not rep): continue
         wk = L['L%d' % r].value
         سطور.append({'صف': r, 'تاريخ': تاريخ(L['K%d' % r].value), 'أسبوع': int(wk) if isinstance(wk, (int, float)) else None,
-                     'موظف': emp, 'نوع': typ or '⚠️ بلا نوع', 'مبلغ': amt, 'من_جيبته': rep, 'بيان': (L['G%d' % r].value or '').strip()})
+                     'موظف': emp, 'نوع': typ or '⚠️ بلا نوع', 'مبلغ': amt, 'من_جيبته': rep, 'بيان': (L['%s%d' % (cB, r)].value or '').strip()})
     # الأقساط من دفتر الأسابيع: عمود A رقم الأسبوع · F القسط · H المدفوع — جدول لكل موظف تحت عنوانه
     W = wb['دفتر الأسابيع']; أقساط = {e: {} for e in EMPS}; مدفوع = {e: {} for e in EMPS}; cur = None
     for r in range(1, W.max_row + 1):
