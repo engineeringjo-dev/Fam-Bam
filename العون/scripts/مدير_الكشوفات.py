@@ -17,6 +17,9 @@
 🔴 قاعدة عامة لكل المدراء (صاحب المحل 28/09): **المرتجع بيرجع بنفس سعر بيعه لنفس الورشة** —
 بنقارنه بالفواتير المرحّلة لنفس الشريك ونفس الصنف (آخر بيع قبل تاريخ الرجوع). سعر أقل بس إذا الراجع مكسور/مفتوح.
 صنف ما انباع لهالورشة = ما بيرجع. التطبيق الآلي: `مسودات_الورشات.py` (سعّر_مرتجع + حاجز بالترحيل).
+🔴 وثبّتها 01/10: **سعر بيع الورشة المعنية مش سعر الكتالوج** · **كل مرتجع حركة مستقلة (إشعار دائن) وكل بند بسطر لحاله بالكشف**.
+مهمة مدير الكشوفات: قبل أي كشف بيفحص كل مرتجع (`فحص_المرتجعات`): بلا بيع · أغلى من البيع · أقل من البيع (بده موافقة) ·
+سطر بالسالب جوّا فاتورة بيع (ممنوع — لازم إشعار دائن). أي واحد منهم بيوقف الكشف.
 """
 import sys, os, io
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'odoo_templates'))
@@ -121,6 +124,49 @@ def فحص(partner_id=None):
             out[m['partner_id'][1]].append(
                 ('مسودة معلّقة', m['invoice_date'], m['name'] or '(بلا رقم)',
                  'إجمالي %.3f' % m['amount_total'], ''))
+    for جهة, نوع, d, doc, what, تفصيل in فحص_المرتجعات(partner_id):
+        out[جهة].append((نوع, d, doc, what, تفصيل))
+    return out
+
+
+def فحص_المرتجعات(partner_id=None):
+    """🔴 قاعدة ثابتة (صاحب المحل 28/09 و01/10): المرتجع بنفس سعر بيعه **للورشة المعنية** — مش سعر الكتالوج —
+    وكل مرتجع **حركة مستقلة (إشعار دائن)** وكل بند **بسطر لحاله** بكشف الحساب.
+    بيرجّع [(الجهة, نوع, تاريخ, مستند, الصنف, تفصيل)]."""
+    pdom = [('partner_id', '=', partner_id)] if partner_id else []
+    عام = {p['id'] for p in x('product.product', 'search_read', [('categ_id', '=', SERVICES_CATEG)], ['id'])}
+    flds = ['move_id', 'product_id', 'quantity', 'price_unit', 'discount', 'partner_id', 'date']
+    base = [('display_type', '=', 'product'), ('parent_state', '=', 'posted'), ('product_id', '!=', False)]
+    def سعر(l): return round(l['price_unit'] * (1 - (l.get('discount') or 0) / 100.0), 3)
+    out = []
+    ر = [l for l in x('account.move.line', 'search_read', base + [('move_id.move_type', '=', 'out_refund')] + pdom, flds, order='date')
+         if l['product_id'][0] not in عام]
+    مبيع = defaultdict(list)          # (جهة، صنف) ← أسطر البيع
+    if ر:
+        for l in x('account.move.line', 'search_read',
+                   base + [('move_id.move_type', '=', 'out_invoice'),
+                           ('partner_id', 'in', list({l['partner_id'][0] for l in ر})),
+                           ('product_id', 'in', list({l['product_id'][0] for l in ر}))], flds, order='date desc, id desc'):
+            مبيع[(l['partner_id'][0], l['product_id'][0])].append(l)
+    for l in ر:
+        جهة, صنف, مستند = l['partner_id'][1], l['product_id'][1][:42], l['move_id'][1]
+        ب = [b for b in مبيع[(l['partner_id'][0], l['product_id'][0])] if b['date'] <= l['date']]
+        if not ب:
+            out.append((جهة, 'مرتجع بلا بيع', l['date'], مستند, صنف, 'ما انباع لهالجهة قبل تاريخ الرجوع')); continue
+        أسعار = {سعر(b) for b in ب}; ر_سعر = سعر(l); آخر = ب[0]
+        if any(abs(ر_سعر - a) < 0.0005 for a in أسعار): continue
+        if ر_سعر > max(أسعار) + 0.0005:
+            out.append((جهة, 'مرتجع أغلى من البيع', l['date'], مستند, صنف,
+                        'رجع بـ %.3f — انباع بـ %.3f (%s)' % (ر_سعر, سعر(آخر), آخر['move_id'][1].split(' ')[0])))
+        else:
+            out.append((جهة, 'مرتجع بسعر أقل', l['date'], مستند, صنف,
+                        'رجع بـ %.3f — انباع بـ %.3f (%s) · مقبول بس إذا مكسور/مفتوح بموافقته' % (ر_سعر, سعر(آخر), آخر['move_id'][1].split(' ')[0])))
+    # مرتجع لازم يكون حركة لحاله — ممنوع سطر بالسالب جوّا فاتورة بيع
+    for l in x('account.move.line', 'search_read',
+               base + [('move_id.move_type', '=', 'out_invoice'), '|', ('quantity', '<', 0), ('price_unit', '<', 0)] + pdom, flds):
+        if l['product_id'][0] in عام: continue
+        out.append((l['partner_id'][1], 'مرتجع جوّا فاتورة', l['date'], l['move_id'][1], l['product_id'][1][:42],
+                    'سطر بالسالب (%g × %.3f) — لازم ينزل إشعار دائن مستقل' % (l['quantity'], l['price_unit'])))
     return out
 
 
@@ -189,7 +235,7 @@ def main():
         print(BAR)
         return 1
 
-    print('\n✅ الحساب نظيف — ما في بند بسعر صفر ولا بند بلا صنف ولا مسودة معلّقة.')
+    print('\n✅ الحساب نظيف — ما في بند بسعر صفر ولا بند بلا صنف ولا مسودة معلّقة، وكل المرتجعات بسعر بيعها وبحركة مستقلة.')
     if do_issue and pid:
         print('   الكشف معتمد للتسليم.\n')
         اصدار(pid, pname)
