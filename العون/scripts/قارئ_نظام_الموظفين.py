@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""قارئ ملف «نظام الموظفين» السنوي الأسبوعي (النسخة 12) — لما صاحب المحل يرفع الملف (بأمره 30/09 و01/10)
+"""قارئ ملف «نظام الموظفين» السنوي الأسبوعي (النسخة 13) — لما صاحب المحل يرفع الملف (بأمره 30/09 و01/10)
 
   python3 scripts/قارئ_نظام_الموظفين.py "ملف.xlsx"                 # كل الأسابيع لحد اليوم — مسودة بس
   python3 scripts/قارئ_نظام_الموظفين.py "ملف.xlsx" --شهر 10        # أسابيع شهر 10 (حسب الجمعة = يوم القبض)
@@ -67,18 +67,18 @@ def اقرأ(path):
     L = wb['القروض والديون']
     سطور = []
     for r in range(11, L.max_row + 1):
-        emp, typ, amt, rep = L['B%d' % r].value, L['C%d' % r].value, رقم(L['D%d' % r].value), رقم(L['F%d' % r].value)
+        emp, typ, amt, rep = L['C%d' % r].value, L['D%d' % r].value, رقم(L['E%d' % r].value), رقم(L['G%d' % r].value)
         if emp not in EMPS or (not amt and not rep): continue
         wk = L['L%d' % r].value
-        سطور.append({'صف': r, 'تاريخ': تاريخ(L['K%d' % r].value), 'أسبوع': int(wk) if isinstance(wk, (int, float)) else None,
-                     'موظف': emp, 'نوع': typ or '⚠️ بلا نوع', 'مبلغ': amt, 'من_جيبته': rep, 'بيان': (L['G%d' % r].value or '').strip()})
-    # الأقساط من دفتر الأسابيع: عمود A رقم الأسبوع · F القسط · H المدفوع — جدول لكل موظف تحت عنوانه
+        سطور.append({'صف': r, 'تاريخ': تاريخ(L['B%d' % r].value), 'أسبوع': int(wk) if isinstance(wk, (int, float)) else None,
+                     'موظف': emp, 'نوع': typ or '⚠️ بلا نوع', 'مبلغ': amt, 'من_جيبته': rep, 'بيان': (L['H%d' % r].value or '').strip()})
+    # الأقساط من دفتر الأسابيع: عمود A رقم الأسبوع · G القسط · I المدفوع — جدول لكل موظف تحت عنوانه
     W = wb['دفتر الأسابيع']; أقساط = {e: {} for e in EMPS}; مدفوع = {e: {} for e in EMPS}; cur = None
     for r in range(1, W.max_row + 1):
         a = W['A%d' % r].value
         if a in EMPS: cur = a; continue
         if cur and isinstance(a, (int, float)) and 1 <= a <= nw:
-            أقساط[cur][int(a)] = رقم(W['F%d' % r].value); مدفوع[cur][int(a)] = رقم(W['H%d' % r].value)
+            أقساط[cur][int(a)] = رقم(W['G%d' % r].value); مدفوع[cur][int(a)] = رقم(W['I%d' % r].value)
     Bs = wb['بداية السنة']
     افتتاح = {e: {'بداية': int(Bs['B%d' % (6 + i)].value or 1), 'دين': رقم(Bs['D%d' % (6 + i)].value)} for i, e in enumerate(EMPS)}
     M = wb['ملخص الأيدي العاملة']
@@ -161,8 +161,9 @@ def main():
         print('\n👷 ملخص الأيدي العاملة — شهر %02d (من الملف)' % شهر)
         r = 5 + شهر
         heads = ['عدد الجمع', 'رواتب عمر', 'عبدالعزيز', 'سلف كاش', 'عمال المهام', 'المجموع كاش', 'كلفة الشغل', 'بضاعة', 'قروض كاش']
+        print('  %-14s %s → %s' % ('الفترة', تاريخ(M.cell(r, 2).value), تاريخ(M.cell(r, 3).value)))
         for i, h in enumerate(heads):
-            v = M.cell(r, 2 + i).value
+            v = M.cell(r, 4 + i).value
             print('  %-14s %10s' % (h, ('%d' % v) if i == 0 else ('%.3f' % رقم(v))))
     print('\n⏸️ مسودة بس — الترحيل على أودو بعد «رحّل» (الموظف شريك عميل · البضاعة بمطابقة مدير الأصناف · الأقساط قيد خصم راتب بتاريخ الجمعة).')
 
