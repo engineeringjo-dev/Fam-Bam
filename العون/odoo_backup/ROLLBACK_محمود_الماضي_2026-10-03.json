@@ -1,44 +1,9 @@
 [
  {
-  "id": 304,
-  "name": "INV/2026/00114",
-  "date": "2026-01-15",
-  "type": "out_invoice",
-  "total": 51.25
- },
- {
-  "id": 305,
-  "name": "INV/2026/00115",
-  "date": "2026-01-16",
-  "type": "out_invoice",
-  "total": 21.65
- },
- {
-  "id": 306,
-  "name": "INV/2026/00116",
-  "date": "2026-02-20",
-  "type": "out_invoice",
-  "total": 10.75
- },
- {
-  "id": 307,
-  "name": "INV/2026/00117",
-  "date": "2026-02-24",
-  "type": "out_invoice",
-  "total": 1.0
- },
- {
-  "id": 308,
-  "name": "INV/2026/00118",
-  "date": "2026-03-11",
-  "type": "out_invoice",
-  "total": 10.5
- },
- {
-  "id": 309,
-  "name": "INV/2026/00119",
+  "id": 312,
+  "name": "INV/2026/00121",
   "date": "2026-05-23",
   "type": "out_invoice",
-  "total": 44.8
+  "total": 4.0
  }
 ]

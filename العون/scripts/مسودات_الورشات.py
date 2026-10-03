@@ -303,7 +303,7 @@ def عدّل(ملف, مفتاح, **kw):
 
 
 # ═══════════ الترحيل ═══════════
-def رحّل(ملف, اكد=False):
+def رحّل(ملف, اكد=False, نفس_التاريخ=False):
     مس = حمّل(مسودات, ملف)
     pid = مس.get('شريك')
     if not pid: raise SystemExit('⛔ ما في شريك للورشة')
@@ -319,7 +319,10 @@ def رحّل(ملف, اكد=False):
     مجموعات = {}
     for l in جاهز: مجموعات.setdefault(('out_refund' if l['مرتجع'] else 'out_invoice', l['تاريخ']), []).append(l)
     تعارض = [k for k in مجموعات if any(m['move_type'] == k[0] and m['invoice_date'] == k[1] for m in موجود)]
-    if تعارض: raise SystemExit('⛔ فحص الازدواج: في فاتورة بنفس النوع والتاريخ أصلاً: %s' % تعارض)
+    if تعارض and not نفس_التاريخ: raise SystemExit('⛔ فحص الازدواج: في فاتورة بنفس النوع والتاريخ أصلاً: %s' % تعارض)
+    if تعارض:  # بأمر صاحب المحل: بند جديد بتاريخ ورقته بفاتورة لحالها جنب المرحّلة بنفس اليوم
+        print('⚠️ --نفس-التاريخ: فاتورة جديدة جنب الموجودة بنفس اليوم: %s' % [m['name'] for m in موجود
+              if any(m['move_type'] == k[0] and m['invoice_date'] == k[1] for k in تعارض)])
     print(BAR); print('%s — %s · %d فاتورة/إشعار · %d سطر' % ('ترحيل' if اكد else 'تجربة (بلا --اكد)', ملف, len(مجموعات), len(جاهز)))
     ك = 0.0; سجل = []
     for (نوع, d), ls in sorted(مجموعات.items(), key=lambda z: (z[0][1], z[0][0])):
@@ -363,7 +366,7 @@ def main(a):
     if cmd == '--ارجع': عدّل(ملف, a[2], حالة=''); return
     if cmd == '--شريك':
         مس = حمّل(مسودات, ملف); مس['شريك'] = int(a[2]); احفظ(مسودات, ملف, مس); print('✅ الشريك', a[2]); return
-    if cmd == '--رحّل': رحّل(ملف, '--اكد' in a); return
+    if cmd == '--رحّل': رحّل(ملف, '--اكد' in a, '--نفس-التاريخ' in a); return
     raise SystemExit(__doc__)
 
 
