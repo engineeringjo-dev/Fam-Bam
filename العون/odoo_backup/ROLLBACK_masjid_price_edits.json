@@ -1,0 +1,45 @@
+{
+ "ts": "2026-09-23T08:23:42.714131",
+ "edits": [
+  {
+   "move": "INV/2026/00022",
+   "line": 260,
+   "old_price": 2.25,
+   "old_code": "500594",
+   "new_price": 2.0,
+   "new_code": null
+  },
+  {
+   "move": "INV/2026/00023",
+   "line": 263,
+   "old_price": 3.5,
+   "old_code": "8617723010756",
+   "new_price": 3.0,
+   "new_code": null
+  },
+  {
+   "move": "INV/2026/00024",
+   "line": 270,
+   "old_price": 10.0,
+   "old_code": "200137",
+   "new_price": 11.0,
+   "new_code": null
+  },
+  {
+   "move": "INV/2026/00024",
+   "line": 272,
+   "old_price": 5.0,
+   "old_code": "500829",
+   "new_price": 4.0,
+   "new_code": null
+  },
+  {
+   "move": "INV/2026/00024",
+   "line": 268,
+   "old_price": 4.6,
+   "old_code": "500448",
+   "new_price": 4.6,
+   "new_code": "500446"
+  }
+ ]
+}
