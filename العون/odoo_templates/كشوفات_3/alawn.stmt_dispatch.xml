@@ -1,0 +1,12 @@
+<t t-name="alawn.stmt_dispatch">
+<t t-call="web.html_container">
+<t t-foreach="docs" t-as="o">
+  <t t-set="k_s" t-value="o.env['account.move'].search_count([('partner_id','=',o.id),('move_type','in',['out_invoice','out_refund']),('state','=','posted')])"/>
+  <t t-set="k_b" t-value="o.env['account.move'].search_count([('partner_id','=',o.id),('move_type','in',['in_invoice','in_refund']),('state','=','posted')])"/>
+  <t t-set="k_p" t-value="o.env['account.move.line'].search_count([('partner_id','=',o.id),('parent_state','=','posted'),('account_id.account_type','=','liability_payable')])"/>
+  <t t-if="k_s and (k_b or k_p)"><t t-call="alawn.stmt_body_joint"/></t>
+  <t t-elif="k_b or k_p"><t t-call="alawn.stmt_body_vendor"/></t>
+  <t t-else=""><t t-call="alawn.stmt_body_customer"/></t>
+</t>
+</t>
+</t>

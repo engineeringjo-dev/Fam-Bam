@@ -68,7 +68,7 @@ def فك_التشفير(path):
         if not of.is_encrypted(): return path
         pw = كلمة_السر()
         if not pw: sys.exit('⛔ الملف عليه كلمة سر — حط PAYROLL_PASS بملف .env')
-        of.load_key(password=pw)
+        of.load_key(pw)
         out = os.path.join(tempfile.mkdtemp(), 'dec.xlsx')
         with open(out, 'wb') as g: of.decrypt(g)
     return out

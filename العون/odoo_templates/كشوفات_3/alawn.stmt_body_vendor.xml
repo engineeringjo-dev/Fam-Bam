@@ -1,0 +1,244 @@
+<t t-name="alawn.stmt_body_vendor">
+<t t-call="web.basic_layout">
+<div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
+  <t t-set="lines" t-value="o.env['account.move.line'].search([('partner_id','=',o.id),('account_id.account_type','=','liability_payable'),('parent_state','=','posted')], order='date asc, id asc')"/>
+  <t t-set="moves" t-value="o.env['account.move'].search([('partner_id','=',o.id),('move_type','=','in_invoice'),('state','=','posted')], order='invoice_date asc, name asc')"/>
+  <t t-set="refs" t-value="o.env['account.move'].search([('partner_id','=',o.id),('move_type','=','in_refund'),('state','=','posted')], order='invoice_date asc, name asc')"/>
+  <t t-set="smode" t-value="stmt_mode or 'full'"/>
+  <t t-set="allines" t-value="lines"/>
+  <t t-set="zb" t-value="allines.mapped('balance') if smode == 'zero' else []"/>
+  <t t-set="zdt" t-value="allines.mapped('date') if smode == 'zero' else []"/>
+  <t t-set="zc" t-value="[sum(zb[:i + 1]) for i in range(len(zb))]"/>
+  <t t-set="zlast" t-value="([False] + [zdt[i] for i in range(len(zc)) if abs(zc[i]) &lt; 0.001 and (i == len(zdt) - 1 or zdt[i + 1] != zdt[i])])[-1]"/>
+  <t t-set="sfrom" t-value="((stmt_from and datetime.date.fromisoformat(stmt_from)) or o.x_period_from) if smode == 'period' else ((zlast + datetime.timedelta(days=1)) if (smode == 'zero' and zlast) else False)"/>
+  <t t-set="sto" t-value="((stmt_to and datetime.date.fromisoformat(stmt_to)) or o.x_period_to) if smode == 'period' else False"/>
+  <t t-set="pbad" t-value="smode == 'period' and not (sfrom and sto and sfrom &lt;= sto)"/>
+  <t t-set="openbal" t-value="0 if pbad else (sum(allines.filtered(lambda z: z.date &lt; sfrom).mapped('balance')) if sfrom else 0)"/>
+  <t t-set="lines" t-value="allines[:0] if pbad else allines.filtered(lambda z: (not sfrom or z.date &gt;= sfrom) and (not sto or z.date &lt;= sto))"/>
+  <t t-set="mlabel" t-value="{'full': 'شامل', 'period': 'عن فترة', 'zero': 'منذ آخر تصفير'}.get(smode, '')"/>
+  <t t-set="moves" t-value="moves[:0] if pbad else moves.filtered(lambda z: (not sfrom or z.invoice_date &gt;= sfrom) and (not sto or z.invoice_date &lt;= sto))"/>
+  <t t-set="refs" t-value="refs[:0] if pbad else refs.filtered(lambda z: (not sfrom or z.invoice_date &gt;= sfrom) and (not sto or z.invoice_date &lt;= sto))"/>
+  <t t-set="ordF" t-value="['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة','الحادية عشرة','الثانية عشرة','الثالثة عشرة','الرابعة عشرة','الخامسة عشرة','السادسة عشرة','السابعة عشرة','الثامنة عشرة','التاسعة عشرة','العشرون','الحادية والعشرون','الثانية والعشرون','الثالثة والعشرون','الرابعة والعشرون','الخامسة والعشرون','السادسة والعشرون','السابعة والعشرون','الثامنة والعشرون','التاسعة والعشرون','الثلاثون','الحادية والثلاثون','الثانية والثلاثون','الثالثة والثلاثون','الرابعة والثلاثون','الخامسة والثلاثون','السادسة والثلاثون','السابعة والثلاثون','الثامنة والثلاثون','التاسعة والثلاثون','الأربعون','الحادية والأربعون','الثانية والأربعون','الثالثة والأربعون','الرابعة والأربعون','الخامسة والأربعون','السادسة والأربعون','السابعة والأربعون','الثامنة والأربعون','التاسعة والأربعون','الخمسون']"/>
+  <t t-set="ordM" t-value="['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر','الحادي عشر','الثاني عشر','الثالث عشر','الرابع عشر','الخامس عشر','السادس عشر','السابع عشر','الثامن عشر','التاسع عشر','العشرون']"/>
+  <t t-set="days" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
+
+  <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
+    <tr>
+      <td style="border:0;width:27%;text-align:right;vertical-align:top">
+        <div>هاتف :</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0799123618</span> - م.عمر</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0790177761</span> - هاتف المحل</div>
+      </td>
+      <td style="border:0;width:46%;text-align:center;vertical-align:middle">
+        <div style="font-size:18px;font-weight:bold">محلات العون لمواد البناء</div>
+      </td>
+      <td style="border:0;width:27%;text-align:left;vertical-align:top">
+        <div style="font-weight:bold" t-out="days[datetime.date.today().weekday()]"/>
+        <div style="direction:ltr;text-align:left" t-out="datetime.date.today().strftime('%d/%m/%Y')"/>
+      </td>
+    </tr>
+  </table>
+  <div style="border-bottom:2px solid #333;margin-bottom:8px"/>
+
+  <h2 style="text-align:center;font-size:19px;margin:6px 0">كشف حساب المورّد</h2>
+  <div style="text-align:center;font-size:12px;color:#305496;font-weight:bold;margin-bottom:2px" t-out="mlabel"/>
+  <div style="text-align:center;font-size:14px;font-weight:bold;margin-bottom:2px" t-out="o.name"/>
+  <div style="text-align:center;margin-bottom:10px">
+    الفترة الزمنية:
+    <span style="direction:ltr;display:inline-block" t-out="sfrom.strftime('%d/%m/%Y') if sfrom else (lines and lines[0].date.strftime('%d/%m/%Y') or '-')"/>
+    <span> — </span>
+    <span style="direction:ltr;display:inline-block" t-out="sto.strftime('%d/%m/%Y') if sto else (lines and lines[-1].date.strftime('%d/%m/%Y') or (sfrom and datetime.date.today().strftime('%d/%m/%Y')) or '-')"/>
+  </div>
+
+  <div t-if="pbad" style="margin:10px 0;padding:10px;border:2px solid #b00;background:#fdecea;font-size:13px;text-align:center;font-weight:bold">
+    ⚠ عبّي «فترة الكشف» (من تاريخ · إلى تاريخ) بصفحة الحساب واحفظ، وبعدين اطبع «كشف حساب عن فترة» مرة ثانية.
+  </div>
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+    <thead>
+      <tr style="background:#eee">
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">التاريخ</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">المستند</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">البيان</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">علينا (الفاتورة)</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">مرتجعات</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">دفعنا (الدفعات)</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">الرصيد</th>
+      </tr>
+    </thead>
+    <tbody>
+      <t t-set="tot_v" t-value="-openbal + (sum(lines.mapped('credit')) - sum(lines.mapped('debit')))"/>
+      <t t-set="bal" t-value="-openbal"/>
+      <tr t-if="sfrom" style="background:#e8e8e8;font-weight:bold">
+        <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="sfrom.strftime('%d/%m/%Y')"/>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px">رصيد أول المدة</td>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % (round(-openbal, 3) or 0.0)"/>
+      </tr>
+      <t t-foreach="lines" t-as="l">
+        <t t-set="isref" t-value="l.move_id.move_type == 'in_refund'"/>
+        <t t-set="isinv" t-value="l.move_id.move_type == 'in_invoice'"/>
+        <t t-set="bal" t-value="bal + l.credit - l.debit"/>
+        <tr t-attf-style="{{ 'background:#fde3c6;' if isref else ('background:#dcf0dc;' if l.debit else '') }}">
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.move_id.name"/>
+          <td style="border:1px solid #999;padding:3px">
+            <t t-if="isref"><div style="font-weight:bold">مرتجع بضاعة</div><t t-set="rf" t-value="' '.join((l.move_id.ref or '').split('✓')[0].strip().rstrip('|').split())"/>
+            <div t-if="rf" style="font-size:10px;color:#555" t-out="rf"/></t>
+            <t t-if="isinv"><div style="font-weight:bold">فاتورة بضاعة</div><t t-set="rf" t-value="' '.join((l.move_id.ref or '').split('✓')[0].strip().rstrip('|').split())"/>
+            <div t-if="rf" style="font-size:10px;color:#555" t-out="rf"/></t>
+            <t t-if="not isref and not isinv"><t t-set="jt" t-value="l.move_id.journal_id.type"/>
+            <t t-set="nm" t-value="' '.join((l.name or '').split())"/>
+            <t t-set="det" t-value="nm.split(': ', 1)[1] if ': ' in nm else nm"/>
+            <t t-set="pres" t-value="['دفعة نقدية', 'دفعة تحويل كليك', 'دفعة شيك', 'صرف نقدي', 'صرف تحويل كليك', 'صرف شيك', 'خصم']"/>
+            <t t-set="lbl" t-value="([p for p in pres if det.startswith(p)] or [''])[0]"/>
+            <t t-set="det" t-value="det[len(lbl):] if lbl else det"/>
+            <t t-set="lbl" t-value="lbl or (('صرف نقدي' if l.debit else 'دفعة نقدية') if jt == 'cash' else (('صرف تحويل كليك' if l.debit else 'دفعة تحويل كليك') if jt == 'bank' else 'قيد'))"/>
+            <t t-set="det" t-value="det.strip().lstrip('—-·:').strip()"/>
+            <div style="font-weight:bold" t-out="lbl"/>
+            <div t-if="det" style="font-size:10px;color:#555" t-out="det"/></t>
+          </td>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.credit and '%.3f' % l.credit or ''"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="(l.debit and '%.3f' % l.debit or '') if isref else ''"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="'' if isref else (l.debit and '%.3f' % l.debit or '')"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % (round(bal, 3) or 0.0)"/>
+        </tr>
+      </t>
+      <t t-set="refl" t-value="lines.filtered(lambda z: z.move_id.move_type == 'in_refund')"/>
+      <t t-set="payl" t-value="lines.filtered(lambda z: z.move_id.move_type != 'in_refund')"/>
+      <tr style="background:#f2f2f2;font-weight:bold">
+        <td colspan="3" style="border:1px solid #999;padding:4px">الإجمالي</td>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(lines.mapped('credit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(refl.mapped('debit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(payl.mapped('debit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (round(tot_v, 3) or 0.0)"/>
+      </tr>
+      <tr t-if="sfrom or sto" style="background:#dfe7f3;font-weight:bold">
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="(sto or datetime.date.today()).strftime('%d/%m/%Y')"/>
+        <td style="border:1px solid #999;padding:4px"/>
+        <td colspan="4" style="border:1px solid #999;padding:4px">رصيد آخر المدة</td>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (round(tot_v, 3) or 0.0)"/>
+      </tr>
+    </tbody>
+  </table>
+
+  <t t-set="tot_v" t-value="-openbal + (sum(lines.mapped('credit')) - sum(lines.mapped('debit')))"/><t t-set="vbal" t-value="tot_v"/><t t-if="vbal &gt;= -0.0005"><table style="width:45%;margin-top:14px;margin-right:auto;border-collapse:collapse;page-break-inside:avoid">
+    <tr>
+      <td style="border:2px solid #305496;background:#305496;color:#fff;padding:9px 12px;font-weight:bold;font-size:15px;text-align:center">الرصيد المستحق علينا</td>
+      <td style="border:2px solid #305496;background:#eaf0fa;padding:9px 12px;font-weight:bold;font-size:19px;text-align:center;direction:ltr"><span t-out="'%.3f' % (round(tot_v, 3) or 0.0)"/> د.أ</td>
+    </tr>
+  </table></t><t t-if="vbal &lt; -0.0005"><table style="width:45%;margin-top:14px;margin-right:auto;border-collapse:collapse;page-break-inside:avoid">
+    <tr>
+      <td style="border:2px solid #2e7d32;background:#2e7d32;color:#fff;padding:9px 12px;font-weight:bold;font-size:15px;text-align:center">الرصيد المستحق لنا عنده</td>
+      <td style="border:2px solid #2e7d32;background:#e8f5e9;padding:9px 12px;font-weight:bold;font-size:19px;text-align:center;direction:ltr"><span t-out="'%.3f' % (round(-tot_v, 3) or 0.0)"/> د.أ</td>
+    </tr>
+  </table></t>
+
+  <t t-if="moves">
+  <p style="page-break-before:always"/>
+  <h3 style="font-size:15px;margin:4px 0 8px 0">تفاصيل الفواتير</h3>
+  <t t-foreach="moves" t-as="m">
+    <t t-set="irows" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'line_note' or x.display_type == 'line_section' or x.display_type == 'product').sorted(lambda x: (x.sequence, x.id))"/>
+    <div t-attf-style="margin-top:8px;{{ 'page-break-inside:avoid;' if len(irows) &lt;= 22 else '' }}">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
+      <thead>
+      <tr>
+        <th colspan="5" style="border:1px solid #999;background:#f2f2f2;padding:4px;text-align:right;font-weight:bold">
+          <span>الفاتورة </span>
+          <span t-out="ordF[m_index] if m_index &lt; len(ordF) else str(m_index + 1)"/>
+          <span> : رقم ( </span>
+          <span style="direction:ltr;display:inline-block" t-out="m.name"/>
+          <span> ) · تاريخ ( </span>
+          <span style="direction:ltr;display:inline-block" t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
+          <span> )</span>
+          <t t-if="m.ref"><span> · </span><span t-out="m.ref"/></t>
+          <span style="float:left" t-out="'%.3f' % m.amount_total"/>
+        </th>
+      </tr>
+      <tr style="background:#f8f8f8">
+        <th style="border:1px solid #bbb;padding:3px;width:6%;text-align:center;font-weight:bold">#</th>
+        <th style="border:1px solid #bbb;padding:3px;text-align:center;font-weight:bold">الصنف</th>
+        <th style="border:1px solid #bbb;padding:3px;width:10%;text-align:center;font-weight:bold">الكمية</th>
+        <th style="border:1px solid #bbb;padding:3px;width:12%;text-align:center;font-weight:bold">السعر</th>
+        <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
+      </tr>
+      </thead>
+      <tbody>
+      <t t-set="k" t-value="0"/>
+      <t t-foreach="irows" t-as="il">
+        <tr t-if="il.display_type == 'product'">
+        <t t-set="k" t-value="k + 1"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="k"/>
+        <td style="border:1px solid #bbb;padding:3px"><div><span t-if="il.product_id.default_code and il.product_id.default_code != '900900' and not (il.name or '').startswith('[')" style="direction:ltr;unicode-bidi:isolate" t-out="'[%s] ' % il.product_id.default_code"/><span t-out="' '.join((il.name or '').split('\n')[0].split())"/></div><t t-foreach="(il.name or '').split('\n')[1:]" t-as="nt"><div t-if="nt.strip()" style="font-size:10px;color:#555" t-out="' '.join(nt.split())"/></t></td>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_unit"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
+        </tr>
+        <tr t-if="il.display_type == 'line_section'" style="background:#f2f2f2;font-weight:bold">
+          <td colspan="5" style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
+        </tr>
+        <tr t-if="il.display_type == 'line_note'" style="background:#fbfbf3">
+          <td style="border:1px solid #bbb;padding:3px"/>
+          <td colspan="4" style="border:1px solid #bbb;padding:3px;font-size:10px;color:#555" t-out="' '.join((il.name or '').split())"/>
+        </tr>
+      </t>
+      <tr style="background:#f2f2f2;font-weight:bold">
+        <td colspan="4" style="border:1px solid #bbb;padding:3px;text-align:right">الإجمالي</td>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % m.amount_total"/>
+      </tr>
+      </tbody>
+    </table>
+    </div>
+  </t>
+  </t>
+
+  <t t-if="refs">
+  <p style="page-break-before:always"/>
+  <h3 style="font-size:15px;margin:4px 0 8px 0">تفاصيل المرتجعات</h3>
+  <t t-foreach="refs" t-as="m">
+    <t t-set="ils" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product')"/>
+    <div t-attf-style="margin-top:8px;{{ 'page-break-inside:avoid;' if len(ils) &lt;= 22 else '' }}">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">
+      <thead>
+      <tr>
+        <th colspan="4" style="border:1px solid #999;background:#f2f2f2;padding:4px;text-align:right;font-weight:bold">
+          <span>المرتجع </span>
+          <span t-out="ordM[m_index] if m_index &lt; len(ordM) else str(m_index + 1)"/>
+          <span> : رقم ( </span>
+          <span style="direction:ltr;display:inline-block" t-out="m.name"/>
+          <span> ) · تاريخ ( </span>
+          <span style="direction:ltr;display:inline-block" t-out="m.invoice_date.strftime('%d/%m/%Y')"/>
+          <span> )</span>
+          <t t-if="m.ref"><span> · </span><span t-out="m.ref"/></t>
+          <span style="float:left" t-out="'%.3f' % m.amount_total"/>
+        </th>
+      </tr>
+      <tr style="background:#f8f8f8">
+        <th style="border:1px solid #bbb;padding:3px;width:6%;text-align:center;font-weight:bold">#</th>
+        <th style="border:1px solid #bbb;padding:3px;text-align:center;font-weight:bold">الصنف</th>
+        <th style="border:1px solid #bbb;padding:3px;width:10%;text-align:center;font-weight:bold">الكمية</th>
+        <th style="border:1px solid #bbb;padding:3px;width:14%;text-align:center;font-weight:bold">الإجمالي</th>
+      </tr>
+      </thead>
+      <tbody>
+      <t t-foreach="ils" t-as="il">
+        <tr>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
+        <td style="border:1px solid #bbb;padding:3px"><div><span t-if="il.product_id.default_code and il.product_id.default_code != '900900' and not (il.name or '').startswith('[')" style="direction:ltr;unicode-bidi:isolate" t-out="'[%s] ' % il.product_id.default_code"/><span t-out="' '.join((il.name or '').split('\n')[0].split())"/></div><t t-foreach="(il.name or '').split('\n')[1:]" t-as="nt"><div t-if="nt.strip()" style="font-size:10px;color:#555" t-out="' '.join(nt.split())"/></t></td>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
+        <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
+        </tr>
+      </t>
+      </tbody>
+    </table>
+    </div>
+  </t>
+  </t>
+</div>
+  <div class="footer" style="text-align:center;font-size:10px;color:#666;direction:rtl;font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif">
+    <span>صفحة </span><span class="page"/><span> من </span><span class="topage"/>
+  </div>
+</t>
+</t>

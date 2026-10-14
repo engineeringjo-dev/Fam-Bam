@@ -1,0 +1,1 @@
+<t t-name="alawn.report_customer_statement_full"><t t-set="full_stmt" t-value="True"/><t t-call="alawn.report_customer_statement"/></t>

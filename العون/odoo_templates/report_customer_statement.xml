@@ -6,6 +6,12 @@
   <t t-set="lines" t-value="o.env['account.move.line'].search([('partner_id','=',o.id),('account_id.account_type','=','asset_receivable'),('parent_state','=','posted')], order='date asc, id asc')"/>
   <t t-set="moves" t-value="o.env['account.move'].search([('partner_id','=',o.id),('move_type','=','out_invoice'),('state','=','posted')], order='invoice_date asc, name asc')"/>
   <t t-set="refs" t-value="o.env['account.move'].search([('partner_id','=',o.id),('move_type','=','out_refund'),('state','=','posted')], order='invoice_date asc, name asc')"/>
+  <t t-set="sfrom" t-value="(not full_stmt) and o.x_statement_from or False"/>
+  <t t-set="allines" t-value="lines"/>
+  <t t-set="opening" t-value="sum(allines.filtered(lambda z: z.date &lt; sfrom).mapped('balance')) if sfrom else 0"/>
+  <t t-set="lines" t-value="allines.filtered(lambda z: z.date &gt;= sfrom) if sfrom else allines"/>
+  <t t-set="moves" t-value="moves.filtered(lambda z: z.invoice_date &gt;= sfrom) if sfrom else moves"/>
+  <t t-set="refs" t-value="refs.filtered(lambda z: z.invoice_date &gt;= sfrom) if sfrom else refs"/>
   <t t-set="ordF" t-value="['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة','الحادية عشرة','الثانية عشرة','الثالثة عشرة','الرابعة عشرة','الخامسة عشرة','السادسة عشرة','السابعة عشرة','الثامنة عشرة','التاسعة عشرة','العشرون','الحادية والعشرون','الثانية والعشرون','الثالثة والعشرون','الرابعة والعشرون','الخامسة والعشرون','السادسة والعشرون','السابعة والعشرون','الثامنة والعشرون','التاسعة والعشرون','الثلاثون','الحادية والثلاثون','الثانية والثلاثون','الثالثة والثلاثون','الرابعة والثلاثون','الخامسة والثلاثون','السادسة والثلاثون','السابعة والثلاثون','الثامنة والثلاثون','التاسعة والثلاثون','الأربعون','الحادية والأربعون','الثانية والأربعون','الثالثة والأربعون','الرابعة والأربعون','الخامسة والأربعون','السادسة والأربعون','السابعة والأربعون','الثامنة والأربعون','التاسعة والأربعون','الخمسون','الحادية والخمسون','الثانية والخمسون','الثالثة والخمسون','الرابعة والخمسون','الخامسة والخمسون','السادسة والخمسون','السابعة والخمسون','الثامنة والخمسون','التاسعة والخمسون','الستون','الحادية والستون','الثانية والستون','الثالثة والستون','الرابعة والستون','الخامسة والستون','السادسة والستون','السابعة والستون','الثامنة والستون','التاسعة والستون','السبعون','الحادية والسبعون','الثانية والسبعون','الثالثة والسبعون','الرابعة والسبعون','الخامسة والسبعون','السادسة والسبعون','السابعة والسبعون','الثامنة والسبعون','التاسعة والسبعون','الثمانون','الحادية والثمانون','الثانية والثمانون','الثالثة والثمانون','الرابعة والثمانون','الخامسة والثمانون','السادسة والثمانون','السابعة والثمانون','الثامنة والثمانون','التاسعة والثمانون','التسعون','الحادية والتسعون','الثانية والتسعون','الثالثة والتسعون','الرابعة والتسعون','الخامسة والتسعون','السادسة والتسعون','السابعة والتسعون','الثامنة والتسعون','التاسعة والتسعون']"/>
   <t t-set="ordM" t-value="['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر','الحادي عشر','الثاني عشر','الثالث عشر','الرابع عشر','الخامس عشر','السادس عشر','السابع عشر','الثامن عشر','التاسع عشر','العشرون','الحادي والعشرون','الثاني والعشرون','الثالث والعشرون','الرابع والعشرون','الخامس والعشرون','السادس والعشرون','السابع والعشرون','الثامن والعشرون','التاسع والعشرون','الثلاثون','الحادي والثلاثون','الثاني والثلاثون','الثالث والثلاثون','الرابع والثلاثون','الخامس والثلاثون','السادس والثلاثون','السابع والثلاثون','الثامن والثلاثون','التاسع والثلاثون','الأربعون','الحادي والأربعون','الثاني والأربعون','الثالث والأربعون','الرابع والأربعون','الخامس والأربعون','السادس والأربعون','السابع والأربعون','الثامن والأربعون','التاسع والأربعون','الخمسون','الحادي والخمسون','الثاني والخمسون','الثالث والخمسون','الرابع والخمسون','الخامس والخمسون','السادس والخمسون','السابع والخمسون','الثامن والخمسون','التاسع والخمسون','الستون','الحادي والستون','الثاني والستون','الثالث والستون','الرابع والستون','الخامس والستون','السادس والستون','السابع والستون','الثامن والستون','التاسع والستون','السبعون','الحادي والسبعون','الثاني والسبعون','الثالث والسبعون','الرابع والسبعون','الخامس والسبعون','السادس والسبعون','السابع والسبعون','الثامن والسبعون','التاسع والسبعون','الثمانون','الحادي والثمانون','الثاني والثمانون','الثالث والثمانون','الرابع والثمانون','الخامس والثمانون','السادس والثمانون','السابع والثمانون','الثامن والثمانون','التاسع والثمانون','التسعون','الحادي والتسعون','الثاني والتسعون','الثالث والتسعون','الرابع والتسعون','الخامس والتسعون','السادس والتسعون','السابع والتسعون','الثامن والتسعون','التاسع والتسعون']"/>
   <t t-set="dontot" t-value="-sum(moves.mapped('invoice_line_ids').filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0).mapped('price_subtotal'))"/>
@@ -33,9 +39,9 @@
   <div style="text-align:center;font-size:14px;font-weight:bold;margin-bottom:2px" t-out="o.name"/>
   <div style="text-align:center;margin-bottom:10px">
     الفترة الزمنية:
-    <span style="direction:ltr;display:inline-block" t-out="lines and lines[0].date.strftime('%d/%m/%Y') or '-'"/>
+    <span style="direction:ltr;display:inline-block" t-out="sfrom.strftime('%d/%m/%Y') if sfrom else (lines and lines[0].date.strftime('%d/%m/%Y') or '-')"/>
     <span> — </span>
-    <span style="direction:ltr;display:inline-block" t-out="lines and lines[-1].date.strftime('%d/%m/%Y') or '-'"/>
+    <span style="direction:ltr;display:inline-block" t-out="lines and lines[-1].date.strftime('%d/%m/%Y') or (sfrom and datetime.date.today().strftime('%d/%m/%Y')) or '-'"/>
   </div>
 
   <table style="width:100%;border-collapse:collapse;font-size:11.5px">
@@ -51,7 +57,16 @@
       </tr>
     </thead>
     <tbody>
-      <t t-set="bal" t-value="0"/>
+      <t t-set="bal" t-value="opening"/>
+      <tr t-if="sfrom" style="background:#e8e8e8;font-weight:bold">
+        <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="sfrom.strftime('%d/%m/%Y')"/>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px">رصيد سابق</td>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % (round(opening, 3) or 0.0)"/>
+      </tr>
       <t t-foreach="lines" t-as="l">
         <t t-set="isref" t-value="l.move_id.move_type == 'out_refund'"/>
         <t t-set="isinv" t-value="l.move_id.move_type == 'out_invoice'"/>
@@ -59,16 +74,15 @@
         <t t-set="dn" t-value="(-sum(l.move_id.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0).mapped('price_subtotal'))) if isinv else 0"/>
         <t t-set="bal" t-value="bal + l.debit - l.credit + dn"/>
         <t t-set="isdon" t-value="(not isinv) and (not isref) and l.credit and ('تبرع' in (l.name or '').replace('ّ', ''))"/>
-        <tr t-attf-style="{{ 'background:#fdf1e0;' if isref else ('background:#fdf8e0;' if isout else ('background:#eef7ee;' if l.credit else '')) }}">
+        <tr t-attf-style="{{ 'background:#fde3c6;' if isref else ('background:#fff1c2;' if isout else ('background:#dcf0dc;' if l.credit else '')) }}">
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.move_id.name"/>
           <td style="border:1px solid #999;padding:3px">
             <t t-set="rf" t-value="(l.move_id.ref or '').split('✓')[0].strip().rstrip('|').strip()"/>
-            <t t-if="isref"><span t-out="'فاتورة مرتجع'"/></t>
+            <t t-if="isref"><div style="font-weight:bold" t-out="'مرتجع بضاعة'"/></t>
             <t t-if="isinv">
               <div t-out="rf if (rf.startswith('فاتورة يدوية') or rf.startswith('فاتورة ورقية')) else 'فاتورة بضاعة'"/>
-              <div t-if="rf and not (rf.startswith('فاتورة يدوية') or rf.startswith('فاتورة ورقية')) and ' ' in rf"
-                   style="font-size:10px;color:#666" t-out="' '.join(rf.split())"/>
+              <div t-if="rf and not (rf.startswith('فاتورة يدوية') or rf.startswith('فاتورة ورقية')) and ' ' in rf" style="font-size:10px;color:#666" t-out="' '.join(rf.split())"/>
             </t>
             <t t-if="not isref and not isinv">
               <t t-if="isdon">
@@ -77,13 +91,23 @@
                 <span t-if="pdi">تبرّع (فاعل خير) — بند <span t-out="' و '.join(pdi)"/></span>
                 <span t-if="not pdi" t-out="' '.join((l.name or '').split())"/>
               </t>
-              <t t-if="not isdon"><span t-out="' '.join((l.name or '').split())"/></t>
+              <t t-if="not isdon">
+                <t t-set="jt" t-value="l.move_id.journal_id.type"/>
+                <t t-set="nm" t-value="' '.join((l.name or '').split())"/>
+                <t t-set="det" t-value="nm.split(': ', 1)[1] if ': ' in nm else nm"/>
+                <t t-set="lbl" t-value="('صرف نقدي' if l.debit else 'دفعة نقدية') if jt == 'cash' else (('دفعة شيك' if 'شيك' in det else ('صرف تحويل كليك' if l.debit else 'دفعة تحويل كليك')) if jt == 'bank' else ('خصم' if 'خصم' in det else (('صرف نقدي' if l.debit else 'دفعة نقدية') if ('كاش' in det or 'نقد' in det or 'سحب' in det) else '')))"/>
+                <t t-foreach="['دفعة نقدية', 'دفعة تحويل كليك', 'دفعة تحويل', 'دفعة شيك', 'صرف نقدي', 'دفعة كاش', 'سحب كاش', 'خصم']" t-as="pre"><t t-if="det.startswith(pre)"><t t-set="det" t-value="det[len(pre):]"/></t></t>
+                <t t-set="det" t-value="det.strip().lstrip('—-·:').strip()"/>
+                <div t-if="lbl" style="font-weight:bold" t-out="lbl"/>
+                <div t-if="lbl and det" style="font-size:10px;color:#555" t-out="det"/>
+                <span t-if="not lbl" t-out="nm"/>
+              </t>
             </t>
           </td>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.debit and '%.3f' % (l.debit + dn) or ''"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="(l.credit and '%.3f' % l.credit or '') if isref else ''"/>
           <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="'' if isref else (l.credit and '%.3f' % l.credit or '')"/>
-          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % bal"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % (round(bal, 3) or 0.0)"/>
         </tr>
         <t t-if="dn &gt; 0.0005">
           <t t-foreach="l.move_id.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0)" t-as="d">
@@ -95,7 +119,7 @@
               <td style="border:1px solid #999;padding:3px"/>
               <td style="border:1px solid #999;padding:3px"/>
               <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="'%.3f' % -d.price_subtotal"/>
-              <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % bal"/>
+              <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % (round(bal, 3) or 0.0)"/>
             </tr>
           </t>
         </t>
@@ -107,17 +131,22 @@
         <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (sum(lines.mapped('debit')) + dontot)"/>
         <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(refl.mapped('credit'))"/>
         <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (sum(payl.mapped('credit')) + dontot)"/>
-        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (sum(lines.mapped('debit')) - sum(lines.mapped('credit')))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (round(opening + sum(lines.mapped('debit')) - sum(lines.mapped('credit')), 3) or 0.0)"/>
       </tr>
     </tbody>
   </table>
 
-  <div style="margin-top:10px;font-size:14px;font-weight:bold;text-align:left">
-    الرصيد المستحق: <span t-out="'%.3f' % (sum(lines.mapped('debit')) - sum(lines.mapped('credit')))"/> د.أ
-  </div>
+  <table style="width:45%;margin-top:14px;margin-right:auto;border-collapse:collapse;page-break-inside:avoid">
+    <tr>
+      <td style="border:2px solid #305496;background:#305496;color:#fff;padding:9px 12px;font-weight:bold;font-size:15px;text-align:center">الرصيد المستحق</td>
+      <td style="border:2px solid #305496;background:#eaf0fa;padding:9px 12px;font-weight:bold;font-size:19px;text-align:center;direction:ltr"><span t-out="'%.3f' % (round(opening + sum(lines.mapped('debit')) - sum(lines.mapped('credit')), 3) or 0.0)"/> د.أ</td>
+    </tr>
+  </table>
 
+  <t t-if="moves">
   <p style="page-break-before:always"/>
   <h3 style="font-size:15px;margin:4px 0 8px 0">تفاصيل الفواتير</h3>
+  </t>
   <t t-foreach="moves" t-as="m">
     <t t-set="ils" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'product' and x.price_subtotal &gt;= 0)"/>
     <t t-set="irows" t-value="m.invoice_line_ids.filtered(lambda x: x.display_type == 'line_note' or x.display_type == 'line_section' or (x.display_type == 'product' and x.price_subtotal &gt;= 0)).sorted(lambda x: (x.sequence, x.id))"/>
@@ -156,7 +185,7 @@
         <tr t-if="il.display_type == 'product'">
         <t t-set="k" t-value="k + 1"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="k"/>
-        <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
+        <td style="border:1px solid #bbb;padding:3px"><div><span t-if="il.product_id.default_code and il.product_id.default_code != '900900' and not (il.name or '').startswith('[')" style="direction:ltr;unicode-bidi:isolate" t-out="'[%s] ' % il.product_id.default_code"/><span t-out="' '.join((il.name or '').split('\n')[0].split())"/></div><t t-foreach="(il.name or '').split('\n')[1:]" t-as="nt"><div t-if="nt.strip()" style="font-size:10px;color:#555" t-out="' '.join(nt.split())"/></t></td>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
         </tr>
@@ -238,7 +267,7 @@
       <t t-foreach="ils" t-as="il">
         <tr t-attf-style="{{ 'background:#fdf8e0;' if il.price_subtotal &lt; 0 else '' }}">
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="il_index + 1"/>
-        <td style="border:1px solid #bbb;padding:3px" t-out="' '.join((il.name or '').split())"/>
+        <td style="border:1px solid #bbb;padding:3px"><div><span t-if="il.product_id.default_code and il.product_id.default_code != '900900' and not (il.name or '').startswith('[')" style="direction:ltr;unicode-bidi:isolate" t-out="'[%s] ' % il.product_id.default_code"/><span t-out="' '.join((il.name or '').split('\n')[0].split())"/></div><t t-foreach="(il.name or '').split('\n')[1:]" t-as="nt"><div t-if="nt.strip()" style="font-size:10px;color:#555" t-out="' '.join(nt.split())"/></t></td>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%g' % il.quantity"/>
         <td style="border:1px solid #bbb;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % il.price_subtotal"/>
         </tr>

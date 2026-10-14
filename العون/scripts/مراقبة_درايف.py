@@ -23,7 +23,18 @@ def حمّل():
 
 
 def اقرأ_المدخل():
-    d = json.load(sys.stdin)
+    raw = sys.stdin.read()
+    if not raw.lstrip().startswith(('{', '[')):
+        # الصيغة المختصرة (توفير الاستهلاك): سطر لكل ملف «id|modifiedTime|fileSize|title»
+        files = []
+        for l in raw.splitlines():
+            p = l.strip().split('|', 3)
+            if len(p) == 4:
+                files.append({'id': p[0], 'modifiedTime': p[1], 'fileSize': p[2], 'title': p[3],
+                              'owner': 'alawncash@gmail.com'})
+        d = {'files': files}
+    else:
+        d = json.loads(raw)
     files = d.get('files', d if isinstance(d, list) else [])
     out = {}
     for f in files:

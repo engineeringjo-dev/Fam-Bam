@@ -4,10 +4,13 @@
 from jrpc import x
 import base64
 
-def render(report_name, res_id, out_path):
-    """res_id: رقم واحد، أو قائمة أرقام ← ملف واحد، كل مستند بصفحاته."""
+def render(report_name, res_id, out_path, data=None):
+    """res_id: رقم واحد، أو قائمة أرقام ← ملف واحد، كل مستند بصفحاته.
+    data: قاموس بيوصل للقالب (مثال كشف الفترة من الشات: {'stmt_from': '2026-09-01', 'stmt_to': '2026-09-30'})."""
     ids = [int(i) for i in (res_id if isinstance(res_id, (list, tuple)) else [res_id])]
     rid = x('ir.actions.report','search',[('report_name','=',report_name)])[0]
+    if data:
+        return _run("pdf=env['ir.actions.report']._render_qweb_pdf(%d,%r,data=%r)[0]" % (rid, ids, dict(data)), out_path)
     return _run("pdf=env['ir.actions.report']._render_qweb_pdf(%d,%r)[0]" % (rid, ids), out_path)
 
 def render_html(html, out_path):

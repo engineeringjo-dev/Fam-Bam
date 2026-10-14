@@ -1,0 +1,1 @@
+<t t-name="alawn.stmt_period"><t t-set="stmt_mode" t-value="'period'"/><t t-call="alawn.stmt_dispatch"/></t>
