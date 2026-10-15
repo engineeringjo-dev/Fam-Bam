@@ -1,0 +1,7 @@
+{
+ "views": {
+  "form": 2082,
+  "qweb": 2083
+ },
+ "تراجع": "unlink ir.ui.view ids"
+}
