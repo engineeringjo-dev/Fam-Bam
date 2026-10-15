@@ -1,0 +1,192 @@
+<title>طباعة ليبل السبريه</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* تخطيط: عمود قراءة واحد للموظف، خطوات مرقّمة لأنها تسلسل فعلي، وجدول ألوان للرجوع إله */
+:root{
+  --bg:#f6f5f2; --paper:#ffffff; --fg:#22211e; --muted:#6b6862; --line:#dedad2;
+  --accent:#c0392b; --accent-soft:#f6e3df; --ok:#2e7d4f; --ok-soft:#e2f1e8; --warn:#9a6a00; --warn-soft:#f8eed3;
+  --chip1:#e9e6df; --chip2:#dbe7f3; --chip3:#f3e1c7;
+  --display:"Noto Kufi Arabic","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#171614; --paper:#211f1c; --fg:#ece9e3; --muted:#a7a29a; --line:#3a3732;
+  --accent:#e7665a; --accent-soft:#3b2421; --ok:#6cc495; --ok-soft:#1f3328; --warn:#e2b54d; --warn-soft:#3a3018;
+  --chip1:#2d2b27; --chip2:#22303d; --chip3:#3b2f1f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#171614; --paper:#211f1c; --fg:#ece9e3; --muted:#a7a29a; --line:#3a3732;
+  --accent:#e7665a; --accent-soft:#3b2421; --ok:#6cc495; --ok-soft:#1f3328; --warn:#e2b54d; --warn-soft:#3a3018;
+  --chip1:#2d2b27; --chip2:#22303d; --chip3:#3b2f1f; color-scheme:dark}
+html{direction:rtl}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.4}
+h1{font-size:1.9rem;font-weight:800}
+h2{font-size:1.25rem;font-weight:800;display:flex;align-items:center;gap:10px}
+p{margin:0}
+.lead{color:var(--muted);max-width:62ch}
+.eyebrow{font-size:.8rem;letter-spacing:.04em;color:var(--accent);font-weight:600}
+section{display:flex;flex-direction:column;gap:14px}
+.num{font-variant-numeric:tabular-nums}
+code,.code{font-family:var(--mono);font-size:.92em;background:var(--chip1);padding:1px 6px;border-radius:5px;direction:ltr;unicode-bidi:isolate}
+.btn{display:inline-block;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:0 8px;font-weight:600;white-space:nowrap}
+
+/* جدول الفئات */
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tier{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.tier b{font-family:var(--display);font-size:1.05rem}
+.tier .price{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+.tier small{color:var(--muted)}
+.t1{border-top:4px solid var(--muted)} .t2{border-top:4px solid #3b78b5} .t3{border-top:4px solid #c98a2b}
+@media (max-width:560px){.tiers{grid-template-columns:1fr}}
+
+/* الخطوات */
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+ol.steps li{counter-increment:s;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px 14px 16px;display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
+ol.steps li::before{content:counter(s);font-family:var(--display);font-weight:800;font-size:1.05rem;width:34px;height:34px;border-radius:50%;
+  background:var(--accent);color:#fff;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+ol.steps li div{display:flex;flex-direction:column;gap:6px;min-width:0}
+ol.steps li strong{font-size:1.02rem}
+.hint{color:var(--muted);font-size:.93rem}
+
+/* الليبل */
+.labels{display:flex;flex-wrap:wrap;gap:16px}
+.label{background:#fff;color:#111;border:1px dashed #9a958c;border-radius:6px;width:230px;max-width:100%;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-family:var(--body)}
+.label .name{font-weight:700;font-size:.95rem}
+.label .extra{font-size:.9rem;background:#fff4c2;border-radius:3px;padding:0 4px;align-self:flex-start}
+.label .bars{height:34px;background:repeating-linear-gradient(90deg,#111 0 2px,#fff 2px 4px,#111 4px 5px,#fff 5px 8px,#111 8px 11px,#fff 11px 12px)}
+.label .bc{font-family:var(--mono);font-size:.75rem;text-align:center;letter-spacing:.1em;direction:ltr}
+.label .pr{font-weight:700;font-size:1.15rem;text-align:left;direction:ltr;font-variant-numeric:tabular-nums}
+.cap{font-size:.85rem;color:var(--muted);text-align:center}
+.labelbox{display:flex;flex-direction:column;gap:6px}
+
+/* تنبيهات */
+.note{border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.note.ok{background:var(--ok-soft)} .note.ok strong{color:var(--ok)}
+.note.warn{background:var(--warn-soft)} .note.warn strong{color:var(--warn)}
+.note.bad{background:var(--accent-soft)} .note.bad strong{color:var(--accent)}
+ul.clean{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:4px}
+
+/* جدول الألوان */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:480px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--line);font-size:.95rem}
+th{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.02em;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.chip{display:inline-block;border-radius:999px;padding:0 10px;font-size:.82rem;font-weight:600;white-space:nowrap}
+.c2{background:var(--chip2)} .c3{background:var(--chip3)}
+.foot{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
+</style>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:8px">
+  <span class="eyebrow">محلات العون · دليل الموظف</span>
+  <h1>طباعة ليبل السبريه</h1>
+  <p class="lead">علب السبريه ما إلها صنف لكل لون. في <b>3 أصناف بس حسب الفئة</b>، واللون بينكتب على الليبل بخانة <b>Extra Content</b> وقت الطباعة. اتبع الخطوات بالترتيب، لون لون.</p>
+</header>
+
+<section>
+  <h2>أول إشي: اعرف فئة العلبة</h2>
+  <p>الفئة بتنحدّد من سعر <b>الدزينة</b> بفاتورة المورّد، مش من اللون:</p>
+  <div class="tiers">
+    <div class="tier t1"><b>فئة 1</b><span class="price">1.000</span><small>الدزينة أقل من 9</small><span class="code">701137</span></div>
+    <div class="tier t2"><b>فئة 2</b><span class="price">1.500</span><small>الدزينة من 9 لـ12</small><span class="code">701172</span></div>
+    <div class="tier t3"><b>فئة 3</b><span class="price">2.000</span><small>الدزينة أكثر من 12</small><span class="code">701190</span></div>
+  </div>
+  <p class="hint">مش متأكد من الفئة؟ شوف جدول ألوان سليم كتانة تحت، أو اسأل قبل ما تطبع.</p>
+</section>
+
+<section>
+  <h2>خطوات الطباعة</h2>
+  <ol class="steps">
+    <li><div><strong>افتح الصنف</strong><span>من أودو: <span class="btn">المخزون</span> أو <span class="btn">المبيعات</span> ← <span class="btn">المنتجات</span>، ودوّر على <b>«سبريه رش — فئة»</b> واختار الفئة الصح (مثلاً <span class="code">701172</span> فئة 2).</span></div></li>
+    <li><div><strong>اكبس زر طباعة الليبل</strong><span>بأعلى صفحة الصنف اكبس <span class="btn">Print Labels</span> (طباعة الملصقات). بتفتح نافذة صغيرة.</span></div></li>
+    <li><div><strong>عدد النسخ</strong><span>بخانة <span class="btn">Quantity</span> حط عدد العلب <b>من هاد اللون بس</b>. الدزينة = <span class="num">12</span>.</span></div></li>
+    <li><div><strong>شكل الليبل</strong><span>بخانة <span class="btn">Format</span> اختار نفس الشكل اللي بنطبع فيه دايماً، وتأكد إنه خيار السعر مفعّل عشان يطلع السعر على الليبل.</span></div></li>
+    <li><div><strong>اكتب اللون بـ Extra Content</strong><span>بخانة <span class="btn">Extra Content</span> اكتب اللون ورقمه بهاد الشكل بالضبط:</span>
+      <span><span class="code">اسود لمعة · 9005</span></span>
+      <span class="hint">للفسفوري: <span class="code">حبيبات فسفوري اصفر · 310</span> · للون بلا رقم: <span class="code">شفاف مطفي</span></span></div></li>
+    <li><div><strong>اطبع وراجع أول ليبل</strong><span>اكبس <span class="btn">Confirm</span>. بينزل ملف PDF، افتحه وتأكد من الاسم واللون والسعر قبل ما تطبع كل النسخ.</span></div></li>
+    <li><div><strong>اللون اللي بعده: من الأول</strong><span>كل لون طبعة لحاله. افتح النافذة من جديد، وغيّر العدد و<b>امسح اللون القديم</b> من Extra Content واكتب الجديد.</span></div></li>
+  </ol>
+</section>
+
+<section>
+  <h2>هيك لازم يطلع الليبل</h2>
+  <div class="labels">
+    <div class="labelbox">
+      <div class="label"><span class="name">سبريه رش — فئة 2</span><span class="extra">اسود لمعة · 9005</span><div class="bars"></div><span class="bc">701172</span><span class="pr">1.500 JD</span></div>
+      <span class="cap">لون عادي من كتانة</span>
+    </div>
+    <div class="labelbox">
+      <div class="label"><span class="name">سبريه رش — فئة 3</span><span class="extra">حبيبات فسفوري اصفر · 310</span><div class="bars"></div><span class="bc">701190</span><span class="pr">2.000 JD</span></div>
+      <span class="cap">فسفوري</span>
+    </div>
+  </div>
+  <p class="hint">الباركود والسعر نفسهم لكل ألوان الفئة، وهاد مقصود. اللي بيفرق بين علبة وعلبة هو السطر الأصفر بس.</p>
+</section>
+
+<section>
+  <h2>وقت البيع</h2>
+  <div class="note ok">
+    <strong>✓ الصح</strong>
+    <span>امسح باركود العلبة، بيطلع السعر حسب الفئة. وبخانة <b>الوصف</b> تحت اسم الصنف اكتب اللون زي ما هو على الليبل: <span class="code">اسود لمعة · 9005</span>.</span>
+  </div>
+</section>
+
+<section>
+  <h2>أغلاط بتصير كثير</h2>
+  <div class="note bad">
+    <strong>✗ ممنوع</strong>
+    <ul class="clean">
+      <li>تطبع أكثر من لون بطبعة وحدة. كل الليبلات رح يطلع عليها نفس اللون.</li>
+      <li>تنسى تمسح اللون القديم من Extra Content قبل اللون الجديد.</li>
+      <li>تغيّر السعر من نافذة الطباعة. السعر بيجي من الفئة.</li>
+      <li>تعمل صنف جديد للون. إذا لون مش موجود بالجدول، اسأل.</li>
+    </ul>
+  </div>
+  <div class="note warn">
+    <strong>! انتبه</strong>
+    <span>الأصناف القديمة اللي اسمها فيه لون (مثل «سبريه رش لون احمر رقم 8») لسا موجودة بأودو. <b>لا تطبع عليها</b>، اطبع دايماً على أصناف الفئات الثلاثة.</span>
+  </div>
+</section>
+
+<section>
+  <h2>ألوان سليم كتانة</h2>
+  <p class="hint">السعر للدزينة (<span class="num">12</span> علبة). اكتب بخانة Extra Content العمود الأول والثاني متل ما هم.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>اللون</th><th>الرقم</th><th>الدزينة</th><th>الفئة</th></tr></thead>
+      <tbody>
+        <tr><td>ابيض لمعة</td><td>9016</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>اسود لمعة</td><td>9005</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>اسود مطفي</td><td>9105</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>اخضر</td><td>6002</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>شفاف لمعة</td><td>250</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>سكني غامق</td><td>7046</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>سكني فاتح</td><td>7035</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>احمر</td><td>3020</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>اصفر</td><td>1018</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>ازرق سماوي</td><td>5015</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>ابيض مطفي</td><td>9116</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>بني شوكلاته</td><td>8016</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>شفاف مطفي</td><td>—</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>ازرق</td><td>5005</td><td>9.35</td><td><span class="chip c2">فئة 2 · 1.500</span></td></tr>
+        <tr><td>ذهبي كروم</td><td>270</td><td>14.90</td><td><span class="chip c3">فئة 3 · 2.000</span></td></tr>
+        <tr><td>فضي كروم</td><td>280</td><td>14.90</td><td><span class="chip c3">فئة 3 · 2.000</span></td></tr>
+        <tr><td>حبيبات فسفوري اصفر</td><td>310</td><td>15.90</td><td><span class="chip c3">فئة 3 · 2.000</span></td></tr>
+        <tr><td>حبيبات فسفوري احمر</td><td>315</td><td>15.90</td><td><span class="chip c3">فئة 3 · 2.000</span></td></tr>
+        <tr><td>حبيبات فسفوري اخضر</td><td>320</td><td>15.90</td><td><span class="chip c3">فئة 3 · 2.000</span></td></tr>
+        <tr><td>حبيبات فسفوري برتقالي</td><td>325</td><td>15.90</td><td><span class="chip c3">فئة 3 · 2.000</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p class="foot">آخر تحديث 15/10/2026 · ألوان موزعين ثانيين بتنضاف لهاد الجدول أول ما توصل قوائمهم.</p>
+</div>
