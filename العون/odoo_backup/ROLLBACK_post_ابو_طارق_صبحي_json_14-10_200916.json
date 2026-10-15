@@ -1,0 +1,22 @@
+{
+ "مسودة": "drive/مسودات/ابو طارق صبحي.json",
+ "partner": 72,
+ "moves": [
+  {
+   "id": 441,
+   "name": "INV/2026/00179",
+   "date": "2026-10-11",
+   "amount": 50.5
+  },
+  {
+   "id": 442,
+   "name": "INV/2026/00180",
+   "date": "2026-10-13",
+   "amount": 102.75
+  }
+ ],
+ "payments": [],
+ "partner_created": true,
+ "before": 0.0,
+ "after": 153.25
+}
