@@ -1,0 +1,16 @@
+{
+ "مسودة": "drive/مسودات/حسابات_1-3_2025/عبدالله البليط.json",
+ "partner": 84,
+ "moves": [],
+ "payments": [
+  {
+   "id": 96,
+   "name": "PCSH1/2025/00002",
+   "date": "2025-02-13",
+   "amount": 2
+  }
+ ],
+ "partner_created": true,
+ "before": 0.0,
+ "after": 2.0
+}

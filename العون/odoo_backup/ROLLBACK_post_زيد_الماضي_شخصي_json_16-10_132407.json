@@ -1,0 +1,16 @@
+{
+ "مسودة": "drive/مسودات/حسابات_1-3_2025/زيد الماضي شخصي.json",
+ "partner": 82,
+ "moves": [
+  {
+   "id": 468,
+   "name": "INV/2025/00022",
+   "date": "2025-02-22",
+   "amount": 5
+  }
+ ],
+ "payments": [],
+ "partner_created": true,
+ "before": 0.0,
+ "after": 5.0
+}

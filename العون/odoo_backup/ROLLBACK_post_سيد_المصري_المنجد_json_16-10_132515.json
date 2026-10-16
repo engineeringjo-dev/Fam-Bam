@@ -1,0 +1,16 @@
+{
+ "مسودة": "drive/مسودات/حسابات_1-3_2025/سيد المصري المنجد.json",
+ "partner": 83,
+ "moves": [
+  {
+   "id": 473,
+   "name": "INV/2025/00024",
+   "date": "2025-01-27",
+   "amount": 3
+  }
+ ],
+ "payments": [],
+ "partner_created": true,
+ "before": 0.0,
+ "after": 3.0
+}
