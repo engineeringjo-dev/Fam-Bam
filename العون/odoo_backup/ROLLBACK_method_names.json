@@ -1,0 +1,92 @@
+[
+ {
+  "id": 3,
+  "name": "Manual Payment",
+  "journal_id": [
+   13,
+   "Bank"
+  ],
+  "payment_type": "inbound"
+ },
+ {
+  "id": 4,
+  "name": "Manual Payment",
+  "journal_id": [
+   13,
+   "Bank"
+  ],
+  "payment_type": "outbound"
+ },
+ {
+  "id": 5,
+  "name": "Manual Payment",
+  "journal_id": [
+   15,
+   "الصندوق الرئيسي"
+  ],
+  "payment_type": "outbound"
+ },
+ {
+  "id": 6,
+  "name": "Manual Payment",
+  "journal_id": [
+   15,
+   "الصندوق الرئيسي"
+  ],
+  "payment_type": "inbound"
+ },
+ {
+  "id": 7,
+  "name": "الدفع اليدوي",
+  "journal_id": [
+   17,
+   "النقد محلات العون لمواد البناء"
+  ],
+  "payment_type": "inbound"
+ },
+ {
+  "id": 8,
+  "name": "الدفع اليدوي",
+  "journal_id": [
+   17,
+   "النقد محلات العون لمواد البناء"
+  ],
+  "payment_type": "outbound"
+ },
+ {
+  "id": 9,
+  "name": "الدفع اليدوي",
+  "journal_id": [
+   18,
+   "صندوق نقطة البيع"
+  ],
+  "payment_type": "inbound"
+ },
+ {
+  "id": 10,
+  "name": "الدفع اليدوي",
+  "journal_id": [
+   18,
+   "صندوق نقطة البيع"
+  ],
+  "payment_type": "outbound"
+ },
+ {
+  "id": 11,
+  "name": "الدفع اليدوي",
+  "journal_id": [
+   20,
+   "النقد محلات العون لمواد البناء"
+  ],
+  "payment_type": "inbound"
+ },
+ {
+  "id": 12,
+  "name": "الدفع اليدوي",
+  "journal_id": [
+   20,
+   "النقد محلات العون لمواد البناء"
+  ],
+  "payment_type": "outbound"
+ }
+]

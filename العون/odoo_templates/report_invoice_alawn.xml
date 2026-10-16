@@ -1,0 +1,148 @@
+<t t-name="alawn.report_invoice_alawn">
+<t t-call="web.html_container">
+<t t-foreach="docs" t-as="o">
+<t t-call="web.basic_layout">
+<div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
+  <t t-set="days" t-value="['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول']"/>
+  <t t-set="wd" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
+  <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type in ('line_note', 'line_section') or (z.display_type == 'product' and z.price_subtotal &gt;= 0)).sorted(lambda z: (z.sequence, z.id))"/>
+  <t t-set="deds" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0)"/>
+  <t t-set="paid" t-value="o.amount_total - o.amount_residual"/>
+  <t t-set="rls" t-value="o.line_ids.filtered(lambda z: z.account_id.account_type == 'asset_receivable')"/>
+  <t t-set="parts" t-value="rls.mapped('matched_credit_ids').sorted(lambda z: (z.credit_move_id.date, z.id))"/>
+  <t t-set="donp" t-value="parts.filtered(lambda z: 'تبرع' in (z.credit_move_id.name or '').replace('ّ', ''))"/>
+  <t t-set="oth" t-value="parts - donp"/>
+  <t t-set="donpaid" t-value="sum(donp.mapped('amount'))"/>
+  <t t-set="othpaid" t-value="paid - donpaid"/>
+  <t t-set="othlisted" t-value="sum(oth.mapped('amount'))"/>
+  <t t-set="gross" t-value="o.amount_total - sum(deds.mapped('price_subtotal'))"/>
+  <t t-set="special" t-value="bool(deds) or bool(donp)"/>
+  <t t-set="items" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &gt;= 0)"/>
+  <t t-set="donitems" t-value="['(%d) %s' % (i + 1, ' '.join((z.name or '').replace('(تبرّع من فاعل خير)', '').split('] ')[-1].split())) for i, z in enumerate(items) if 'فاعل خير' in (z.name or '')]"/>
+
+  <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
+    <tr>
+      <td style="border:0;width:27%;text-align:right;vertical-align:top">
+        <div>هاتف :</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0799123618</span> - م.عمر</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0790177761</span> - هاتف المحل</div>
+      </td>
+      <td style="border:0;width:46%;text-align:center;vertical-align:middle">
+        <div style="font-size:18px;font-weight:bold">محلات العون لمواد البناء</div>
+      </td>
+      <td style="border:0;width:27%;text-align:left;vertical-align:top">
+        <div style="font-weight:bold" t-out="wd[datetime.date.today().weekday()]"/>
+        <div style="direction:ltr;text-align:left" t-out="datetime.date.today().strftime('%d/%m/%Y')"/>
+      </td>
+    </tr>
+  </table>
+  <div style="border-bottom:2px solid #333;margin-bottom:8px"/>
+
+  <h2 style="text-align:center;font-size:19px;margin:6px 0">فاتورة</h2>
+  <div style="text-align:center;font-size:14px;font-weight:bold;margin-bottom:2px" t-out="o.partner_id.name"/>
+  <div style="text-align:center;margin-bottom:10px">
+    <span>رقم ( </span><span style="direction:ltr;display:inline-block" t-out="o.name"/><span> )</span>
+    <span> · </span>
+    <span>تاريخ ( </span>
+    <span style="direction:rtl;display:inline-block">
+      <span t-out="o.invoice_date.day"/><span> </span><span t-out="days[o.invoice_date.month-1]"/><span> </span><span t-out="o.invoice_date.year"/>
+    </span>
+    <span> )</span>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+    <thead>
+      <tr style="background:#eee">
+        <th style="border:1px solid #999;padding:4px;width:6%;text-align:center;font-weight:bold">#</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">الصنف</th>
+        <th style="border:1px solid #999;padding:4px;width:12%;text-align:center;font-weight:bold">الكمية</th>
+        <th style="border:1px solid #999;padding:4px;width:16%;text-align:center;font-weight:bold">الإجمالي</th>
+      </tr>
+    </thead>
+    <tbody>
+      <t t-set="n" t-value="0"/>
+      <t t-foreach="lines" t-as="l">
+        <tr t-if="l.display_type == 'product'">
+          <t t-set="n" t-value="n + 1"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="n"/>
+          <td style="border:1px solid #999;padding:3px" t-out="' '.join((l.name or '').split())"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%g' % l.quantity"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % l.price_subtotal"/>
+        </tr>
+        <tr t-if="l.display_type == 'line_section'" style="background:#f2f2f2;font-weight:bold">
+          <td colspan="4" style="border:1px solid #999;padding:3px" t-out="' '.join((l.name or '').split())"/>
+        </tr>
+        <tr t-if="l.display_type == 'line_note'" style="background:#fbfbf3">
+          <td style="border:1px solid #999;padding:3px"/>
+          <td colspan="3" style="border:1px solid #999;padding:3px;font-size:10.5px;color:#555" t-out="' '.join((l.name or '').split())"/>
+        </tr>
+      </t>
+    </tbody>
+  </table>
+
+  <table style="width:70%;border-collapse:collapse;margin-top:10px;margin-right:auto;font-size:12.5px">
+    <tr>
+      <td style="border:1px solid #999;padding:5px;text-align:right">الإجمالي</td>
+      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr;width:32%" t-out="'%.3f' % gross"/>
+    </tr>
+
+    <t t-if="special">
+      <t t-foreach="donp" t-as="p">
+        <tr style="background:#eef7ee">
+          <td style="border:1px solid #999;padding:5px;text-align:right">
+            <div>
+              <span>تبرّع (فاعل خير)</span>
+              <t t-if="donitems"><span> — بند </span><span t-out="' و '.join(donitems)"/></t>
+              <t t-if="not donitems"><span> — </span><span t-out="' '.join((p.credit_move_id.name or '').split())"/></t>
+            </div>
+            <div style="font-size:10.5px;color:#666;direction:ltr;text-align:right" t-out="p.credit_move_id.date.strftime('%d/%m/%Y')"/>
+          </td>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
+        </tr>
+      </t>
+      <t t-foreach="deds" t-as="d">
+        <tr style="background:#fdf8e0">
+          <td style="border:1px solid #999;padding:5px;text-align:right">
+            <div t-out="' '.join((d.name or '').split())"/>
+            <div style="font-size:10.5px;color:#666;direction:ltr;text-align:right" t-out="o.invoice_date.strftime('%d/%m/%Y')"/>
+          </td>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % d.price_subtotal"/>
+        </tr>
+      </t>
+      <tr style="background:#f2f2f2;font-weight:bold">
+        <td style="border:1px solid #999;padding:5px;text-align:right">الإجمالي المستحق (الصافي)</td>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % (o.amount_total - donpaid)"/>
+      </tr>
+    </t>
+
+    <t t-if="othpaid &gt; 0.0005">
+      <t t-foreach="oth" t-as="p">
+        <tr style="background:#eef7ee">
+          <td style="border:1px solid #999;padding:5px;text-align:right">
+            <span>مدفوع</span>
+            <t t-if="p.credit_move_id.name"><span> — </span><span t-out="' '.join(p.credit_move_id.name.split())"/></t>
+            <span style="color:#666"> · </span>
+            <span style="direction:ltr;display:inline-block;color:#666" t-out="p.credit_move_id.date.strftime('%d/%m/%Y')"/>
+          </td>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
+        </tr>
+      </t>
+      <tr t-if="othpaid - othlisted &gt; 0.0005" style="background:#eef7ee">
+        <td style="border:1px solid #999;padding:5px;text-align:right">مدفوع</td>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % (othpaid - othlisted)"/>
+      </tr>
+    </t>
+
+    <tr t-if="othpaid &gt; 0.0005" style="background:#f2f2f2;font-weight:bold;font-size:14px">
+      <td style="border:1px solid #999;padding:5px;text-align:right">المبلغ المستحق</td>
+      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % o.amount_residual"/>
+    </tr>
+  </table>
+</div>
+  <div class="footer" style="text-align:center;font-size:10px;color:#666;direction:rtl;font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif">
+    <span>صفحة </span><span class="page"/><span> من </span><span class="topage"/>
+  </div>
+</t>
+</t>
+</t>
+</t>

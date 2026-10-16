@@ -1,0 +1,26 @@
+{
+ "ts": "2026-09-23T07:50:48.047200",
+ "old_line": {
+  "id": 242,
+  "product_id": [
+   57047,
+   "[500815] فولتراب بلاستيك 2×4 واطي Rubber خليجي صغير ومرار"
+  ],
+  "name": "[500815] فولتراب بلاستيك 2*4 واطي Rubber خليجي صغير ومرار",
+  "quantity": 8.0,
+  "price_unit": 5.0,
+  "price_subtotal": 40.0
+ },
+ "reconcile": [
+  {
+   "partial": 610,
+   "credit_line": 530,
+   "amount": 800.0
+  },
+  {
+   "partial": 616,
+   "credit_line": 516,
+   "amount": 230.0
+  }
+ ]
+}

@@ -1,0 +1,100 @@
+[
+ {
+  "id": 2064,
+  "name": "بحث الأصناف — يشمل الوصف",
+  "model": "product.template",
+  "type": "search",
+  "mode": "extension",
+  "inherit_id": [
+   505,
+   "product.template.search"
+  ],
+  "arch_db": "<data><field name=\"name\" position=\"attributes\"><attribute name=\"filter_domain\">['|','|','|',('default_code','ilike',self),('barcode','ilike',self),('name','ilike',self),('description_sale','ilike',self)]</attribute></field></data>",
+  "priority": 16,
+  "active": true
+ },
+ {
+  "id": 2063,
+  "name": "بحث العملاء — تجميع حسب المجموعة",
+  "model": "res.partner",
+  "type": "search",
+  "mode": "extension",
+  "inherit_id": [
+   128,
+   "res.partner.select"
+  ],
+  "arch_db": "<data><filter name=\"group_country\" position=\"after\"><filter name=\"x_group_cat\" string=\"المجموعة / المقاول\" context=\"{'group_by':'category_id'}\"/></filter></data>",
+  "priority": 99,
+  "active": true
+ },
+ {
+  "id": 2059,
+  "name": "بحث الفواتير — تدقيق",
+  "model": "account.move",
+  "type": "search",
+  "mode": "extension",
+  "inherit_id": [
+   746,
+   "account.invoice.select"
+  ],
+  "arch_db": "<data>\n   <filter name=\"posted\" position=\"after\">\n     <separator/>\n     <filter name=\"x_not_audited\" string=\"غير مدقّقة\" domain=\"[('x_audited','=',False)]\"/>\n     <filter name=\"x_is_audited\" string=\"مدقّقة\" domain=\"[('x_audited','=',True)]\"/>\n   </filter>\n </data>",
+  "priority": 99,
+  "active": true
+ },
+ {
+  "id": 2060,
+  "name": "بطاقة العميل — الطاقم",
+  "model": "res.partner",
+  "type": "form",
+  "mode": "extension",
+  "inherit_id": [
+   127,
+   "res.partner.form"
+  ],
+  "arch_db": "<data><field name=\"function\" position=\"after\"><field name=\"x_project_team\" string=\"المسؤولون عن المشروع\" placeholder=\"م.حمزة · هشام · رامي\"/></field></data>",
+  "priority": 99,
+  "active": true
+ },
+ {
+  "id": 2061,
+  "name": "قائمة العملاء — المجموعة",
+  "model": "res.partner",
+  "type": "list",
+  "mode": "extension",
+  "inherit_id": [
+   124,
+   "res.partner.list"
+  ],
+  "arch_db": "<data><field name=\"display_name\" position=\"after\"><field name=\"category_id\" string=\"المجموعة\" widget=\"many2many_tags\" optional=\"show\"/></field></data>",
+  "priority": 99,
+  "active": true
+ },
+ {
+  "id": 2057,
+  "name": "قائمة الفواتير — تدقيق",
+  "model": "account.move",
+  "type": "list",
+  "mode": "extension",
+  "inherit_id": [
+   735,
+   "account.invoice.list"
+  ],
+  "arch_db": "<data>\n   <field name=\"amount_total_in_currency_signed\" position=\"after\">\n     <field name=\"x_audited\" string=\"مدقّقة\" widget=\"boolean_toggle\" optional=\"show\"/>\n     <field name=\"x_audit_date\" string=\"تاريخ التدقيق\" optional=\"hide\"/>\n   </field>\n </data>",
+  "priority": 99,
+  "active": true
+ },
+ {
+  "id": 2058,
+  "name": "نموذج الفاتورة — تدقيق",
+  "model": "account.move",
+  "type": "form",
+  "mode": "extension",
+  "inherit_id": [
+   743,
+   "account.move.form"
+  ],
+  "arch_db": "<data>\n   <field name=\"invoice_date_due\" position=\"after\">\n     <field name=\"x_audited\" string=\"مدقّقة\" widget=\"boolean_toggle\"/>\n     <field name=\"x_audit_date\" string=\"تاريخ التدقيق\" invisible=\"not x_audited\"/>\n     <field name=\"x_audit_note\" string=\"ملاحظة التدقيق\" invisible=\"not x_audited\" placeholder=\"تطابق الورق؟ نقص بند؟\"/>\n   </field>\n </data>",
+  "priority": 99,
+  "active": true
+ }
+]

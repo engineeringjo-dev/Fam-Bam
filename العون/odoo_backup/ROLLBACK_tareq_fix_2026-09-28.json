@@ -1,0 +1,13 @@
+{
+ "catalog_200354": {
+  "old": 10.0,
+  "new": 11.0
+ },
+ "spot_fix": {
+  "id": 249,
+  "name": "RINV/2026/00006",
+  "state": "posted",
+  "amount_total": 1.1,
+  "invoice_date": "2026-09-06"
+ }
+}

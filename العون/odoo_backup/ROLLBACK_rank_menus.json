@@ -1,0 +1,57 @@
+{
+ "actions": [
+  {
+   "id": 947,
+   "name": "الموردون",
+   "domain": "[('category_id','in',[10])]",
+   "context": "{'default_category_id': [10], 'default_is_company': True}"
+  },
+  {
+   "id": 948,
+   "name": "العملاء",
+   "domain": "[('category_id','in',[11])]",
+   "context": "{'default_category_id': [11], 'default_is_company': True}"
+  }
+ ],
+ "cats": [
+  {
+   "id": 10,
+   "name": "مورّد",
+   "parent_id": false,
+   "color": 4
+  },
+  {
+   "id": 11,
+   "name": "عميل",
+   "parent_id": false,
+   "color": 10
+  }
+ ],
+ "members": {
+  "10": [
+   32,
+   34,
+   29,
+   22,
+   33,
+   35,
+   28,
+   8,
+   27,
+   31,
+   9,
+   30
+  ],
+  "11": [
+   22,
+   19,
+   23,
+   21,
+   20,
+   38,
+   37,
+   39,
+   36
+  ]
+ }
+}

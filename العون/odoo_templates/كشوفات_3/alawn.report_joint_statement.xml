@@ -1,0 +1,7 @@
+<t t-name="alawn.report_joint_statement">
+<t t-call="web.html_container">
+<t t-foreach="docs" t-as="o">
+<t t-call="alawn.stmt_body_joint"/>
+</t>
+</t>
+</t>

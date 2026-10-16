@@ -1,0 +1,1 @@
+<t t-name="alawn.stmt_full"><t t-set="stmt_mode" t-value="'full'"/><t t-call="alawn.stmt_dispatch"/></t>

@@ -1,0 +1,32 @@
+{
+ "move": {
+  "id": 167,
+  "name": "INV/2026/00073",
+  "invoice_date": "2026-03-31",
+  "amount_total": 43.5,
+  "ref": "فاتورة يدوية سابقة رقم 0243"
+ },
+ "lines": [
+  {
+   "id": 1088,
+   "display_type": "product",
+   "product_id": [
+    57042,
+    "[900900] فاتورة يدوية سابقة (بدون بنود)"
+   ],
+   "name": "فاتورة يدوية سابقة (بدون بنود)",
+   "quantity": 1.0,
+   "price_unit": 43.5,
+   "sequence": 100
+  },
+  {
+   "id": 1089,
+   "display_type": "payment_term",
+   "product_id": false,
+   "name": "فاتورة يدوية سابقة رقم 0243 - INV/2026/00073",
+   "quantity": 0.0,
+   "price_unit": 0.0,
+   "sequence": 12000
+  }
+ ]
+}

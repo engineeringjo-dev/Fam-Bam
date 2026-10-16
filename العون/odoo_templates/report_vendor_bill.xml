@@ -1,0 +1,132 @@
+<t t-name="alawn.report_vendor_bill">
+<t t-call="web.html_container">
+<t t-foreach="docs" t-as="o">
+<t t-call="web.basic_layout">
+<div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
+  <t t-set="days" t-value="['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول']"/>
+  <t t-set="wd" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
+  <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type in ('line_note', 'line_section') or (z.display_type == 'product' and z.price_subtotal &gt;= 0)).sorted(lambda z: (z.sequence, z.id))"/>
+  <t t-set="deds" t-value="o.invoice_line_ids.filtered(lambda z: z.display_type == 'product' and z.price_subtotal &lt; 0)"/>
+  <t t-set="paid" t-value="o.amount_total - o.amount_residual"/>
+  <t t-set="pls" t-value="o.line_ids.filtered(lambda z: z.account_id.account_type == 'liability_payable')"/>
+  <t t-set="parts" t-value="pls.mapped('matched_debit_ids').sorted(lambda z: (z.debit_move_id.date, z.id))"/>
+  <t t-set="listed" t-value="sum(parts.mapped('amount'))"/>
+  <t t-set="gross" t-value="o.amount_total - sum(deds.mapped('price_subtotal'))"/>
+
+  <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
+    <tr>
+      <td style="border:0;width:27%;text-align:right;vertical-align:top">
+        <div>هاتف :</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0799123618</span> - م.عمر</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0790177761</span> - هاتف المحل</div>
+      </td>
+      <td style="border:0;width:46%;text-align:center;vertical-align:middle">
+        <div style="font-size:18px;font-weight:bold">محلات العون لمواد البناء</div>
+      </td>
+      <td style="border:0;width:27%;text-align:left;vertical-align:top">
+        <div style="font-weight:bold" t-out="wd[datetime.date.today().weekday()]"/>
+        <div style="direction:ltr;text-align:left" t-out="datetime.date.today().strftime('%d/%m/%Y')"/>
+      </td>
+    </tr>
+  </table>
+  <div style="border-bottom:2px solid #333;margin-bottom:8px"/>
+
+  <h2 style="text-align:center;font-size:19px;margin:6px 0">فاتورة مورّد</h2>
+  <div style="text-align:center;font-size:14px;font-weight:bold;margin-bottom:2px" t-out="o.partner_id.name"/>
+  <div style="text-align:center;margin-bottom:4px">
+    <span>رقم ( </span><span style="direction:ltr;display:inline-block" t-out="o.name or 'مسودة'"/><span> )</span>
+    <span> · </span>
+    <span>تاريخ ( </span>
+    <span style="direction:rtl;display:inline-block">
+      <span t-out="o.invoice_date.day"/><span> </span><span t-out="days[o.invoice_date.month-1]"/><span> </span><span t-out="o.invoice_date.year"/>
+    </span>
+    <span> )</span>
+  </div>
+  <div t-if="o.ref" style="text-align:center;margin-bottom:10px;font-size:12.5px;color:#555" t-out="o.ref"/>
+
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+    <thead>
+      <tr style="background:#eee">
+        <th style="border:1px solid #999;padding:4px;width:6%;text-align:center;font-weight:bold">#</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">الصنف</th>
+        <th style="border:1px solid #999;padding:4px;width:11%;text-align:center;font-weight:bold">الكمية</th>
+        <th style="border:1px solid #999;padding:4px;width:13%;text-align:center;font-weight:bold">السعر</th>
+        <th style="border:1px solid #999;padding:4px;width:15%;text-align:center;font-weight:bold">الإجمالي</th>
+      </tr>
+    </thead>
+    <tbody>
+      <t t-set="n" t-value="0"/>
+      <t t-foreach="lines" t-as="l">
+        <tr t-if="l.display_type == 'product'">
+          <t t-set="n" t-value="n + 1"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="n"/>
+          <td style="border:1px solid #999;padding:3px">
+            <div t-out="' '.join((l.name or '').split())"/>
+            <div t-if="l.product_id and l.product_id.default_code" style="font-size:10px;color:#888;direction:ltr;text-align:right">
+              <span t-out="l.product_id.default_code"/><span> · </span><span t-out="l.product_id.name"/>
+            </div>
+          </td>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%g' % l.quantity"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % l.price_unit"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % l.price_subtotal"/>
+        </tr>
+        <tr t-if="l.display_type == 'line_section'" style="background:#f2f2f2;font-weight:bold">
+          <td colspan="5" style="border:1px solid #999;padding:3px" t-out="' '.join((l.name or '').split())"/>
+        </tr>
+        <tr t-if="l.display_type == 'line_note'" style="background:#fbfbf3">
+          <td style="border:1px solid #999;padding:3px"/>
+          <td colspan="4" style="border:1px solid #999;padding:3px;font-size:10.5px;color:#555" t-out="' '.join((l.name or '').split())"/>
+        </tr>
+      </t>
+    </tbody>
+  </table>
+
+  <table style="width:70%;border-collapse:collapse;margin-top:10px;margin-right:auto;font-size:12.5px">
+    <tr>
+      <td style="border:1px solid #999;padding:5px;text-align:right">الإجمالي</td>
+      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr;width:32%" t-out="'%.3f' % gross"/>
+    </tr>
+    <t t-if="deds">
+      <t t-foreach="deds" t-as="d">
+        <tr style="background:#fdf8e0">
+          <td style="border:1px solid #999;padding:5px;text-align:right" t-out="' '.join((d.name or '').split())"/>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % d.price_subtotal"/>
+        </tr>
+      </t>
+      <tr style="background:#f2f2f2;font-weight:bold">
+        <td style="border:1px solid #999;padding:5px;text-align:right">الإجمالي بعد الخصم</td>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % o.amount_total"/>
+      </tr>
+    </t>
+
+    <t t-if="paid &gt; 0.0005">
+      <t t-foreach="parts" t-as="p">
+        <tr style="background:#eef7ee">
+          <td style="border:1px solid #999;padding:5px;text-align:right">
+            <span>دفعنا</span>
+            <t t-if="p.debit_move_id.move_id.name"><span> — </span><span t-out="' '.join(p.debit_move_id.move_id.name.split())"/></t>
+            <span style="color:#666"> · </span>
+            <span style="direction:ltr;display:inline-block;color:#666" t-out="p.debit_move_id.date.strftime('%d/%m/%Y')"/>
+          </td>
+          <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % p.amount"/>
+        </tr>
+      </t>
+      <tr t-if="paid - listed &gt; 0.0005" style="background:#eef7ee">
+        <td style="border:1px solid #999;padding:5px;text-align:right">دفعنا</td>
+        <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'-%.3f' % (paid - listed)"/>
+      </tr>
+    </t>
+
+    <tr style="background:#f2f2f2;font-weight:bold;font-size:14px">
+      <td style="border:1px solid #999;padding:5px;text-align:right">المبلغ المستحق علينا</td>
+      <td style="border:1px solid #999;padding:5px;text-align:center;direction:ltr" t-out="'%.3f' % o.amount_residual"/>
+    </tr>
+  </table>
+</div>
+  <div class="footer" style="text-align:center;font-size:10px;color:#666;direction:rtl;font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif">
+    <span>صفحة </span><span class="page"/><span> من </span><span class="topage"/>
+  </div>
+</t>
+</t>
+</t>
+</t>

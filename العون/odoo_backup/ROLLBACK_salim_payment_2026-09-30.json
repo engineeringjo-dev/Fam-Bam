@@ -1,0 +1,16 @@
+{
+ "salim_620": {
+  "payment_id": 68,
+  "name": "PBNK1/2026/00031",
+  "move_id": 261,
+  "pay_line": 1522,
+  "date": "2026-09-30",
+  "amount": 620.0,
+  "reconciled_bills": [
+   127,
+   128,
+   129
+  ],
+  "undo": "remove_move_reconcile على السطر 1522 ← action_draft على الدفعة 68 ← unlink"
+ }
+}

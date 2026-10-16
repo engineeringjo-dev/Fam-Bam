@@ -1,0 +1,1 @@
+{"id": 2061, "arch_db": "<data><field name=\"display_name\" position=\"after\"><field name=\"category_id\" string=\"المجموعة\" widget=\"many2many_tags\" optional=\"show\"/><field name=\"credit\" string=\"الرصيد\" optional=\"show\"/></field></data>"}

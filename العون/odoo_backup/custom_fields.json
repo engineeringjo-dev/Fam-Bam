@@ -1,0 +1,87 @@
+[
+ {
+  "id": 21853,
+  "name": "x_audit_date",
+  "model": "account.move",
+  "model_id": [
+   462,
+   "Journal Entry"
+  ],
+  "field_description": "تاريخ التدقيق",
+  "ttype": "date",
+  "relation": false,
+  "store": true,
+  "required": false,
+  "readonly": false,
+  "copied": true,
+  "selection": false
+ },
+ {
+  "id": 21856,
+  "name": "x_audit_note",
+  "model": "account.move",
+  "model_id": [
+   462,
+   "Journal Entry"
+  ],
+  "field_description": "ملاحظة التدقيق",
+  "ttype": "char",
+  "relation": false,
+  "store": true,
+  "required": false,
+  "readonly": false,
+  "copied": true,
+  "selection": false
+ },
+ {
+  "id": 21848,
+  "name": "x_audited",
+  "model": "account.move",
+  "model_id": [
+   462,
+   "Journal Entry"
+  ],
+  "field_description": "مدقّقة",
+  "ttype": "boolean",
+  "relation": false,
+  "store": true,
+  "required": false,
+  "readonly": false,
+  "copied": true,
+  "selection": false
+ },
+ {
+  "id": 21859,
+  "name": "x_contractor_id",
+  "model": "res.partner",
+  "model_id": [
+   90,
+   "Contact"
+  ],
+  "field_description": "المقاول",
+  "ttype": "many2one",
+  "relation": "res.partner",
+  "store": true,
+  "required": false,
+  "readonly": false,
+  "copied": true,
+  "selection": false
+ },
+ {
+  "id": 21864,
+  "name": "x_project_team",
+  "model": "res.partner",
+  "model_id": [
+   90,
+   "Contact"
+  ],
+  "field_description": "المسؤولون عن المشروع",
+  "ttype": "char",
+  "relation": false,
+  "store": true,
+  "required": false,
+  "readonly": false,
+  "copied": true,
+  "selection": false
+ }
+]

@@ -1,0 +1,56 @@
+[
+ {
+  "id": 1102,
+  "display_type": "line_note",
+  "product_id": false,
+  "name": "الفاتورة اليدوية الأصلية رقم 1958",
+  "quantity": 0.0,
+  "price_unit": 0.0,
+  "sequence": 1
+ },
+ {
+  "id": 1103,
+  "display_type": "product",
+  "product_id": [
+   57002,
+   "[500771] بكس المنيوم ايطالي APE 16ملم - متر"
+  ],
+  "name": "بكس المنيوم ايطالي APE 16ملم - متر",
+  "quantity": 20.0,
+  "price_unit": 0.65,
+  "sequence": 2
+ },
+ {
+  "id": 1104,
+  "display_type": "product",
+  "product_id": [
+   55535,
+   "[500141] كوع نجاصة ايطالي 16×1/2"
+  ],
+  "name": "كوع نجاصة ايطالي 16×1/2",
+  "quantity": 4.0,
+  "price_unit": 2.75,
+  "sequence": 3
+ },
+ {
+  "id": 1105,
+  "display_type": "product",
+  "product_id": [
+   55539,
+   "[500145] غلاف انجاصة سكني"
+  ],
+  "name": "غلاف انجاصة سكني",
+  "quantity": 4.0,
+  "price_unit": 0.25,
+  "sequence": 4
+ },
+ {
+  "id": 1106,
+  "display_type": "payment_term",
+  "product_id": false,
+  "name": "فاتورة يدوية سابقة رقم 1958 - INV/2026/00074",
+  "quantity": 0.0,
+  "price_unit": 0.0,
+  "sequence": 12000
+ }
+]

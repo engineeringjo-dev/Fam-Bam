@@ -1,0 +1,146 @@
+<t t-name="alawn.stmt_body_joint">
+<t t-call="web.basic_layout">
+<div class="page" dir="rtl" style="font-family:'Noto Naskh Arabic','Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;font-size:12px;color:#1a1a1a;direction:rtl;text-align:right">
+  <t t-set="days" t-value="['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد']"/>
+  <t t-set="lines" t-value="o.env['account.move.line'].search([('partner_id','=',o.id),('account_id.account_type','in',['asset_receivable','liability_payable']),('parent_state','=','posted')], order='date asc, id asc')"/>
+  <t t-set="smode" t-value="stmt_mode or 'full'"/>
+  <t t-set="allines" t-value="lines"/>
+  <t t-set="zb" t-value="allines.mapped('balance') if smode == 'zero' else []"/>
+  <t t-set="zdt" t-value="allines.mapped('date') if smode == 'zero' else []"/>
+  <t t-set="zc" t-value="[sum(zb[:i + 1]) for i in range(len(zb))]"/>
+  <t t-set="zlast" t-value="([False] + [zdt[i] for i in range(len(zc)) if abs(zc[i]) &lt; 0.001 and (i == len(zdt) - 1 or zdt[i + 1] != zdt[i])])[-1]"/>
+  <t t-set="sfrom" t-value="((stmt_from and datetime.date.fromisoformat(stmt_from)) or o.x_period_from) if smode == 'period' else ((zlast + datetime.timedelta(days=1)) if (smode == 'zero' and zlast) else False)"/>
+  <t t-set="sto" t-value="((stmt_to and datetime.date.fromisoformat(stmt_to)) or o.x_period_to) if smode == 'period' else False"/>
+  <t t-set="pbad" t-value="smode == 'period' and not (sfrom and sto and sfrom &lt;= sto)"/>
+  <t t-set="openbal" t-value="0 if pbad else (sum(allines.filtered(lambda z: z.date &lt; sfrom).mapped('balance')) if sfrom else 0)"/>
+  <t t-set="lines" t-value="allines[:0] if pbad else allines.filtered(lambda z: (not sfrom or z.date &gt;= sfrom) and (not sto or z.date &lt;= sto))"/>
+  <t t-set="mlabel" t-value="{'full': 'شامل', 'period': 'عن فترة', 'zero': 'منذ آخر تصفير'}.get(smode, '')"/>
+  <t t-set="rl" t-value="lines.filtered(lambda z: z.account_id.account_type == 'asset_receivable')"/>
+  <t t-set="pl" t-value="lines.filtered(lambda z: z.account_id.account_type == 'liability_payable')"/>
+  <t t-set="net" t-value="openbal + sum(lines.mapped('debit')) - sum(lines.mapped('credit'))"/>
+
+  <table style="width:100%;border-collapse:collapse;margin-bottom:6px">
+    <tr>
+      <td style="border:0;width:27%;text-align:right;vertical-align:top">
+        <div>هاتف :</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0799123618</span> - م.عمر</div>
+        <div><span style="direction:ltr;display:inline-block;white-space:nowrap">0790177761</span> - هاتف المحل</div>
+      </td>
+      <td style="border:0;width:46%;text-align:center;vertical-align:middle">
+        <div style="font-size:18px;font-weight:bold">محلات العون لمواد البناء</div>
+      </td>
+      <td style="border:0;width:27%;text-align:left;vertical-align:top">
+        <div style="font-weight:bold" t-out="days[datetime.date.today().weekday()]"/>
+        <div style="direction:ltr;text-align:left" t-out="datetime.date.today().strftime('%d/%m/%Y')"/>
+      </td>
+    </tr>
+  </table>
+  <div style="border-bottom:2px solid #333;margin-bottom:8px"/>
+
+  <h2 style="text-align:center;font-size:19px;margin:6px 0">كشف حساب موحّد</h2>
+  <div style="text-align:center;font-size:12px;color:#305496;font-weight:bold;margin-bottom:2px" t-out="mlabel"/>
+  <div style="text-align:center;font-size:14px;font-weight:bold;margin-bottom:2px" t-out="o.name"/>
+  <div style="text-align:center;font-size:11px;color:#666;margin-bottom:4px">بيع وشراء ودفعات — بالاتجاهين</div>
+  <div style="text-align:center;margin-bottom:10px">
+    الفترة الزمنية:
+    <span style="direction:ltr;display:inline-block" t-out="sfrom.strftime('%d/%m/%Y') if sfrom else (lines and lines[0].date.strftime('%d/%m/%Y') or '-')"/>
+    <span> — </span>
+    <span style="direction:ltr;display:inline-block" t-out="sto.strftime('%d/%m/%Y') if sto else (lines and lines[-1].date.strftime('%d/%m/%Y') or (sfrom and datetime.date.today().strftime('%d/%m/%Y')) or '-')"/>
+  </div>
+
+  <div t-if="pbad" style="margin:10px 0;padding:10px;border:2px solid #b00;background:#fdecea;font-size:13px;text-align:center;font-weight:bold">
+    ⚠ عبّي «فترة الكشف» (من تاريخ · إلى تاريخ) بصفحة الحساب واحفظ، وبعدين اطبع «كشف حساب عن فترة» مرة ثانية.
+  </div>
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+    <thead>
+      <tr style="background:#eee">
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">التاريخ</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">المستند</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">البيان</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">عليه</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">له</th>
+        <th style="border:1px solid #999;padding:4px;text-align:center;font-weight:bold">الرصيد</th>
+      </tr>
+    </thead>
+    <tbody>
+      <t t-set="bal" t-value="openbal"/>
+      <tr t-if="sfrom" style="background:#e8e8e8;font-weight:bold">
+        <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="sfrom.strftime('%d/%m/%Y')"/>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px">رصيد أول المدة</td>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px"/>
+        <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="'%.3f' % (round(openbal, 3) or 0.0)"/>
+      </tr>
+      <t t-foreach="lines" t-as="l">
+        <t t-set="mt" t-value="l.move_id.move_type"/>
+        <t t-set="bal" t-value="bal + l.debit - l.credit"/>
+        <t t-set="rf" t-value="(l.move_id.ref or '').split('✓')[0].strip().rstrip('|').strip()"/>
+        <tr t-attf-style="{{ 'background:#fde3c6;' if mt in ['out_refund','in_refund'] else ('background:#dde8f7;' if mt == 'in_invoice' else ('background:#dcf0dc;' if (l.credit and mt not in ['out_invoice','in_invoice']) else ('background:#fff1c2;' if (l.debit and mt not in ['out_invoice','in_invoice']) else ''))) }}">
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.date.strftime('%d/%m/%Y')"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.move_id.name"/>
+          <td style="border:1px solid #999;padding:3px">
+            <t t-if="mt == 'out_invoice'"><div style="font-weight:bold">فاتورة بضاعة</div><div t-if="rf" style="font-size:10px;color:#555" t-out="rf"/></t>
+            <t t-if="mt == 'out_refund'"><div style="font-weight:bold">مرتجع بضاعة</div><div t-if="rf" style="font-size:10px;color:#555" t-out="rf"/></t>
+            <t t-if="mt == 'in_invoice'"><div style="font-weight:bold">فاتورة شراء</div><div t-if="rf" style="font-size:10px;color:#555" t-out="rf"/></t>
+            <t t-if="mt == 'in_refund'"><div style="font-weight:bold">مرتجع شراء</div><div t-if="rf" style="font-size:10px;color:#555" t-out="rf"/></t>
+            <t t-if="mt not in ['out_invoice','out_refund','in_invoice','in_refund']">
+            <t t-set="jt" t-value="l.move_id.journal_id.type"/>
+            <t t-set="nm" t-value="' '.join((l.name or '').split())"/>
+            <t t-set="det" t-value="nm.split(': ', 1)[1] if ': ' in nm else nm"/>
+            <t t-set="pres" t-value="['دفعة نقدية', 'دفعة تحويل كليك', 'دفعة شيك', 'صرف نقدي', 'صرف تحويل كليك', 'صرف شيك', 'خصم']"/>
+            <t t-set="lbl" t-value="([p for p in pres if det.startswith(p)] or [''])[0]"/>
+            <t t-set="det" t-value="det[len(lbl):] if lbl else det"/>
+            <t t-set="lbl" t-value="lbl or (('صرف نقدي' if l.debit else 'دفعة نقدية') if jt == 'cash' else (('صرف تحويل كليك' if l.debit else 'دفعة تحويل كليك') if jt == 'bank' else 'قيد'))"/>
+            <t t-set="det" t-value="det.strip().lstrip('—-·:').strip()"/>
+            <div style="font-weight:bold" t-out="lbl"/>
+            <div t-if="det" style="font-size:10px;color:#555" t-out="det"/>
+            </t>
+          </td>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr" t-out="l.debit and '%.3f' % l.debit or ''"/>
+          <td style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;font-weight:bold" t-out="l.credit and '%.3f' % l.credit or ''"/>
+          <td t-attf-style="border:1px solid #999;padding:3px;text-align:center;direction:ltr;{{ 'color:#b00;' if bal &lt; -0.0005 else '' }}" t-out="'%.3f' % (round(bal, 3) or 0.0)"/>
+        </tr>
+      </t>
+      <tr style="background:#f2f2f2;font-weight:bold">
+        <td colspan="3" style="border:1px solid #999;padding:4px">الإجمالي</td>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(lines.mapped('debit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % sum(lines.mapped('credit'))"/>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (round(net, 3) or 0.0)"/>
+      </tr>
+      <tr t-if="sfrom or sto" style="background:#dfe7f3;font-weight:bold">
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="(sto or datetime.date.today()).strftime('%d/%m/%Y')"/>
+        <td style="border:1px solid #999;padding:4px"/>
+        <td colspan="3" style="border:1px solid #999;padding:4px">رصيد آخر المدة</td>
+        <td style="border:1px solid #999;padding:4px;text-align:center;direction:ltr" t-out="'%.3f' % (round(net, 3) or 0.0)"/>
+      </tr>
+    </tbody>
+  </table>
+
+  <t t-set="adv" t-value="sum(pl.mapped('debit')) - sum(pl.mapped('credit'))"/>
+  <div t-if="adv &gt; 0.0005" style="margin-top:10px;padding:6px 8px;border:1px solid #d9a441;background:#fdf6e3;font-size:11.5px">
+    <b>⚠ تنبيه:</b> في <span t-out="'%.3f' % adv"/> د.أ مدفوعة له <b>بلا فواتير شراء مقابلة</b> بالنظام.
+    لحد ما تنزل فواتير الشراء، هذا المبلغ محسوب <b>سلفة عليه</b> والرقم النهائي مش مضبوط —
+    الصافي الحقيقي = <span t-out="'%.3f' % (round(net, 3) or 0.0)"/> − قيمة المشتريات غير المسجّلة.
+  </div>
+
+  <t t-if="net &gt;= -0.0005"><table style="width:45%;margin-top:14px;margin-right:auto;border-collapse:collapse;page-break-inside:avoid">
+    <tr>
+      <td style="border:2px solid #305496;background:#305496;color:#fff;padding:9px 12px;font-weight:bold;font-size:15px;text-align:center">الرصيد المستحق علــيه</td>
+      <td style="border:2px solid #305496;background:#eaf0fa;padding:9px 12px;font-weight:bold;font-size:19px;text-align:center;direction:ltr"><span t-out="'%.3f' % abs(net)"/> د.أ</td>
+    </tr>
+  </table></t>
+  <t t-if="net &lt; -0.0005"><table style="width:45%;margin-top:14px;margin-right:auto;border-collapse:collapse;page-break-inside:avoid">
+    <tr>
+      <td style="border:2px solid #9c2b2b;background:#9c2b2b;color:#fff;padding:9px 12px;font-weight:bold;font-size:15px;text-align:center">الرصيد المستحق لــه علينا</td>
+      <td style="border:2px solid #9c2b2b;background:#fbeaea;padding:9px 12px;font-weight:bold;font-size:19px;text-align:center;direction:ltr"><span t-out="'%.3f' % -net"/> د.أ</td>
+    </tr>
+  </table></t>
+
+  <div style="margin-top:14px;font-size:10px;color:#777;border-top:1px solid #ccc;padding-top:5px">
+    «عليه» = بضاعة سحبها منّا أو فلوس دفعناها له · «له» = بضاعة اشتريناها منه أو فلوس قبضناها منه.
+    الرصيد الموجب معناه المبلغ مستحق علــيه، والسالب (بالأحمر) معناه مستحق لــه علينا.
+  </div>
+</div>
+</t>
+</t>

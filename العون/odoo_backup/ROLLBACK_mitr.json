@@ -1,0 +1,132 @@
+{
+ "renamed": [
+  {
+   "code": "100365",
+   "id": 47343,
+   "name": "متر 5م KETTANEH",
+   "list_price": 1.5
+  },
+  {
+   "code": "100044",
+   "id": 47023,
+   "name": "متر 5م XCORT 601-2519",
+   "list_price": 2.0
+  },
+  {
+   "code": "100045",
+   "id": 47024,
+   "name": "متر 7.5م XCORT 601-2725",
+   "list_price": 3.5
+  }
+ ],
+ "deleted": [
+  {
+   "id": 47344,
+   "name": "متر 5 متر ASCITTST",
+   "list_price": 1.5,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "100366",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true,
+   "taxes_id": [
+    29
+   ],
+   "supplier_taxes_id": [
+    5
+   ]
+  },
+  {
+   "id": 49644,
+   "name": "متر 5 متر جودة عالية",
+   "list_price": 2.0,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "701408",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true,
+   "taxes_id": [
+    29
+   ],
+   "supplier_taxes_id": [
+    5
+   ]
+  },
+  {
+   "id": 49408,
+   "name": "متر قياس 5م ثقيل",
+   "list_price": 2.0,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "701172",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true,
+   "taxes_id": [
+    29
+   ],
+   "supplier_taxes_id": [
+    5
+   ]
+  },
+  {
+   "id": 47058,
+   "name": "متر قياس ثقيل 5 م اسود",
+   "list_price": 2.0,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "100079",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true,
+   "taxes_id": [
+    29
+   ],
+   "supplier_taxes_id": [
+    5
+   ]
+  },
+  {
+   "id": 49067,
+   "name": "متر 7.5م كوشوك DINGQI",
+   "list_price": 3.5,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "700829",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true,
+   "taxes_id": [
+    29
+   ],
+   "supplier_taxes_id": [
+    5
+   ]
+  },
+  {
+   "id": 47025,
+   "name": "متر 7.5م كوشوك XCORT 601-1725",
+   "list_price": 3.5,
+   "standard_price": 0.0,
+   "categ_id": 25,
+   "uom_id": 1,
+   "barcode": "100046",
+   "type": "consu",
+   "is_storable": true,
+   "available_in_pos": true,
+   "taxes_id": [
+    29
+   ],
+   "supplier_taxes_id": [
+    5
+   ]
+  }
+ ]
+}

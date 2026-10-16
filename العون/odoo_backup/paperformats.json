@@ -1,0 +1,37 @@
+[
+ {
+  "id": 9,
+  "display_name": "كشف حساب العون A4",
+  "name": "كشف حساب العون A4",
+  "default": false,
+  "format": "A4",
+  "margin_top": 8.0,
+  "margin_bottom": 14.0,
+  "margin_left": 7.0,
+  "margin_right": 7.0,
+  "page_height": 0,
+  "page_width": 0,
+  "orientation": "Portrait",
+  "header_line": false,
+  "header_spacing": 4,
+  "disable_shrinking": false,
+  "dpi": 90,
+  "report_ids": [
+   822,
+   784
+  ],
+  "print_page_width": 210.0,
+  "print_page_height": 297.0,
+  "css_margins": false,
+  "create_uid": [
+   2,
+   "alawn depot"
+  ],
+  "create_date": "2026-09-08 12:32:25",
+  "write_uid": [
+   2,
+   "alawn depot"
+  ],
+  "write_date": "2026-09-10 20:17:28"
+ }
+]

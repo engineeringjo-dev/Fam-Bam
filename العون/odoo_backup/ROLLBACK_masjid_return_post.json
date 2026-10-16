@@ -1,0 +1,207 @@
+{
+ "ts": "2026-09-23T07:44:31.262909",
+ "move": 157,
+ "lines": [
+  {
+   "id": 1047,
+   "product_id": [
+    55535,
+    "[500141] كوع نجاصة ايطالي 16×1/2"
+   ],
+   "quantity": 2.0,
+   "price_unit": 2.75,
+   "price_subtotal": 5.5
+  },
+  {
+   "id": 1048,
+   "product_id": [
+    55572,
+    "[500178] محبس فراشة مع شد وصل نحاس 1\" NTM"
+   ],
+   "quantity": 4.0,
+   "price_unit": 8.5,
+   "price_subtotal": 34.0
+  },
+  {
+   "id": 1049,
+   "product_id": [
+    56878,
+    "[500647] كوع مع شد وصل ايطالي 1\"×32ملم"
+   ],
+   "quantity": 3.0,
+   "price_unit": 7.5,
+   "price_subtotal": 22.5
+  },
+  {
+   "id": 1050,
+   "product_id": [
+    55557,
+    "[500163] هواية 3/8\" (جاكوميني) ايطالي"
+   ],
+   "quantity": 2.0,
+   "price_unit": 3.25,
+   "price_subtotal": 6.5
+  },
+  {
+   "id": 1051,
+   "product_id": [
+    55782,
+    "[500388] نهاية كوليكتر 1\" اندبيس"
+   ],
+   "quantity": 1.0,
+   "price_unit": 3.5,
+   "price_subtotal": 3.5
+  },
+  {
+   "id": 1052,
+   "product_id": [
+    55524,
+    "[500130] شد وصل ايطالي فورنارة 1/2\"×16ملم"
+   ],
+   "quantity": 1.0,
+   "price_unit": 1.4,
+   "price_subtotal": 1.4
+  },
+  {
+   "id": 1053,
+   "product_id": [
+    56881,
+    "[500650] شد وصل ايطالي 1\"×32ملم"
+   ],
+   "quantity": 3.0,
+   "price_unit": 5.0,
+   "price_subtotal": 15.0
+  },
+  {
+   "id": 1054,
+   "product_id": [
+    55779,
+    "[500385] مربط كوليكتر قصير . 1 جوز"
+   ],
+   "quantity": 1.0,
+   "price_unit": 2.5,
+   "price_subtotal": 2.5
+  },
+  {
+   "id": 1055,
+   "product_id": [
+    56825,
+    "[500594] محبس فرعي ايطالي 1/2\" احمروازرق"
+   ],
+   "quantity": 1.0,
+   "price_unit": 2.25,
+   "price_subtotal": 2.25
+  },
+  {
+   "id": 1056,
+   "product_id": [
+    55542,
+    "[500148] سدة نحاس ايطالي 1\""
+   ],
+   "quantity": 2.0,
+   "price_unit": 1.5,
+   "price_subtotal": 3.0
+  },
+  {
+   "id": 1057,
+   "product_id": [
+    55546,
+    "[500152] نبل مجوز نحاس ايطالي 1\" وصلة كوليكتر (ذكر ذكر)"
+   ],
+   "quantity": 6.0,
+   "price_unit": 3.0,
+   "price_subtotal": 18.0
+  },
+  {
+   "id": 1058,
+   "product_id": [
+    50818,
+    "[800041] برغي 1 متر 10 ملم (مبروم)"
+   ],
+   "quantity": 3.0,
+   "price_unit": 2.0,
+   "price_subtotal": 6.0
+  },
+  {
+   "id": 1059,
+   "product_id": [
+    56817,
+    "[500586] مربط مواسير ايطالي فيشر 4\""
+   ],
+   "quantity": 10.0,
+   "price_unit": 1.5,
+   "price_subtotal": 15.0
+  },
+  {
+   "id": 1060,
+   "product_id": [
+    57054,
+    "[500822] وصلة فلتراب 5\" Rubber خليجي صغير ومرار"
+   ],
+   "quantity": 3.0,
+   "price_unit": 1.5,
+   "price_subtotal": 4.5
+  },
+  {
+   "id": 1061,
+   "product_id": [
+    55852,
+    "[500458] سدة مع باب بلاستيك 4\" ضغط صغير ومرار"
+   ],
+   "quantity": 3.0,
+   "price_unit": 1.6,
+   "price_subtotal": 4.8
+  },
+  {
+   "id": 1062,
+   "product_id": [
+    55846,
+    "[500452] نقاصة بلاستيك 2×3 صغير ومرار"
+   ],
+   "quantity": 2.0,
+   "price_unit": 0.8,
+   "price_subtotal": 1.6
+  },
+  {
+   "id": 1063,
+   "product_id": [
+    55827,
+    "[500433] واي بلاستيك 2\" ضغط صغير ومرار"
+   ],
+   "quantity": 1.0,
+   "price_unit": 1.0,
+   "price_subtotal": 1.0
+  },
+  {
+   "id": 1064,
+   "product_id": [
+    55810,
+    "[500416] كوع فاتح بلاستيك 2\" ضغط صغير ومرار"
+   ],
+   "quantity": 4.0,
+   "price_unit": 0.5,
+   "price_subtotal": 2.0
+  },
+  {
+   "id": 1065,
+   "product_id": [
+    55814,
+    "[500420] كوع زاوية بلاستيك 2\" ضغط صغير ومرار"
+   ],
+   "quantity": 4.0,
+   "price_unit": 0.5,
+   "price_subtotal": 2.0
+  },
+  {
+   "id": 1066,
+   "product_id": [
+    55819,
+    "[500425] مفة بلاستيك 2\" ضغط صغير ومرار"
+   ],
+   "quantity": 3.0,
+   "price_unit": 0.5,
+   "price_subtotal": 1.5
+  }
+ ],
+ "before_state": "draft"
+}

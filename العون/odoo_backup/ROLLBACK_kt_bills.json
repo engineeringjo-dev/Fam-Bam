@@ -1,0 +1,137 @@
+{
+ "costs": [
+  {
+   "code": "700150",
+   "id": 48401,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700151",
+   "id": 48402,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700152",
+   "id": 48403,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700159",
+   "id": 48410,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700208",
+   "id": 48459,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100129",
+   "id": 47108,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100272",
+   "id": 47250,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100274",
+   "id": 47252,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100275",
+   "id": 47253,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100277",
+   "id": 47255,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100279",
+   "id": 47257,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100281",
+   "id": 47259,
+   "standard_price": 0.0
+  },
+  {
+   "code": "702651",
+   "id": 57194,
+   "standard_price": 0.55
+  },
+  {
+   "code": "700248",
+   "id": 48499,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700249",
+   "id": 48500,
+   "standard_price": 0.0
+  },
+  {
+   "code": "700250",
+   "id": 48501,
+   "standard_price": 0.0
+  },
+  {
+   "code": "702656",
+   "id": 57199,
+   "standard_price": 12.5
+  },
+  {
+   "code": "100330",
+   "id": 47308,
+   "standard_price": 1.15
+  },
+  {
+   "code": "100331",
+   "id": 47309,
+   "standard_price": 1.4
+  },
+  {
+   "code": "200271",
+   "id": 47833,
+   "standard_price": 0.0
+  },
+  {
+   "code": "100422",
+   "id": 47400,
+   "standard_price": 0.313
+  },
+  {
+   "code": "7898897617462",
+   "id": 57125,
+   "standard_price": 0.45
+  },
+  {
+   "code": "100339",
+   "id": 47317,
+   "standard_price": 0.0
+  },
+  {
+   "code": "200083",
+   "id": 47664,
+   "standard_price": 0.104
+  },
+  {
+   "code": "100525",
+   "id": 47493,
+   "standard_price": 0.0
+  }
+ ],
+ "moves": [
+  124,
+  125,
+  126,
+  127,
+  128,
+  129
+ ]
+}

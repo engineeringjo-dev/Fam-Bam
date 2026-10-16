@@ -1,0 +1,19 @@
+[
+ {
+  "id": 299,
+  "name": "INV/2025/00012",
+  "amount_total": 11.5,
+  "state": "posted"
+ },
+ {
+  "id": 300,
+  "name": "MISC/2025/04/0005",
+  "amount_total": 6.0
+ },
+ {
+  "id": 301,
+  "name": "INV/2025/00013",
+  "amount_total": 14.0,
+  "state": "posted"
+ }
+]

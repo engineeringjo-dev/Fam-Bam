@@ -1,0 +1,33 @@
+{
+ "move": {
+  "id": 168,
+  "name": "INV/2026/00074",
+  "state": "posted",
+  "ref": "فاتورة يدوية سابقة رقم 1958",
+  "amount_total": 25.0,
+  "invoice_date": "2026-03-31"
+ },
+ "lines": [
+  {
+   "id": 1090,
+   "display_type": "product",
+   "product_id": [
+    57042,
+    "[900900] فاتورة يدوية سابقة (بدون بنود)"
+   ],
+   "name": "فاتورة يدوية سابقة (بدون بنود)",
+   "quantity": 1.0,
+   "price_unit": 25.0,
+   "sequence": 100
+  },
+  {
+   "id": 1091,
+   "display_type": "payment_term",
+   "product_id": false,
+   "name": "فاتورة يدوية سابقة رقم 1958 - INV/2026/00074",
+   "quantity": 0.0,
+   "price_unit": 0.0,
+   "sequence": 12000
+  }
+ ]
+}

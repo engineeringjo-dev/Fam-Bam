@@ -1,0 +1,4 @@
+{
+ "view": 2083,
+ "قبل": "<data><xpath expr=\"//div[hasclass('o_label_left_column')]\" position=\"before\"><div t-if=\"extra_html\" class=\"alawn_extra\" style=\"line-height:100%;font-size:0.8em;padding:0 4px;\"><style>.alawn_extra p{margin:0;padding:0}</style><t t-out=\"extra_html\"/></div></xpath></data>"
+}

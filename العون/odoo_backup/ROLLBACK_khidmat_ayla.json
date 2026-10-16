@@ -1,0 +1,53 @@
+[
+ {
+  "id": 56494,
+  "product_tmpl_id": [
+   56498,
+   "[900014] اسافين حجر خشب"
+  ],
+  "default_code": "900014",
+  "name": "اسافين حجر خشب",
+  "list_price": 0.75,
+  "active": true,
+  "available_in_pos": true,
+  "type": "consu",
+  "categ_id": [
+   25,
+   "خردوات"
+  ]
+ },
+ {
+  "id": 57239,
+  "product_tmpl_id": [
+   57243,
+   "[900923] إيجار عدة — كمبريسة هواء 50 لتر"
+  ],
+  "default_code": "900923",
+  "name": "إيجار عدة — كمبريسة هواء 50 لتر",
+  "list_price": 10.0,
+  "active": true,
+  "available_in_pos": false,
+  "type": "service",
+  "categ_id": [
+   28,
+   "Services"
+  ]
+ },
+ {
+  "id": 57288,
+  "product_tmpl_id": [
+   57292,
+   "[900925] ايدي عاملة"
+  ],
+  "default_code": "900925",
+  "name": "ايدي عاملة",
+  "list_price": 5.0,
+  "active": true,
+  "available_in_pos": true,
+  "type": "service",
+  "categ_id": [
+   28,
+   "Services"
+  ]
+ }
+]
